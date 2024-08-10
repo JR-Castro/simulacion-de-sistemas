@@ -19,16 +19,16 @@ public class App {
     }
 
     private static Context parseInputFiles(Arguments args) throws IOException {
-        List<String> staticFile = Files.readAllLines(args.getStaticPath());
-        List<String> dynamicFile = Files.readAllLines(args.getDynamicPath());
+        List<String> staticFile = Files.readAllLines(args.getStaticPath()).stream().map(s -> s.replaceAll("^ +| +$|( )+", "$1")).toList();
+        List<String> dynamicFile = Files.readAllLines(args.getDynamicPath()).stream().map(s -> s.replaceAll("^ +| +$|( )+", "$1")).toList();
 
         int particleAmount = Integer.parseInt(staticFile.get(0));
         double length = Double.parseDouble(staticFile.get(1));
 
         List<Particle> particles = new ArrayList<>(particleAmount);
-        for (int i = 2; i < particleAmount; i++) {
-            String[] staticLine = staticFile.get(i).split(" ");
-            String[] dynamicLine = dynamicFile.get(i - 1).split(" ");
+        for (int i = 0; i < particleAmount; i++) {
+            String[] staticLine = staticFile.get(i + 2).split(" ");
+            String[] dynamicLine = dynamicFile.get(i + 1).split(" ");
 
             particles.add(new Particle(
                     Double.parseDouble(dynamicLine[0]),

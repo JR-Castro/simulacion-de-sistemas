@@ -23,14 +23,14 @@ public class Arguments {
                     break;
                 case "-static":
                     arguments.staticPath = Path.of(args[i + 1]);
-                    if (!Files.exists(arguments.staticPath)) {
+                    if (!Files.exists(arguments.staticPath) || !Files.isRegularFile(arguments.staticPath)) {
                         throw new IllegalArgumentException("Static input file doesn't exist");
                     }
                     i++;
                     break;
                 case "-dynamic":
                     arguments.dynamicPath = Path.of(args[i + 1]);
-                    if (!Files.exists(arguments.dynamicPath)) {
+                    if (!Files.exists(arguments.dynamicPath) || !Files.isRegularFile(arguments.dynamicPath)) {
                         throw new IllegalArgumentException("Dynamic input file doesn't exist");
                     }
                     i++;
