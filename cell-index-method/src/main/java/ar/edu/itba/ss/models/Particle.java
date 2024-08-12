@@ -1,5 +1,7 @@
 package ar.edu.itba.ss.models;
 
+import static java.lang.Math.pow;
+
 public class Particle {
     private double x;
     private double y;
@@ -11,6 +13,10 @@ public class Particle {
         this.y = y;
         this.radius = radius;
         this.property = property;
+    }
+
+    public double distanceTo(Particle q) {
+        return Math.sqrt(pow((x - q.x), 2) + pow((y - q.y), 2));
     }
 
     public double getX() {

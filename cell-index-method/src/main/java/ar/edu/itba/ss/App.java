@@ -1,6 +1,7 @@
 package ar.edu.itba.ss;
 
 import ar.edu.itba.ss.models.Arguments;
+import ar.edu.itba.ss.models.CIM;
 import ar.edu.itba.ss.models.Context;
 import ar.edu.itba.ss.models.Particle;
 
@@ -8,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class App {
 
@@ -16,6 +19,16 @@ public class App {
         Arguments args = Arguments.parseArguments(cliArgs);
 
         Context context = parseInputFiles(args);
+
+        CIM cim = new CIM(context);
+
+        long startTime = System.currentTimeMillis();
+        Map<Integer, Set<Integer>> neighbors = cim.compute();
+        long endTime = System.currentTimeMillis();
+
+        long duration = endTime - startTime;
+
+        // TODO: Save to file
     }
 
     private static Context parseInputFiles(Arguments args) throws IOException {
