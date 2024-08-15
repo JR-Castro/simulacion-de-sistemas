@@ -15,6 +15,9 @@ public class Arguments {
             switch (args[i]) {
                 case "-m": // m
                     arguments.m = Integer.parseInt(args[i + 1]);
+                    if (arguments.m < 0) {
+                        throw new IllegalArgumentException("m must be at least 1");
+                    }
                     i++;
                     break;
                 case "-rc":
@@ -43,6 +46,9 @@ public class Arguments {
                     break;
             }
         }
+
+        if (arguments.m == 0)
+            arguments.m = 1;
 
         if (arguments.dynamicPath == null || arguments.staticPath == null || arguments.rc <= 0 || arguments.m < 0) {
             throw new IllegalArgumentException("Invalid args");

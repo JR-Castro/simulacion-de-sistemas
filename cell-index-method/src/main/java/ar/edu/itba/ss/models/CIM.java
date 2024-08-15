@@ -18,9 +18,12 @@ public class CIM {
         this.m = context.getMatrixSize();
     }
 
+    public int calculateCellIdx(double pos) {
+        return (int) (pos / (m * l));
+    }
+
     public Map<Integer, Set<Integer>> compute() {
         Cell[][] particlesInGrid = new Cell[m][m];
-        int c;
         final Map<Integer, Set<Integer>> result = new HashMap<>();
 
         for (int i = 0; i < m; i++) {
@@ -30,64 +33,42 @@ public class CIM {
         }
 
         for (int i = 0; i < particles.size(); i++) {
-            c = whereIsParticle(particles.get(i));
-            particlesInGrid[c / m][c % m].addParticle(i);
+            Particle particle = particles.get(i);
+            particlesInGrid[calculateCellIdx(particle.getY())][calculateCellIdx(particle.getX())].addParticle(i);
         }
 
-        for (int i = 0; i < particles.size(); i++) {
-            c = whereIsParticle(particles.get(i));
-            int ii = c / m;
-            int iii = c % m;
-            int finalI = i;
+        for (int particleIdx = 0; particleIdx < particles.size(); particleIdx++) {
+            Particle currentParticle = particles.get(particleIdx);
+            int iMatrix = calculateCellIdx(currentParticle.getY());
+            int jMatrix = calculateCellIdx(currentParticle.getX());
 
-            Set<Integer> neightborList = result.computeIfAbsent(finalI, SET_INSTANTIATOR);
-            particlesInGrid[ii][iii].getParticles().forEach(iv -> {
-                if (finalI != iv && particles.get(finalI).distanceTo(particles.get(iv)) <= r) {
-                    neightborList.add(iv);
-                    result.computeIfAbsent(iv, SET_INSTANTIATOR).add(finalI);
-                }
-            });
-            if (ii < m - 1) {
-                particlesInGrid[c / m + 1][c % m].getParticles().forEach((iv) -> {
-                    if (finalI != iv && particles.get(finalI).distanceTo(particles.get(iv)) <= r) {
-                        neightborList.add(iv);
-                        result.computeIfAbsent(iv, SET_INSTANTIATOR).add(finalI);
-                    }
-                });
-                if (iii < m - 1) {
-                    particlesInGrid[c / m + 1][c % m + 1].getParticles().forEach((iv) -> {
-                        if (finalI != iv && particles.get(finalI).distanceTo(particles.get(iv)) <= r) {
-                            neightborList.add(iv);
-                            result.computeIfAbsent(iv, SET_INSTANTIATOR).add(finalI);
-                        }
-                    });
-                }
+            Set<Integer> neighborList = result.computeIfAbsent(particleIdx, SET_INSTANTIATOR);
+
+            calculateNeighborsCell(particlesInGrid[iMatrix][jMatrix].getParticles(), particleIdx, neighborList, result);
+
+            if (0 < iMatrix) {
+                calculateNeighborsCell(particlesInGrid[iMatrix - 1][jMatrix].getParticles(), particleIdx, neighborList, result);
             }
-            if (iii < m - 1) {
-                particlesInGrid[c / m + 1][c % m + 1].getParticles().forEach((iv) -> {
-                    if (finalI != iv && particles.get(finalI).distanceTo(particles.get(iv)) <= r) {
-                        neightborList.add(iv);
-                        result.computeIfAbsent(iv, SET_INSTANTIATOR).add(finalI);
-                    }
-                });
-                if (ii > 0) {
-                    particlesInGrid[c / m - 1][c % m + 1].getParticles().forEach((iv) -> {
-                        if (finalI != iv && particles.get(finalI).distanceTo(particles.get(iv)) <= r) {
-                            neightborList.add(iv);
-                            result.computeIfAbsent(iv, SET_INSTANTIATOR).add(finalI);
-                        }
-                    });
-                }
+            if (iMatrix < m - 1) {
+                calculateNeighborsCell(particlesInGrid[iMatrix + 1][jMatrix].getParticles(), particleIdx, neighborList, result);
+            }
+            if (jMatrix < m - 1) {
+                calculateNeighborsCell(particlesInGrid[iMatrix][jMatrix + 1].getParticles(), particleIdx, neighborList, result);
+            }
+            if (iMatrix < m - 1 && jMatrix < m - 1) {
+                calculateNeighborsCell(particlesInGrid[iMatrix + 1][jMatrix + 1].getParticles(), particleIdx, neighborList, result);
             }
         }
 
         return result;
     }
 
-    private int whereIsParticle(Particle p) {
-        int i = (int) Math.floor(p.getY() / (l / m));
-        int j = (int) Math.floor(p.getX() / (l / m));
-
-        return i * m + j;
+    private void calculateNeighborsCell(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {
+        for (int cellParticleIdx : cellParticles) {
+            if (mainParticleIdx != cellParticleIdx && particles.get(mainParticleIdx).distanceTo(particles.get(cellParticleIdx)) <= r) {
+                neighborList.add(cellParticleIdx);
+                result.computeIfAbsent(cellParticleIdx, SET_INSTANTIATOR).add(mainParticleIdx);
+            }
+        }
     }
 }

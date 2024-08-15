@@ -28,7 +28,10 @@ public class App {
 
         long duration = endTime - startTime;
 
+        System.out.printf("%d ms\n", duration);
+        System.out.println(neighbors);
         // TODO: Save to file
+
     }
 
     private static Context parseInputFiles(Arguments args) throws IOException {
