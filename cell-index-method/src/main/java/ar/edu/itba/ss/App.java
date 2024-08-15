@@ -54,6 +54,6 @@ public class App {
             ));
         }
 
-        return new Context(length, args.getRc(), args.getM(), particles);
+        return new Context(length, args.getRc(), args.getM(), particles, args.isPeriodic());
     }
 }

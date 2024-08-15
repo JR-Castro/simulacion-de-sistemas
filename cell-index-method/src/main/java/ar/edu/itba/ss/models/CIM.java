@@ -8,6 +8,7 @@ public class CIM {
     private final List<Particle> particles;
     private final double r;
     private final int m;
+    private final boolean periodic;
 
     private static final Function<Integer, Set<Integer>> SET_INSTANTIATOR = x -> new HashSet<>();
 
@@ -16,6 +17,7 @@ public class CIM {
         this.particles = context.getParticles();
         this.r = context.getInteractionRadius();
         this.m = context.getMatrixSize();
+        this.periodic = context.isPeriodic();
     }
 
     public int calculateCellIdx(double pos) {
@@ -37,6 +39,16 @@ public class CIM {
             particlesInGrid[calculateCellIdx(particle.getY())][calculateCellIdx(particle.getX())].addParticle(i);
         }
 
+        if (!periodic) {
+            computeNormalCIM(result, particlesInGrid);
+        } else {
+            computePeriodicCIM(result, particlesInGrid);
+        }
+
+        return result;
+    }
+
+    private void computeNormalCIM(Map<Integer, Set<Integer>> result, Cell[][] particlesInGrid) {
         for (int particleIdx = 0; particleIdx < particles.size(); particleIdx++) {
             Particle currentParticle = particles.get(particleIdx);
             int iMatrix = calculateCellIdx(currentParticle.getY());
@@ -59,8 +71,10 @@ public class CIM {
                 calculateNeighborsCell(particlesInGrid[iMatrix + 1][jMatrix + 1].getParticles(), particleIdx, neighborList, result);
             }
         }
+    }
 
-        return result;
+    private void computePeriodicCIM(Map<Integer, Set<Integer>> result, Cell[][] particlesInGrid) {
+        // TODO: Finish
     }
 
     private void calculateNeighborsCell(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {

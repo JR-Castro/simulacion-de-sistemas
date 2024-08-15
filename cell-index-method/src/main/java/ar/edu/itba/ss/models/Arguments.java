@@ -7,10 +7,11 @@ public class Arguments {
     private int m = 0;
     private double rc = 0;
     private Path staticPath, dynamicPath;
-    private boolean periodic, bruteForce;
+    private boolean periodic;
 
     public static Arguments parseArguments(String[] args) {
         Arguments arguments = new Arguments();
+        boolean bruteForce = false;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-m": // m
@@ -42,12 +43,12 @@ public class Arguments {
                     arguments.periodic = true;
                     break;
                 case "-brute-force":
-                    arguments.bruteForce = true;
+                    bruteForce = true;
                     break;
             }
         }
 
-        if (arguments.m == 0)
+        if (arguments.m == 0 || bruteForce)
             arguments.m = 1;
 
         if (arguments.dynamicPath == null || arguments.staticPath == null || arguments.rc <= 0 || arguments.m < 0) {
@@ -75,9 +76,5 @@ public class Arguments {
 
     public boolean isPeriodic() {
         return periodic;
-    }
-
-    public boolean isBruteForce() {
-        return bruteForce;
     }
 }
