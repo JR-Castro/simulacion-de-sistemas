@@ -21,7 +21,8 @@ public class CIM {
     }
 
     public int calculateCellIdx(double pos) {
-        return (int) (pos / (m * l));
+        if (pos * m == l) return m - 1;
+        return (int) ((pos * m) / l);
     }
 
     public Map<Integer, Set<Integer>> compute() {
