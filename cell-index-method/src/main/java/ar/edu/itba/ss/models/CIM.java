@@ -16,8 +16,17 @@ public class CIM {
         this.l = context.getLength();
         this.particles = context.getParticles();
         this.r = context.getInteractionRadius();
-        this.m = context.getMatrixSize();
         this.periodic = context.isPeriodic();
+        if (context.getMatrixSize() == 0) {
+            double max_radius = particles.stream().reduce(0.0, (acc, p) -> Math.max(acc, p.getRadius()), Double::max);
+            int probable_m = (int) Math.floor(l / (r + max_radius));
+            while (l / probable_m <= max_radius + r) {
+                probable_m--;
+            }
+            this.m = probable_m;
+        } else {
+            this.m = context.getMatrixSize();
+        }
     }
 
     public int calculateCellIdx(double pos) {
