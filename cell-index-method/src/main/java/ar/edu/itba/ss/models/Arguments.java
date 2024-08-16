@@ -6,7 +6,7 @@ import java.nio.file.Path;
 public class Arguments {
     private int m = 0;
     private double rc = 0;
-    private Path staticPath, dynamicPath;
+    private Path staticPath, dynamicPath, outputPath;
     private boolean periodic;
 
     public static Arguments parseArguments(String[] args) {
@@ -39,6 +39,10 @@ public class Arguments {
                     }
                     i++;
                     break;
+                case "-output":
+                    arguments.outputPath = Path.of(args[i+1]);
+                    i++;
+                    break;
                 case "-periodic":
                     arguments.periodic = true;
                     break;
@@ -53,6 +57,10 @@ public class Arguments {
 
         if (arguments.dynamicPath == null || arguments.staticPath == null || arguments.rc <= 0 || arguments.m < 0) {
             throw new IllegalArgumentException("Invalid args");
+        }
+
+        if (arguments.outputPath == null) {
+            arguments.outputPath = Path.of("./output.txt");
         }
 
         return arguments;
@@ -72,6 +80,10 @@ public class Arguments {
 
     public Path getDynamicPath() {
         return dynamicPath;
+    }
+
+    public Path getOutputPath() {
+        return outputPath;
     }
 
     public boolean isPeriodic() {

@@ -6,6 +6,7 @@ import ar.edu.itba.ss.models.Context;
 import ar.edu.itba.ss.models.Particle;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +29,16 @@ public class App {
 
         long duration = endTime - startTime;
 
-        System.out.printf("%d ms\n", duration);
-        System.out.println(neighbors);
-        // TODO: Save to file
-
+        try (Writer output = Files.newBufferedWriter(args.getOutputPath())) {
+            output.write(String.format("%d\n", duration));
+            for (Map.Entry<Integer, Set<Integer>> entry : neighbors.entrySet()) {
+                output.write(String.format("%d ", entry.getKey()));
+                for (Integer particle : entry.getValue()) {
+                    output.write(String.format("%d ", particle));
+                }
+                output.write("\n");
+            }
+        }
     }
 
     private static Context parseInputFiles(Arguments args) throws IOException {
