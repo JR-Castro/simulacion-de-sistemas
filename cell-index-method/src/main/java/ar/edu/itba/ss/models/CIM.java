@@ -111,8 +111,10 @@ public class CIM {
     }
 
     private void calculateNeighborsCellPeriodicDownwards(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {
+        Particle mainParticle = particles.get(mainParticleIdx);
         for (int cellParticleIdx : cellParticles) {
-            if (mainParticleIdx != cellParticleIdx && calculateDownwardsPeriodicDistance(mainParticleIdx, cellParticleIdx) <= r) {
+            double distance = calculateDownwardsPeriodicDistance(mainParticleIdx, cellParticleIdx);
+            if (mainParticleIdx != cellParticleIdx && ((distance - mainParticle.getRadius() <= r) || (distance + mainParticle.getRadius() <= r))) {
                 neighborList.add(cellParticleIdx);
                 result.computeIfAbsent(cellParticleIdx, SET_INSTANTIATOR).add(mainParticleIdx);
             }
@@ -127,8 +129,10 @@ public class CIM {
     }
 
     private void calculateNeighborsCellPeriodicDiagonal(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {
+        Particle mainParticle = particles.get(mainParticleIdx);
         for (int cellParticleIdx : cellParticles) {
-            if (mainParticleIdx != cellParticleIdx && calculateDiagonalPeriodicDistance(mainParticleIdx, cellParticleIdx) <= r) {
+            double distance = calculateDiagonalPeriodicDistance(mainParticleIdx, cellParticleIdx);
+            if (mainParticleIdx != cellParticleIdx && ((distance - mainParticle.getRadius() <= r) || (distance + mainParticle.getRadius() <= r))) {
                 neighborList.add(cellParticleIdx);
                 result.computeIfAbsent(cellParticleIdx, SET_INSTANTIATOR).add(mainParticleIdx);
             }
@@ -143,8 +147,10 @@ public class CIM {
     }
 
     private void calculateNeighborsCellPeriodicVertical(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {
+        Particle mainParticle = particles.get(mainParticleIdx);
         for (int cellParticleIdx : cellParticles) {
-            if (mainParticleIdx != cellParticleIdx && calculateVerticalPeriodicDistance(mainParticleIdx, cellParticleIdx) <= r) {
+            double distance = calculateVerticalPeriodicDistance(mainParticleIdx, cellParticleIdx);
+            if (mainParticleIdx != cellParticleIdx && ((distance - mainParticle.getRadius() <= r) || (distance + mainParticle.getRadius() <= r))) {
                 neighborList.add(cellParticleIdx);
                 result.computeIfAbsent(cellParticleIdx, SET_INSTANTIATOR).add(mainParticleIdx);
             }
@@ -159,8 +165,10 @@ public class CIM {
     }
 
     private void calculateNeighborsCellPeriodicHorizontal(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {
+        Particle mainParticle = particles.get(mainParticleIdx);
         for (int cellParticleIdx : cellParticles) {
-            if (mainParticleIdx != cellParticleIdx && calculateHorizontalPeriodicDistance(mainParticleIdx, cellParticleIdx) <= r) {
+            double distance = calculateHorizontalPeriodicDistance(mainParticleIdx, cellParticleIdx);
+            if (mainParticleIdx != cellParticleIdx && ((distance - mainParticle.getRadius() <= r) || (distance + mainParticle.getRadius() <= r))) {
                 neighborList.add(cellParticleIdx);
                 result.computeIfAbsent(cellParticleIdx, SET_INSTANTIATOR).add(mainParticleIdx);
             }
@@ -175,8 +183,10 @@ public class CIM {
     }
 
     private void calculateNeighborsCell(TreeSet<Integer> cellParticles, int mainParticleIdx, Set<Integer> neighborList, Map<Integer, Set<Integer>> result) {
+        Particle mainParticle = particles.get(mainParticleIdx);
         for (int cellParticleIdx : cellParticles) {
-            if (mainParticleIdx != cellParticleIdx && particles.get(mainParticleIdx).distanceTo(particles.get(cellParticleIdx)) <= r) {
+            double distance = mainParticle.distanceTo(particles.get(cellParticleIdx));
+            if (mainParticleIdx != cellParticleIdx && ((distance - mainParticle.getRadius() <= r) || (distance + mainParticle.getRadius() <= r))) {
                 neighborList.add(cellParticleIdx);
                 result.computeIfAbsent(cellParticleIdx, SET_INSTANTIATOR).add(mainParticleIdx);
             }
