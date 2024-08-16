@@ -40,7 +40,7 @@ public class Arguments {
                     i++;
                     break;
                 case "-output":
-                    arguments.outputPath = Path.of(args[i+1]);
+                    arguments.outputPath = Path.of(args[i + 1]);
                     i++;
                     break;
                 case "-periodic":
@@ -52,10 +52,10 @@ public class Arguments {
             }
         }
 
-        if (arguments.m == 0 || bruteForce)
-            arguments.m = 1;
+        if (arguments.m < 0 || bruteForce)
+            arguments.m = 0;
 
-        if (arguments.dynamicPath == null || arguments.staticPath == null || arguments.rc <= 0 || arguments.m < 0) {
+        if (arguments.dynamicPath == null || arguments.staticPath == null || arguments.rc <= 0) {
             throw new IllegalArgumentException("Invalid args");
         }
 
