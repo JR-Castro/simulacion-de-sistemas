@@ -17,13 +17,16 @@ public class CIM {
         this.particles = context.getParticles();
         this.r = context.getInteractionRadius();
         this.periodic = context.isPeriodic();
+
+        double max_radius = particles.stream().reduce(0.0, (acc, p) -> Math.max(acc, p.getRadius()), Double::max);
+        int max_m = (int) Math.floor(l / (r + max_radius));
+        while (l / max_m <= max_radius + r) {
+            max_m--;
+        }
         if (context.getMatrixSize() == 0) {
-            double max_radius = particles.stream().reduce(0.0, (acc, p) -> Math.max(acc, p.getRadius()), Double::max);
-            int probable_m = (int) Math.floor(l / (r + max_radius));
-            while (l / probable_m <= max_radius + r) {
-                probable_m--;
-            }
-            this.m = probable_m;
+            this.m = max_m;
+        } else if (context.getMatrixSize() > max_m) {
+            throw new IllegalArgumentException("Selected m size is not compatible with particle radius and r_c");
         } else {
             this.m = context.getMatrixSize();
         }
