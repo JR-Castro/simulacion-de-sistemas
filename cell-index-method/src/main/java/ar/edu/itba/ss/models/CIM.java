@@ -19,8 +19,8 @@ public class CIM {
         this.periodic = context.isPeriodic();
 
         double max_radius = particles.stream().reduce(0.0, (acc, p) -> Math.max(acc, p.getRadius()), Double::max);
-        int max_m = (int) Math.floor(l / (r + max_radius));
-        while (l / max_m <= max_radius + r) {
+        int max_m = (int) Math.floor(l / (r + 2 * max_radius));
+        while (l / max_m <= 2 * max_radius + r) {
             max_m--;
         }
         if (context.getMatrixSize() == 0) {
