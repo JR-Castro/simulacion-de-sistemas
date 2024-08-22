@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ar.edu.itba.ss</groupId>
-    <artifactId>cellular-automaton</artifactId>
+    <artifactId>cellular-automata</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
