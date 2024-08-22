@@ -13,6 +13,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <kotlin.version>2.0.20</kotlin.version>
+        <serialization.version>1.7.1</serialization.version>
     </properties>
 
     <repositories>
@@ -47,8 +48,18 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
                     <jvmTarget>1.8</jvmTarget>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -92,6 +103,16 @@
             <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ajalt.clikt</groupId>
+            <artifactId>clikt-jvm</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${serialization.version}</version>
         </dependency>
     </dependencies>
 
