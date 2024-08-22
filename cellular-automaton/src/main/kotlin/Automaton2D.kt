@@ -1,10 +1,17 @@
 package ar.edu.itba.ss
 
 import ar.edu.itba.ss.files.DynamicInputCell
+import com.github.ajalt.mordant.terminal.Terminal
+import java.util.*
 
-class Automaton2D(private val size: Int, initialCells: List<DynamicInputCell>, private val rules: Rules) :
+class Automaton2D(
+    private val size: Int,
+    initialCells: List<DynamicInputCell>,
+    private val rules: Rules,
+    private val terminal: Terminal
+) :
     Iterator<Array<IntArray>> {
-    private val previousStates = HashSet<Array<IntArray>>()
+    private val previousStates = LinkedList<Array<IntArray>>()
     private val cells = Array(size) { IntArray(size) }
     private var aliveCells = 0
     private var reachedEdge = false
@@ -18,7 +25,7 @@ class Automaton2D(private val size: Int, initialCells: List<DynamicInputCell>, p
 
     override fun next(): Array<IntArray> {
         aliveCells = 0
-        previousStates.add(cells.map { it.clone() }.toTypedArray())
+        previousStates.add(cells.map { it.copyOf() }.toTypedArray())
         val newCells = Array(size) { IntArray(size) }
         for (i in 0 until size) {
             for (j in 0 until size) {
@@ -40,14 +47,23 @@ class Automaton2D(private val size: Int, initialCells: List<DynamicInputCell>, p
     }
 
     override fun hasNext(): Boolean {
-        if (aliveCells == 0 && !first)
+        if (aliveCells == 0 && !first) {
+            terminal.println(message = "All cells are dead", stderr = false)
             return false
+        }
         first = false
 
-        if (reachedEdge)
+        if (reachedEdge) {
+            terminal.println(message = "Reached the edge", stderr = false)
             return false
+        }
 
-        return !previousStates.contains(cells)
+        if (previousStates.any { prev -> prev contentDeepEquals cells }) {
+            terminal.println(message = "Reached a stable state", stderr = false)
+            return false
+        }
+
+        return true
     }
 
 

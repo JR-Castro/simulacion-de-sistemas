@@ -21,7 +21,7 @@ class CellularAutomaton : CliktCommand() {
     private val outputFile by argument("output", help = "Output file path").file(canBeDir = false)
 
     private fun run2DAutomata(staticInput: StaticInput, dynamicInput: DynamicInput): List<DynamicInputState> {
-        val automaton = Automaton2D(staticInput.areaSize, dynamicInput.moments.first().cells, staticInput.rules)
+        val automaton = Automaton2D(staticInput.areaSize, dynamicInput.moments.first().cells, staticInput.rules, currentContext.terminal)
 
         var i = 0
         val output = mutableListOf<DynamicInputState>()
@@ -43,7 +43,7 @@ class CellularAutomaton : CliktCommand() {
     }
 
     private fun run3DAutomata(staticInput: StaticInput, dynamicInput: DynamicInput): List<DynamicInputState> {
-        val automaton = Automaton3D(staticInput.areaSize, dynamicInput.moments.first().cells, staticInput.rules)
+        val automaton = Automaton3D(staticInput.areaSize, dynamicInput.moments.first().cells, staticInput.rules, currentContext.terminal)
 
         var i = 0
         val output = mutableListOf<DynamicInputState>()
