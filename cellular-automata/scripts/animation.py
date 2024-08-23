@@ -39,7 +39,9 @@ def animate(data, is_3d=False):
     else:
         ani = animation.FuncAnimation(fig, update_2d, frames=len(data), fargs=(data, ax))
 
+    ani.save('animation.gif', writer='imagemagick', fps=1)
     plt.show()
+    plt.close(fig)
 
 
 if __name__ == '__main__':
