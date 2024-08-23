@@ -47,12 +47,13 @@ class CellularAutomaton : CliktCommand() {
                     }
                 }.filterNotNull()
             }.flatten()
-            output.addLast(
-                DynamicInputState(
-                    i,
-                    newCells
+            if (newCells.isNotEmpty())
+                output.addLast(
+                    DynamicInputState(
+                        i,
+                        newCells
+                    )
                 )
-            )
             cells.forEach { row ->
                 row.forEach { cell ->
                     echo(cell, trailingNewline = false)
@@ -79,23 +80,28 @@ class CellularAutomaton : CliktCommand() {
         while (automaton.hasNext() && i < staticInput.maxIterations) {
             i++
             val cells = automaton.next()
-            output.addLast(
-                DynamicInputState(
-                    i,
-                    cells.mapIndexed { x, xrow ->
-                        xrow.mapIndexed { y, yrow ->
-                            yrow.mapIndexed { z, cell ->
-                                DynamicInputCell(
-                                    x,
-                                    y,
-                                    z,
-                                    cell
-                                )
-                            }
-                        }.flatten()
-                    }.flatten()
+            val newCells = cells.mapIndexed { x, xrow ->
+                xrow.mapIndexed { y, yrow ->
+                    yrow.mapIndexed { z, cell ->
+                        if (cell != 0) {
+                            DynamicInputCell(
+                                x,
+                                y,
+                                z,
+                                cell
+                            )
+                        } else {
+                            null
+                        }
+                    }.filterNotNull()
+                }.flatten()
+            }.flatten()
+            if (newCells.isNotEmpty())
+                output.addLast(
+                    DynamicInputState(
+                        i, newCells
+                    )
                 )
-            )
             cells.forEach { xrow ->
                 xrow.forEach { yrow ->
                     yrow.forEach { cell ->

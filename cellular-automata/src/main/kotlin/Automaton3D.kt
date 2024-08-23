@@ -8,8 +8,7 @@ class Automaton3D(
     initialCells: List<DynamicInputCell>,
     private val rules: Rules,
     private val terminal: Terminal
-) :
-    Iterator<Array<Array<IntArray>>> {
+) : Iterator<Array<Array<IntArray>>> {
     private val previousStates = HashSet<Array<Array<IntArray>>>()
     private val cells = Array(size) { Array(size) { IntArray(size) } }
     private var aliveCells = 0
