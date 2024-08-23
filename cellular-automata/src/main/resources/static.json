@@ -1,5 +1,6 @@
 {
   "areaSize": 20,
-  "is3D": false,
-  "maxIterations": 20
+  "is3D": true,
+  "maxIterations": 100,
+  "rules": "CONWAY"
 }
