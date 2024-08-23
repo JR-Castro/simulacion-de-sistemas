@@ -1,5 +1,5 @@
 {
   "areaSize": 20,
-  "is3D": true,
+  "is3D": false,
   "maxIterations": 20
 }
