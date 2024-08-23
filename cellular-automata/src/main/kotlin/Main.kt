@@ -21,7 +21,12 @@ class CellularAutomaton : CliktCommand() {
     private val outputFile by argument("output", help = "Output file path").file(canBeDir = false)
 
     private fun run2DAutomata(staticInput: StaticInput, dynamicInput: DynamicInput): List<DynamicInputState> {
-        val automaton = Automaton2D(staticInput.areaSize, dynamicInput.moments.first().cells, staticInput.rules, currentContext.terminal)
+        val automaton = Automaton2D(
+            staticInput.areaSize,
+            dynamicInput.moments.first().cells,
+            staticInput.rules,
+            currentContext.terminal
+        )
 
         var i = 0
         val output = mutableListOf<DynamicInputState>()
@@ -29,7 +34,25 @@ class CellularAutomaton : CliktCommand() {
         while (automaton.hasNext()) {
             i++
             val cells = automaton.next()
-            output.addLast(DynamicInputState(i, cells.mapIndexed { x, row -> row.filter { it != 0 }.mapIndexed { y, cell -> DynamicInputCell(x, y, 0, cell) } }.flatten()))
+            val newCells = cells.mapIndexed { x, xrow ->
+                xrow.mapIndexed { y, cell ->
+                    if (cell != 0) {
+                        DynamicInputCell(
+                            x,
+                            y,
+                            state = cell
+                        )
+                    } else {
+                        null
+                    }
+                }.filterNotNull()
+            }.flatten()
+            output.addLast(
+                DynamicInputState(
+                    i,
+                    newCells
+                )
+            )
             cells.forEach { row ->
                 row.forEach { cell ->
                     echo(cell, trailingNewline = false)
@@ -43,15 +66,36 @@ class CellularAutomaton : CliktCommand() {
     }
 
     private fun run3DAutomata(staticInput: StaticInput, dynamicInput: DynamicInput): List<DynamicInputState> {
-        val automaton = Automaton3D(staticInput.areaSize, dynamicInput.moments.first().cells, staticInput.rules, currentContext.terminal)
+        val automaton = Automaton3D(
+            staticInput.areaSize,
+            dynamicInput.moments.first().cells,
+            staticInput.rules,
+            currentContext.terminal
+        )
 
         var i = 0
         val output = mutableListOf<DynamicInputState>()
         output.add(i, dynamicInput.moments.first())
-        while (automaton.hasNext()) {
+        while (automaton.hasNext() && i < staticInput.maxIterations) {
             i++
             val cells = automaton.next()
-            output.addLast(DynamicInputState(i, cells.mapIndexed { x, xrow -> xrow.mapIndexed { y, yrow -> yrow.mapIndexed { z, cell -> DynamicInputCell(x, y, z, cell) } }.flatten() }.flatten()))
+            output.addLast(
+                DynamicInputState(
+                    i,
+                    cells.mapIndexed { x, xrow ->
+                        xrow.mapIndexed { y, yrow ->
+                            yrow.mapIndexed { z, cell ->
+                                DynamicInputCell(
+                                    x,
+                                    y,
+                                    z,
+                                    cell
+                                )
+                            }
+                        }.flatten()
+                    }.flatten()
+                )
+            )
             cells.forEach { xrow ->
                 xrow.forEach { yrow ->
                     yrow.forEach { cell ->
@@ -64,6 +108,10 @@ class CellularAutomaton : CliktCommand() {
             echo("")
         }
 
+        if (i == staticInput.maxIterations) {
+            currentContext.terminal.println(message = "Reached max iterations", stderr = false)
+        }
+
         return output
     }
 
@@ -71,7 +119,8 @@ class CellularAutomaton : CliktCommand() {
         val staticInput = Json.decodeFromString<StaticInput>(staticFile.readText())
         val dynamicInput = Json.decodeFromString<DynamicInput>(dynamicFile.readText())
 
-        val output = if (staticInput.is3D) run3DAutomata(staticInput, dynamicInput) else run2DAutomata(staticInput, dynamicInput)
+        val output =
+            if (staticInput.is3D) run3DAutomata(staticInput, dynamicInput) else run2DAutomata(staticInput, dynamicInput)
 
         outputFile.writeText(Json.encodeToString(output))
     }
