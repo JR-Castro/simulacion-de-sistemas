@@ -48,19 +48,12 @@ class CellularAutomaton : CliktCommand() {
                 }.filterNotNull()
             }.flatten()
             if (newCells.isNotEmpty())
-                output.addLast(
+                output.add(
                     DynamicInputState(
                         i,
                         newCells
                     )
                 )
-//            cells.forEach { row ->
-//                row.forEach { cell ->
-//                    echo(cell, trailingNewline = false)
-//                }
-//                echo("")
-//            }
-//            echo("")
         }
 
         return output
@@ -97,21 +90,11 @@ class CellularAutomaton : CliktCommand() {
                 }.flatten()
             }.flatten()
             if (newCells.isNotEmpty())
-                output.addLast(
+                output.add(
                     DynamicInputState(
                         i, newCells
                     )
                 )
-//            cells.forEach { xrow ->
-//                xrow.forEach { yrow ->
-//                    yrow.forEach { cell ->
-//                        echo(cell, trailingNewline = false)
-//                    }
-//                    echo("")
-//                }
-//                echo("")
-//            }
-//            echo("")
         }
 
         if (i == staticInput.maxIterations) {
