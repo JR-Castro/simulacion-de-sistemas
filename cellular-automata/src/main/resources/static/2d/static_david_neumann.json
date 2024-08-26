@@ -1,6 +1,6 @@
 {
   "areaSize": 50,
   "is3D": false,
-  "maxIterations": 100,
+  "maxIterations": 200,
   "rules": "DAVID_NEUMANN"
 }

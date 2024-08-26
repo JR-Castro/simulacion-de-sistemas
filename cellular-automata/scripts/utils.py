@@ -10,7 +10,7 @@ DYNAMIC_2D_PATH = '../src/main/resources/dynamic/2d'
 OUTPUT_3D_PATH = '../output/3d'
 OUTPUT_2D_PATH = '../output/2d'
 
-RUN_SIMULATION_CMD = 'java -jar ../target/cellular-automata-1.0-SNAPSHOT-jar-with-dependencies.jar'
+RUN_SIMULATION_CMD = 'java -jar ../target/multipleRuns-jar-with-dependencies.jar'
 
 RUN_ITERATIONS = 10
 PERCENTAGES = [(i+1) * 0.1 for i in range(10)]
