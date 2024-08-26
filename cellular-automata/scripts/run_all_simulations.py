@@ -3,6 +3,7 @@ import time
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
+from time import sleep
 
 from utils import STATIC_2D_PATH, STATIC_3D_PATH, OUTPUT_2D_PATH, OUTPUT_3D_PATH, DYNAMIC_2D_PATH, RUN_SIMULATION_CMD, \
     DYNAMIC_3D_PATH, STATIC_FILES_2D, STATIC_FILES_3D
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     Path(OUTPUT_3D_PATH).mkdir(parents=True, exist_ok=True)
 
     start_time = time.time()
+    it = 0
 
     for file in STATIC_FILES_2D:
         dynamic_files = [f for f in listdir(DYNAMIC_2D_PATH) if
@@ -26,6 +28,13 @@ if __name__ == '__main__':
             run_simulation(
                 f'{RUN_SIMULATION_CMD} {join(STATIC_2D_PATH, file)} {join(DYNAMIC_2D_PATH, dynamic_file)} {join(OUTPUT_2D_PATH, dynamic_2d_file_name)}'
             )
+        if it == 10:
+            it = 0
+            sleep(3)
+            continue
+        it += 1
+
+    it = 0
 
     for file in STATIC_FILES_3D:
         dynamic_files = [f for f in listdir(DYNAMIC_3D_PATH) if
@@ -36,5 +45,10 @@ if __name__ == '__main__':
             run_simulation(
                 f'{RUN_SIMULATION_CMD} {join(STATIC_3D_PATH, file)} {join(DYNAMIC_3D_PATH, dynamic_file)} {join(OUTPUT_3D_PATH, dynamic_3d_file_name)}'
             )
+        if it == 10:
+            it = 0
+            sleep(3)
+            continue
+        it += 1
 
     print(f'--- {time.time() - start_time} seconds ---')

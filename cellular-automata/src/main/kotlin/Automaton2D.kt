@@ -11,7 +11,7 @@ class Automaton2D(
     private val terminal: Terminal
 ) :
     Iterator<Array<IntArray>> {
-    private val previousStates = LinkedList<Array<IntArray>>()
+//    private val previousStates = LinkedList<Array<IntArray>>()
     private val cells = Array(size) { IntArray(size) }
     private var aliveCells = 0
     private var reachedEdge = false
@@ -25,7 +25,7 @@ class Automaton2D(
 
     override fun next(): Array<IntArray> {
         aliveCells = 0
-        previousStates.add(cells.map { it.copyOf() }.toTypedArray())
+//        previousStates.add(cells.map { it.copyOf() }.toTypedArray())
         val newCells = Array(size) { IntArray(size) }
         for (i in 0 until size) {
             for (j in 0 until size) {
@@ -58,13 +58,11 @@ class Automaton2D(
             return false
         }
 
-        if (previousStates.any { prev -> prev contentDeepEquals cells }) {
-            terminal.println(message = "Reached a stable state", stderr = false)
-            return false
-        }
+//        if (previousStates.any { prev -> prev contentDeepEquals cells }) {
+//            terminal.println(message = "Reached a stable state", stderr = false)
+//            return false
+//        }
 
         return true
     }
-
-
 }

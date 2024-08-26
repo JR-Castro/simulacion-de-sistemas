@@ -9,7 +9,7 @@ class Automaton3D(
     private val rules: Rules,
     private val terminal: Terminal
 ) : Iterator<Array<Array<IntArray>>> {
-    private val previousStates = HashSet<Array<Array<IntArray>>>()
+//    private val previousStates = HashSet<Array<Array<IntArray>>>()
     private val cells = Array(size) { Array(size) { IntArray(size) } }
     private var aliveCells = 0
     private var reachedEdge = false
@@ -23,7 +23,7 @@ class Automaton3D(
 
     override fun next(): Array<Array<IntArray>> {
         aliveCells = 0
-        previousStates.add(cells.map { xrow -> xrow.map { yrow -> yrow.copyOf() }.toTypedArray() }.toTypedArray())
+//        previousStates.add(cells.map { xrow -> xrow.map { yrow -> yrow.copyOf() }.toTypedArray() }.toTypedArray())
         val newCells = Array(size) { Array(size) { IntArray(size) } }
         for (i in 0 until size) {
             for (j in 0 until size) {
@@ -60,10 +60,10 @@ class Automaton3D(
             return false
         }
 
-        if (previousStates.any { prev -> prev contentDeepEquals cells }) {
-            terminal.println(message = "Reached a stable state", stderr = false)
-            return false
-        }
+//        if (previousStates.any { prev -> prev contentDeepEquals cells }) {
+//            terminal.println(message = "Reached a stable state", stderr = false)
+//            return false
+//        }
 
         return true
     }
