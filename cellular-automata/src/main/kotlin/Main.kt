@@ -47,13 +47,13 @@ class CellularAutomaton : CliktCommand() {
                     }
                 }.filterNotNull()
             }.flatten()
-            if (newCells.isNotEmpty())
-                output.add(
-                    DynamicInputState(
-                        i,
-                        newCells
-                    )
+
+            output.add(
+                DynamicInputState(
+                    i,
+                    newCells
                 )
+            )
         }
 
         return output
@@ -89,12 +89,13 @@ class CellularAutomaton : CliktCommand() {
                     }.filterNotNull()
                 }.flatten()
             }.flatten()
-            if (newCells.isNotEmpty())
-                output.add(
-                    DynamicInputState(
-                        i, newCells
-                    )
+
+            output.add(
+                DynamicInputState(
+                    i, newCells
                 )
+            )
+
         }
 
         if (i == staticInput.maxIterations) {

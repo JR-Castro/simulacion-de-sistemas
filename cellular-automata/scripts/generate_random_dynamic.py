@@ -1,16 +1,10 @@
 import json
 import random
-from os import listdir
-from os.path import isfile, join
+from os.path import join
 from pathlib import Path
 
-static_3d_path = '../src/main/resources/static/3d'
-static_2d_path = '../src/main/resources/static/2d'
-
-dynamic_3d_path = '../src/main/resources/dynamic/3d'
-dynamic_2d_path = '../src/main/resources/dynamic/2d'
-
-iterations = 10
+from utils import DYNAMIC_3D_PATH, DYNAMIC_2D_PATH, STATIC_2D_PATH, STATIC_3D_PATH, RUN_ITERATIONS, STATIC_FILES_2D, \
+    STATIC_FILES_3D, PERCENTAGES
 
 
 def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int = 10, percentage: float = 0.1):
@@ -18,17 +12,18 @@ def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int
 
     cells = []
 
+    cells_ammount = int((center_size * 2) ** (3 if is3d else 2) * percentage)
+
     if is3d:
-        for i in range(center - center_size, center + center_size):
-            for j in range(center - center_size, center + center_size):
-                for k in range(center - center_size, center + center_size):
-                    if random.random() < percentage:
-                        cells.append((i, j, k))
+        for i in range(cells_ammount):
+            cells.append((random.randint(center - center_size, center + center_size),
+                          random.randint(center - center_size, center + center_size),
+                          random.randint(center - center_size, center + center_size)))
     else:
-        for i in range(center - center_size, center + center_size):
-            for j in range(center - center_size, center + center_size):
-                if random.random() < percentage:
-                    cells.append((i, j, 0))
+        for i in range(cells_ammount):
+            cells.append((random.randint(center - center_size, center + center_size),
+                          random.randint(center - center_size, center + center_size),
+                          0))
 
     dynamic_data = {
         "moments": [{
@@ -39,31 +34,26 @@ def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int
         }]
     }
 
-    with open(join(dynamic_3d_path if is3d else dynamic_2d_path, file_name), 'w') as f:
+    with open(join(DYNAMIC_3D_PATH if is3d else DYNAMIC_2D_PATH, file_name), 'w') as f:
         json.dump(dynamic_data, f, indent=4)
 
 
 if __name__ == '__main__':
-    static_files_2d = [f for f in listdir(static_2d_path) if isfile(join(static_2d_path, f))]
-    static_files_3d = [f for f in listdir(static_3d_path) if isfile(join(static_3d_path, f))]
+    Path(DYNAMIC_2D_PATH).mkdir(parents=True, exist_ok=True)
+    Path(DYNAMIC_3D_PATH).mkdir(parents=True, exist_ok=True)
 
-    Path(dynamic_2d_path).mkdir(parents=True, exist_ok=True)
-    Path(dynamic_3d_path).mkdir(parents=True, exist_ok=True)
-
-    for file in static_files_2d:
-        with open(join(static_2d_path, file)) as f:
+    for file in STATIC_FILES_2D:
+        with open(join(STATIC_2D_PATH, file)) as f:
             static_data = json.load(f)
 
-            for i in range(10):
-                percentage = i * 0.1
-                for j in range(iterations):
-                    generate_random_dynamic(static_data, False, f"{file.split('.')[0]}_{j}.json", percentage=percentage)
+            for percentage in PERCENTAGES:
+                for j in range(RUN_ITERATIONS):
+                    generate_random_dynamic(static_data, False, f"{file.split('.')[0]}_{int(percentage*100)}_{j}.json", percentage=percentage)
 
-    for file in static_files_3d:
-        with open(join(static_3d_path, file)) as f:
+    for file in STATIC_FILES_3D:
+        with open(join(STATIC_3D_PATH, file)) as f:
             static_data = json.load(f)
 
-            for i in range(10):
-                percentage = i * 0.1
-                for j in range(iterations):
-                    generate_random_dynamic(static_data, True, f"{file.split('.')[0]}_{j}.json", percentage=percentage)
+            for percentage in PERCENTAGES:
+                for j in range(RUN_ITERATIONS):
+                    generate_random_dynamic(static_data, True, f"{file.split('.')[0]}_{int(percentage*100)}_{j}.json", percentage=percentage)

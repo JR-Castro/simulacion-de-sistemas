@@ -1,42 +1,40 @@
 import subprocess
+import time
 from os import listdir
 from os.path import isfile, join
 from pathlib import Path
 
-static_3d_path = '../src/main/resources/static/3d'
-static_2d_path = '../src/main/resources/static/2d'
+from utils import STATIC_2D_PATH, STATIC_3D_PATH, OUTPUT_2D_PATH, OUTPUT_3D_PATH, DYNAMIC_2D_PATH, RUN_SIMULATION_CMD, \
+    DYNAMIC_3D_PATH, STATIC_FILES_2D, STATIC_FILES_3D
 
-dynamic_3d_path = '../src/main/resources/dynamic/3d'
-dynamic_2d_path = '../src/main/resources/dynamic/2d'
+def run_simulation(cmd):
+    subprocess.run(cmd, shell=True, check=True)
 
-output_2d_path = '../output/2d'
-output_3d_path = '../output/3d'
-
-run_simulation_cmd = 'java -jar ../target/cellular-automata-1.0-SNAPSHOT-jar-with-dependencies.jar'
 
 if __name__ == '__main__':
-    static_files_2d = [f for f in listdir(static_2d_path) if isfile(join(static_2d_path, f))]
-    static_files_3d = [f for f in listdir(static_3d_path) if isfile(join(static_3d_path, f))]
+    Path(OUTPUT_2D_PATH).mkdir(parents=True, exist_ok=True)
+    Path(OUTPUT_3D_PATH).mkdir(parents=True, exist_ok=True)
 
-    Path(output_2d_path).mkdir(parents=True, exist_ok=True)
-    Path(output_3d_path).mkdir(parents=True, exist_ok=True)
+    start_time = time.time()
 
-    for file in static_files_2d:
-        dynamic_files = [f for f in listdir(dynamic_2d_path) if
-                         isfile(join(dynamic_2d_path, f)) and f.startswith(file.split('.')[0])]
+    for file in STATIC_FILES_2D:
+        dynamic_files = [f for f in listdir(DYNAMIC_2D_PATH) if
+                         isfile(join(DYNAMIC_2D_PATH, f)) and f.startswith(file.split('.')[0])]
         for dynamic_file in dynamic_files:
             print(f'Running 2d simulation for {file} with {dynamic_file}')
             dynamic_2d_file_name = dynamic_file.split('.')[0]
-            proc = subprocess.run(
-                f'{run_simulation_cmd} {join(static_2d_path, file)} {join(dynamic_2d_path, dynamic_file)} {join(output_2d_path, dynamic_2d_file_name)}',
-                shell=True, check=True)
+            run_simulation(
+                f'{RUN_SIMULATION_CMD} {join(STATIC_2D_PATH, file)} {join(DYNAMIC_2D_PATH, dynamic_file)} {join(OUTPUT_2D_PATH, dynamic_2d_file_name)}'
+            )
 
-    for file in static_files_3d:
-        dynamic_files = [f for f in listdir(dynamic_3d_path) if
-                         isfile(join(dynamic_3d_path, f)) and f.startswith(file.split('.')[0])]
+    for file in STATIC_FILES_3D:
+        dynamic_files = [f for f in listdir(DYNAMIC_3D_PATH) if
+                         isfile(join(DYNAMIC_3D_PATH, f)) and f.startswith(file.split('.')[0])]
         for dynamic_file in dynamic_files:
             print(f'Running 3d simulation for {file} with {dynamic_file}')
             dynamic_3d_file_name = dynamic_file.split('.')[0]
-            proc = subprocess.run(
-                f'{run_simulation_cmd} {join(static_3d_path, file)} {join(dynamic_3d_path, dynamic_file)} {join(output_3d_path, dynamic_3d_file_name)}',
-                shell=True, check=True)
+            run_simulation(
+                f'{RUN_SIMULATION_CMD} {join(STATIC_3D_PATH, file)} {join(DYNAMIC_3D_PATH, dynamic_file)} {join(OUTPUT_3D_PATH, dynamic_3d_file_name)}'
+            )
+
+    print(f'--- {time.time() - start_time} seconds ---')
