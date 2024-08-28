@@ -69,7 +69,7 @@ def animate(data, static, output_file, is_3d=False):
     else:
         ani = animation.FuncAnimation(fig, update_2d, frames=len(data), fargs=(data, ax, center_pos, max_distance, areaSize))
 
-    ani.save(output_file, writer='imagemagick', fps=3)
+    ani.save(output_file, fps=3)
     # plt.show()
     plt.close(fig)
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     with open(sys.argv[2], 'r') as f:
         static = json.load(f)
 
-    output_file = sys.argv[3] if len(sys.argv) > 3 else 'animation.gif'
+    output_file = sys.argv[3] if len(sys.argv) > 3 else 'animation.mp4'
 
     # Call the animation function with 2D or 3D
     if static["is3D"]:

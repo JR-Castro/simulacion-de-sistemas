@@ -12,7 +12,7 @@ def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int
 
     cells = []
 
-    cells_ammount = int((center_size * 2) ** (3 if is3d else 2) * percentage)
+    cells_ammount = int(center_size ** (3 if is3d else 2) * percentage)
 
     if is3d:
         for i in range(cells_ammount):
