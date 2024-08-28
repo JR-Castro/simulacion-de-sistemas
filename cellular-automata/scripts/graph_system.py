@@ -1,28 +1,65 @@
 import json
 import sys
-
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def graph_cells_alive(data):
-    plt.plot(range(len(data)), [len(frame["cells"]) for frame in data])
+    steps = range(len(data))
+    cells_alive = [len(frame["cells"]) for frame in data]
+
+    plt.plot(steps, cells_alive)
     plt.ylabel("Cells alive")
     plt.xlabel("Step")
+    plt.legend()
     plt.show()
 
 
-def graph_distance(data, static):
+def graph_max_distance(data, static):
     center = static["areaSize"] // 2
 
-    distances = []
+    max_distances = []
     for frame in data:
         cells = frame["cells"]
-        distances.append(
-            [abs(cell["x"] - center) + abs(cell["y"] - center) + abs(cell["z"] - center) for cell in cells])
+        distances = [
+            np.sqrt((cell["x"] - center)**2 +
+                    (cell["y"] - center)**2 +
+                    (cell["z"] - center)**2) for cell in cells
+        ]
+        max_distances.append(max(distances))
 
-    plt.plot(range(len(data)), [sum(distances[i]) for i in range(len(distances))])
-    plt.ylabel("Distance from center")
+    steps = range(len(data))
+
+    plt.plot(steps, max_distances)
+    plt.ylabel("Max Distance from center")
     plt.xlabel("Step")
+    plt.legend()
+    plt.show()
+
+
+def graph_all_metrics(data, static):
+    steps = range(len(data))
+
+    cells_alive = [len(frame["cells"]) for frame in data]
+
+    center = static["areaSize"] // 2
+    max_distances = []
+    for frame in data:
+        cells = frame["cells"]
+        distances = [
+            np.sqrt((cell["x"] - center)**2 +
+                    (cell["y"] - center)**2 +
+                    (cell["z"] - center)**2) for cell in cells
+        ]
+        max_distances.append(max(distances))
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(steps, cells_alive, label="Cells alive")
+    plt.plot(steps, max_distances, label="Max Distance from center")
+
+    plt.xlabel("Step")
+    plt.ylabel("Values")
+    plt.legend()
     plt.show()
 
 
@@ -38,4 +75,4 @@ if __name__ == '__main__':
         static = json.load(f)
 
     graph_cells_alive(data)
-    graph_distance(data, static)
+    graph_max_distance(data, static)

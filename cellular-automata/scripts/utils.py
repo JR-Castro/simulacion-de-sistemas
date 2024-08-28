@@ -10,6 +10,9 @@ DYNAMIC_2D_PATH = '../src/main/resources/dynamic/2d'
 OUTPUT_3D_PATH = '../output/3d'
 OUTPUT_2D_PATH = '../output/2d'
 
+OUTPUT_IMAGES_2D_PATH = '../images/2d'
+OUTPUT_IMAGES_3D_PATH = '../images/3d'
+
 RUN_SIMULATION_CMD = 'java -jar ../target/multipleRuns-jar-with-dependencies.jar'
 
 RUN_ITERATIONS = 10
