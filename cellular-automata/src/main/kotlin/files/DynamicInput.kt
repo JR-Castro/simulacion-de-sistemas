@@ -10,4 +10,4 @@ data class DynamicInput(val moments: List<DynamicInputState>)
 data class DynamicInputState(val time: Int, val cells: List<DynamicInputCell>)
 
 @Serializable
-data class DynamicInputCell(val x: Int, val y: Int, @EncodeDefault val z: Int = 0, @EncodeDefault val state: Int = 0)
+data class DynamicInputCell(val x: Int, val y: Int, @EncodeDefault val z: Int = 0, @EncodeDefault val state: Int = 1)

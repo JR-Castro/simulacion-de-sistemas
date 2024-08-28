@@ -2,7 +2,6 @@ package ar.edu.itba.ss
 
 import ar.edu.itba.ss.files.DynamicInputCell
 import com.github.ajalt.mordant.terminal.Terminal
-import java.util.*
 
 class Automaton2D(
     private val size: Int,
@@ -19,7 +18,7 @@ class Automaton2D(
 
     init {
         initialCells.forEach {
-            cells[it.x][it.y] = 1
+            cells[it.x][it.y] = it.state
         }
     }
 

@@ -17,7 +17,7 @@ class Automaton3D(
 
     init {
         initialCells.forEach {
-            cells[it.x][it.y][it.z] = 1
+            cells[it.x][it.y][it.z] = it.state
         }
     }
 

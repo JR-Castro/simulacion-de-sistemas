@@ -29,7 +29,7 @@ def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int
         "moments": [{
             "time": 0,
             "cells": [
-                {"x": x, "y": y, "z": z} for x, y, z in cells
+                {"x": x, "y": y, "z": z, "state": 1} for x, y, z in cells
             ]
         }]
     }
