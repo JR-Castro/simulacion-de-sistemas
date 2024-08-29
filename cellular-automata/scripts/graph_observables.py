@@ -20,7 +20,7 @@ def graph_last_cells_alive(all_runs, output_file):
         percentage_runs = run["data"]
         last_cells_alive = [len(percentage_run[-1]["cells"]) for percentage_run in percentage_runs]
         mean = np.mean(last_cells_alive)
-        std = np.std(last_cells_alive)
+        std = np.std(last_cells_alive, ddof=1)
         print(f"\tPercentage: {run['label']}\n\tMean: {mean}\n\tStd: {std}")
         plt.bar(run["label"], mean, yerr=std, capsize=5)
 
@@ -44,7 +44,7 @@ def graph_last_max_distance(all_runs, output_file):
             max(distance, default=0) for distance in distances
         ]
         mean = np.mean(last_max_distance)
-        std = np.std(last_max_distance)
+        std = np.std(last_max_distance, ddof=1)
         print(f"\tPercentage: {run['label']}\n\t\tMean: {mean}\n\t\tStd: {std}")
         plt.bar(run["label"], mean, yerr=std, capsize=5)
 
@@ -69,7 +69,7 @@ def graph_time_to_reach_border(static, all_runs, output_file):
                         cell["z"] == 0 or cell["z"] == static["areaSize"] - 1 for cell in cells]):
                 print("Not all runs reached the border")
         mean = np.mean(time_to_reach_border)
-        std = np.std(time_to_reach_border)
+        std = np.std(time_to_reach_border, ddof=1)
         print(f"\tPercentage: {run['label']}\n\t\tMean: {mean}\n\t\tStd: {std}")
         plt.bar(run["label"], mean, yerr=std, capsize=5)
 
@@ -125,11 +125,11 @@ def graph_slope_max_distance(static, all_runs, output_file):
             start_points.append(start)
             quad_errors.append(error)
         mean_slope = np.mean(slopes)
-        std_slope = np.std(slopes)
+        std_slope = np.std(slopes, ddof=1)
         mean_start_points = np.mean(start_points)
-        std_start_points = np.std(start_points)
+        std_start_points = np.std(start_points, ddof=1)
         mean_quad_errors = np.mean(quad_errors)
-        std_quad_errors = np.std(quad_errors)
+        std_quad_errors = np.std(quad_errors, ddof=1)
         print(f"\tPercentage: {run['label']}\n\t\tMean Slope: {mean_slope}\n\t\tStd Slope: {std_slope}\n"
                 f"\t\tMean Start Point: {mean_start_points}\n\t\tStd Start Point: {std_start_points}\n"
                 f"\t\tMean Quad Error: {mean_quad_errors}\n\t\tStd Quad Error: {std_quad_errors}")
