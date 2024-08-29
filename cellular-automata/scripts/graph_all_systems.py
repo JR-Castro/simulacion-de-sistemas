@@ -7,6 +7,7 @@ from os import listdir
 from os.path import join, isfile
 from pathlib import Path
 
+import numpy as np
 from matplotlib import pyplot as plt
 
 from utils import OUTPUT_2D_PATH, OUTPUT_IMAGES_2D_PATH, OUTPUT_IMAGES_3D_PATH, STATIC_FILES_2D, STATIC_FILES_3D, \
@@ -14,40 +15,38 @@ from utils import OUTPUT_2D_PATH, OUTPUT_IMAGES_2D_PATH, OUTPUT_IMAGES_3D_PATH, 
 
 
 def graph_all_cells_alive(runs, output_file):
-    num_steps = len(runs[0])
+    runs_count = np.max([len(run) for run in runs])
 
-    # Plotting with error bars
-    i = 0
-    steps = range(num_steps)
-    for run in runs:
-        plt.plot([frame["time"] for frame in run], [len(frame["cells"]) for frame in run], alpha=0.5, label=f"Run {i}")
-        i += 1
+    cells = np.vstack([np.pad([len(frame["cells"]) for frame in run], (0, runs_count - len(run))) for run in runs])
+    means = cells.mean(axis=0)
+    stds = cells.std(axis=0, ddof=1)
+
+    plt.plot(range(runs_count), means)
+    plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
+
     plt.xlabel("Step")
     plt.ylabel("Cells alive")
-    plt.legend()
     plt.savefig(output_file)
     plt.clf()
 
 
 def graph_all_max_distance(runs, static, output_file):
+    runs_count = np.max([len(run) for run in runs])
     center = static["areaSize"] // 2
 
-    num_steps = len(runs[0])
+    max_distances = np.vstack([np.pad([ max([
+        sqrt((cell["x"] - center)**2 +
+             (cell["y"] - center)**2 +
+             (cell["z"] - center)**2) for cell in frame["cells"]
+    ], default=0) for frame in run], (0, runs_count - len(run))) for run in runs])
+    means = max_distances.mean(axis=0)
+    stds = max_distances.std(axis=0, ddof=1)
 
-    # Plotting with error bars
-    i = 0
-    steps = range(num_steps)
-    for run in runs:
-        max_distances = [ max([
-            sqrt((cell["x"] - center)**2 +
-                 (cell["y"] - center)**2 +
-                 (cell["z"] - center)**2) for cell in frame["cells"]
-        ]) for frame in run if len(frame["cells"]) > 0]
-        plt.plot([frame["time"] for frame in run if len(frame["cells"]) > 0], max_distances, alpha=0.5, label=f"Run {i}")
-        i += 1
+    plt.plot(range(runs_count), means)
+    plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
+
     plt.xlabel("Step")
     plt.ylabel("Max Distance from center")
-    plt.legend()
     plt.savefig(output_file)
     plt.clf()
 
