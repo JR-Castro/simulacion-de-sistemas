@@ -21,7 +21,7 @@ def graph_all_cells_alive(runs, output_file):
     means = cells.mean(axis=0)
     stds = cells.std(axis=0, ddof=1)
 
-    plt.plot(range(runs_count), means)
+    plt.plot(range(runs_count), means, linestyle='--', marker='o')
     plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
 
     plt.xlabel("Step")
@@ -42,7 +42,7 @@ def graph_all_max_distance(runs, static, output_file):
     means = max_distances.mean(axis=0)
     stds = max_distances.std(axis=0, ddof=1)
 
-    plt.plot(range(runs_count), means)
+    plt.plot(range(runs_count), means, linestyle='--', marker='o')
     plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
 
     plt.xlabel("Step")
