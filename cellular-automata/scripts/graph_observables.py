@@ -83,25 +83,33 @@ def get_slope(max_distances):
     x = range(len(max_distances))
 
     b = max_distances[0]
-    aprox_slope = 0
+    slope = 0
+    tolerance = 1e-6
+    learning_rate = 1e-6
 
     last_quad_error = float('inf')
 
-    for i in range(3):
-        increment = 10 ** -i
-        while True:
-            quad_error = sum(
-                (max_distances[j] - (aprox_slope * x[j] + b)) ** 2 for j in x
-            ) / len(max_distances)
+    for _ in range(10):
+        # Calculate the predictions with the current slope
+        predictions = [slope * xi + b for xi in x]
 
-            if quad_error < last_quad_error:
-                last_quad_error = quad_error
-                aprox_slope += increment
-            else:
-                aprox_slope -= increment
-                break
+        # Calculate the error (sum of squared differences)
+        errors = [(yi - pred) for yi, pred in zip(max_distances, predictions)]
+        quad_error = sum(e**2 for e in errors) / len(max_distances)
 
-    return round(aprox_slope, 3), round(b, 3), round(last_quad_error, 3)
+        # Check if the error is not improving significantly
+        if abs(last_quad_error - quad_error) < tolerance:
+            break
+
+        last_quad_error = quad_error
+
+        # Calculate the gradient (derivative of the error w.r.t slope)
+        gradient = -2 * sum(xi * e for xi, e in zip(x, errors)) / len(max_distances)
+
+        # Update the slope using the gradient
+        slope -= learning_rate * gradient
+
+    return slope, b, last_quad_error
 
 
 def graph_slope_max_distance(static, all_runs, output_file):
@@ -125,7 +133,7 @@ def graph_slope_max_distance(static, all_runs, output_file):
             start_points.append(start)
             quad_errors.append(error)
         mean_slope = np.mean(slopes)
-        std_slope = np.std(slopes, ddof=1)
+        std_slope = np.std(slopes)
         mean_start_points = np.mean(start_points)
         std_start_points = np.std(start_points, ddof=1)
         mean_quad_errors = np.mean(quad_errors)
@@ -169,8 +177,10 @@ if __name__ == '__main__':
             all_runs.append({"data": percentage_run, "label": f"{key}%"})
 
         if file == "static_conway.json":
-            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
+            graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
+            # graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
         elif file == "static_conway_von_neumann.json":
+            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         elif file == "static_david_neumann.json":
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
