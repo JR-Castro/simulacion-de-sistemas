@@ -7,23 +7,23 @@ from utils import DYNAMIC_3D_PATH, DYNAMIC_2D_PATH, STATIC_2D_PATH, STATIC_3D_PA
     STATIC_FILES_3D, PERCENTAGES
 
 
-def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int = 10, percentage: float = 0.1):
+def generate_random_dynamic(static_data, is3d: bool, file_name, center_size: int = 15, percentage: float = 0.1):
     center = static_data['areaSize'] // 2
 
-    cells = []
+    cells = set()  # Use a set to track unique cell positions
 
-    cells_ammount = int(center_size ** (3 if is3d else 2) * percentage)
+    cells_amount = int(center_size ** (3 if is3d else 2) * percentage)
 
     if is3d:
-        for i in range(cells_ammount):
-            cells.append((random.randint(center - center_size, center + center_size),
-                          random.randint(center - center_size, center + center_size),
-                          random.randint(center - center_size, center + center_size)))
+        while len(cells) < cells_amount:
+            cells.add((random.randint(center - center_size // 2, center + center_size // 2),
+                       random.randint(center - center_size // 2, center + center_size // 2),
+                       random.randint(center - center_size // 2, center + center_size // 2)))
     else:
-        for i in range(cells_ammount):
-            cells.append((random.randint(center - center_size, center + center_size),
-                          random.randint(center - center_size, center + center_size),
-                          0))
+        while len(cells) < cells_amount:
+            cells.add((random.randint(center - center_size // 2, center + center_size // 2),
+                       random.randint(center - center_size // 2, center + center_size // 2),
+                       0))
 
     dynamic_data = {
         "moments": [{
@@ -48,7 +48,9 @@ if __name__ == '__main__':
 
             for percentage in PERCENTAGES:
                 for j in range(RUN_ITERATIONS):
-                    generate_random_dynamic(static_data, False, f"{file.split('.')[0]}_{int(percentage*100)}_{j}.json", percentage=percentage)
+                    generate_random_dynamic(static_data, False,
+                                            f"{file.split('.')[0]}_{int(percentage * 100)}_{j}.json",
+                                            percentage=percentage)
 
     for file in STATIC_FILES_3D:
         with open(join(STATIC_3D_PATH, file)) as f:
@@ -56,4 +58,5 @@ if __name__ == '__main__':
 
             for percentage in PERCENTAGES:
                 for j in range(RUN_ITERATIONS):
-                    generate_random_dynamic(static_data, True, f"{file.split('.')[0]}_{int(percentage*100)}_{j}.json", percentage=percentage)
+                    generate_random_dynamic(static_data, True, f"{file.split('.')[0]}_{int(percentage * 100)}_{j}.json",
+                                            percentage=percentage)

@@ -26,7 +26,7 @@ enum class Rules {
     },
     CONWAY_VON_NEUMANN {
         override fun nextCellStatus2D(cells: Array<IntArray>, i: Int, j: Int): Int {
-            val aliveNeighbors = countAliveNeighborsVonNeumann2D(cells, i, j, 1)
+            val aliveNeighbors = countAliveNeighborsVonNeumann2D(cells, i, j, 2)
             return when {
                 cells[i][j] == 1 && aliveNeighbors < 2 -> 0
                 cells[i][j] == 1 && aliveNeighbors > 3 -> 0
@@ -36,7 +36,7 @@ enum class Rules {
         }
 
         override fun nextCellStatus3D(cells: Array<Array<IntArray>>, i: Int, j: Int, k: Int): Int {
-            val aliveNeighbors = countAliveNeighborsVonNeumann3D(cells, i, j, k, 1)
+            val aliveNeighbors = countAliveNeighborsVonNeumann3D(cells, i, j, k, 2)
             return when {
                 cells[i][j][k] == 1 && aliveNeighbors < 2 -> 0
                 cells[i][j][k] == 1 && aliveNeighbors > 3 -> 0
@@ -49,8 +49,8 @@ enum class Rules {
         override fun nextCellStatus2D(cells: Array<IntArray>, i: Int, j: Int): Int {
             val aliveNeighbors = countAliveNeighborsVonNeumann2D(cells, i, j, 1)
             return when {
-                cells[i][j] == 1 && aliveNeighbors == 4 -> 0
-                cells[i][j] == 0 && aliveNeighbors == 1 -> 1
+                cells[i][j] == 1 && aliveNeighbors == 3 -> 0
+                cells[i][j] == 0 && aliveNeighbors == 2 -> 1
                 else -> cells[i][j]
             }
         }
@@ -58,8 +58,8 @@ enum class Rules {
         override fun nextCellStatus3D(cells: Array<Array<IntArray>>, i: Int, j: Int, k: Int): Int {
             val aliveNeighbors = countAliveNeighborsVonNeumann3D(cells, i, j, k, 1)
             return when {
-                cells[i][j][k] == 1 && aliveNeighbors == 6 -> 0
-                cells[i][j][k] == 0 && aliveNeighbors == 1 -> 1
+                cells[i][j][k] == 1 && (aliveNeighbors == 3 || aliveNeighbors == 4) -> 0
+                cells[i][j][k] == 0 && aliveNeighbors == 2 -> 1
                 else -> cells[i][j][k]
             }
         }
