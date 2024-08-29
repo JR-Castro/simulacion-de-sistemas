@@ -201,7 +201,7 @@ if __name__ == '__main__':
         elif file == "static_conway_von_neumann.json":
             graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
-        elif file == "static_david_neumann.json":
+        elif file == "static_climbing_plants.json":
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         else:
             print("Invalid file")
@@ -235,7 +235,7 @@ if __name__ == '__main__':
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         elif file == "static_conway_von_neumann.json":
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
-        elif file == "static_david_neumann.json":
+        elif file == "static_climbing_plants.json":
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         else:
             print("Invalid file")

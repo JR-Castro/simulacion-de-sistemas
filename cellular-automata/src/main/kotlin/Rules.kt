@@ -45,7 +45,7 @@ enum class Rules {
             }
         }
     },
-    DAVID_NEUMANN {
+    CLIMBING_PLANTS {
         override fun nextCellStatus2D(cells: Array<IntArray>, i: Int, j: Int): Int {
             val aliveNeighbors = countAliveNeighborsVonNeumann2D(cells, i, j, 1)
             return when {

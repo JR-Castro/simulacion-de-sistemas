@@ -2,5 +2,5 @@
   "areaSize": 100,
   "is3D": false,
   "maxIterations": 200,
-  "rules": "DAVID_NEUMANN"
+  "rules": "CLIMBING_PLANTS"
 }
