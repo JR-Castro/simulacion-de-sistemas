@@ -15,38 +15,60 @@ from utils import OUTPUT_2D_PATH, OUTPUT_IMAGES_2D_PATH, OUTPUT_IMAGES_3D_PATH, 
 
 
 def graph_all_cells_alive(runs, output_file):
-    runs_count = np.max([len(run) for run in runs])
 
-    cells = np.vstack([np.pad([len(frame["cells"]) for frame in run], (0, runs_count - len(run))) for run in runs])
-    means = cells.mean(axis=0)
-    stds = cells.std(axis=0, ddof=1)
+    for data in runs:
+        percentage_run = data["data"]
+        runs_count = np.max([len(run) for run in percentage_run])
 
-    plt.plot(range(runs_count), means, linestyle='--', marker='o')
-    plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
+        cells = np.vstack([np.pad([len(frame["cells"]) for frame in run], (0, runs_count - len(run))) for run in percentage_run])
+        means = []
+        for i in range(runs_count):
+            values = cells[:, i]
+            values = values[values != 0]
+            if len(values) != 0:
+                means.append(values.mean())
+        # means = cells.mean(axis=0)
+        # stds = cells.std(axis=0, ddof=1)
 
-    plt.xlabel("Step")
-    plt.ylabel("Cells alive")
+        plt.plot(range(len(means)), means, linestyle='--', marker='.', label=data["label"])
+        # plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.1)
+
+    plt.legend()
+    plt.xlabel("Paso")
+    plt.ylabel("Células vivas")
     plt.savefig(output_file)
     plt.clf()
 
 
 def graph_all_max_distance(runs, static, output_file):
-    runs_count = np.max([len(run) for run in runs])
     center = static["areaSize"] // 2
+    for data in runs:
+        percentage_runs = data["data"]
+        runs_count = np.max([len(run) for run in percentage_runs])
 
-    max_distances = np.vstack([np.pad([ max([
-        sqrt((cell["x"] - center)**2 +
-             (cell["y"] - center)**2 +
-             (cell["z"] - center)**2) for cell in frame["cells"]
-    ], default=0) for frame in run], (0, runs_count - len(run))) for run in runs])
-    means = max_distances.mean(axis=0)
-    stds = max_distances.std(axis=0, ddof=1)
+        max_distances = np.vstack([np.pad([max([
+            sqrt((cell["x"] - center) ** 2 +
+                 (cell["y"] - center) ** 2 +
+                 (cell["z"] - center) ** 2) for cell in frame["cells"]
+        ], default=0) for frame in run], (0, runs_count - len(run))) for run in percentage_runs])
+        means = []
+        # stds = []
+        # Calculando el promedio en cada step por separado, evitamos que se promedien los 0s
+        for i in range(runs_count):
+            values = max_distances[:, i]
+            values = values[values != 0]
+            if len(values) != 0:
+                means.append(values.mean())
+            # stds.append(values.std(ddof=1))
+        # means = max_distances.mean(axis=0)
+        # stds = max_distances.std(axis=0, ddof=1)
 
-    plt.plot(range(runs_count), means, linestyle='--', marker='o')
-    plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
+        plt.plot(range(len(means)), means, linestyle='--', marker='.', label=data["label"])
+        # plt.fill_between(range(runs_count), means - stds, means + stds, alpha=0.3)
 
-    plt.xlabel("Step")
-    plt.ylabel("Max Distance from center")
+    plt.xlabel("Paso")
+    plt.ylabel("Distancia máxima al centro")
+    plt.legend()
     plt.savefig(output_file)
     plt.clf()
 
@@ -72,15 +94,18 @@ if __name__ == '__main__':
         sorted_filenames = sorted(output_files, key=extract_first_number)
         grouped_filenames = {k: list(g) for k, g in groupby(sorted_filenames, key=extract_first_number)}
 
+        runs = []
         for key, group in grouped_filenames.items():
-            runs = []
 
+            percentage_run = []
             for output_file in group:
                 with open(join(OUTPUT_2D_PATH, output_file), 'r') as f:
-                    runs.append(json.load(f))
+                    percentage_run.append(json.load(f))
 
-            graph_all_cells_alive(runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_{key}_cells_alive.png"))
-            graph_all_max_distance(runs, static, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_{key}_max_distance.png"))
+            runs.append({"data": percentage_run, "label": key})
+
+        graph_all_cells_alive(runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_cells_alive.png"))
+        graph_all_max_distance(runs, static, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_max_distance.png"))
 
     for file in STATIC_FILES_3D:
         output_files = [f for f in listdir(OUTPUT_3D_PATH) if
@@ -92,12 +117,18 @@ if __name__ == '__main__':
         sorted_filenames = sorted(output_files, key=extract_first_number)
         grouped_filenames = {k: list(g) for k, g in groupby(sorted_filenames, key=extract_first_number)}
 
+        runs = []
         for key, group in grouped_filenames.items():
-            runs = []
 
+            percentage_run = []
             for output_file in group:
                 with open(join(OUTPUT_3D_PATH, output_file), 'r') as f:
-                    runs.append(json.load(f))
+                    percentage_run.append(json.load(f))
 
-            graph_all_cells_alive(runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_{key}_cells_alive.png"))
-            graph_all_max_distance(runs, static, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_{key}_max_distance.png"))
+            runs.append({"data": percentage_run, "label": key})
+
+        graph_all_cells_alive(runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_cells_alive.png"))
+        graph_all_max_distance(runs, static,
+                               join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_max_distance.png"))
+
+    print(f'--- {time.time() - start_time} seconds ---')
