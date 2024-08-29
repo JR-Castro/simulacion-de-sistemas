@@ -148,6 +148,25 @@ def graph_slope_max_distance(static, all_runs, output_file):
     plt.savefig(output_file)
     plt.clf()
 
+def plot_total_growth(all_runs, output_file):
+    plt.figure()
+    for run_config in all_runs:
+        runs = run_config["data"]
+
+        start_cells = [len(run[0]["cells"]) for run in runs]
+        end_cells = [len(run[-1]["cells"]) for run in runs]
+
+        ratio = np.divide(np.subtract(end_cells, start_cells), start_cells)
+        mean = np.mean(ratio)
+        std = np.std(ratio, ddof=1)
+
+        plt.bar(run_config["label"], mean, yerr=std, capsize=5)
+
+    plt.xlabel("Porcentaje inicial de células vivas")
+    plt.ylabel("Crecimiento total de celulas vivas")
+    plt.savefig(output_file)
+    plt.clf()
+
 
 if __name__ == '__main__':
     Path(OUTPUT_IMAGES_2D_PATH).mkdir(parents=True, exist_ok=True)
@@ -187,6 +206,8 @@ if __name__ == '__main__':
         else:
             print("Invalid file")
 
+        plot_total_growth(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_total_growth.png"))
+
     for file in STATIC_FILES_3D:
         print(f"{file} 3D")
 
@@ -218,3 +239,5 @@ if __name__ == '__main__':
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         else:
             print("Invalid file")
+
+        plot_total_growth(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_total_growth.png"))
