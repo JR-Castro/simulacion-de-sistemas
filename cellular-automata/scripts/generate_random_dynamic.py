@@ -42,21 +42,21 @@ if __name__ == '__main__':
     Path(DYNAMIC_2D_PATH).mkdir(parents=True, exist_ok=True)
     Path(DYNAMIC_3D_PATH).mkdir(parents=True, exist_ok=True)
 
-    for file in STATIC_FILES_2D:
-        with open(join(STATIC_2D_PATH, file)) as f:
-            static_data = json.load(f)
+    anyFile = STATIC_FILES_2D[0]
+    with open(join(STATIC_2D_PATH, anyFile)) as f:
+        static_data = json.load(f)
 
-            for percentage in PERCENTAGES:
-                for j in range(RUN_ITERATIONS):
-                    generate_random_dynamic(static_data, False,
-                                            f"{file.split('.')[0]}_{int(percentage * 100)}_{j}.json",
-                                            percentage=percentage)
+        for percentage in PERCENTAGES:
+            for j in range(RUN_ITERATIONS):
+                generate_random_dynamic(static_data, False,
+                                        f"{int(percentage * 100)}_{j}.json",
+                                        percentage=percentage)
 
-    for file in STATIC_FILES_3D:
-        with open(join(STATIC_3D_PATH, file)) as f:
-            static_data = json.load(f)
+    anyFile = STATIC_FILES_3D[0]
+    with open(join(STATIC_3D_PATH, anyFile)) as f:
+        static_data = json.load(f)
 
-            for percentage in PERCENTAGES:
-                for j in range(RUN_ITERATIONS):
-                    generate_random_dynamic(static_data, True, f"{file.split('.')[0]}_{int(percentage * 100)}_{j}.json",
-                                            percentage=percentage)
+        for percentage in PERCENTAGES:
+            for j in range(RUN_ITERATIONS):
+                generate_random_dynamic(static_data, True, f"{int(percentage * 100)}_{j}.json",
+                                        percentage=percentage)

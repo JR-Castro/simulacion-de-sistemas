@@ -1,6 +1,6 @@
 {
   "areaSize": 100,
   "is3D": false,
-  "maxIterations": 50,
+  "maxIterations": 200,
   "rules": "CONWAY_VON_NEUMANN"
 }

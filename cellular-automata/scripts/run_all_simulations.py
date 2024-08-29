@@ -21,11 +21,11 @@ if __name__ == '__main__':
 
     for file in STATIC_FILES_2D:
         dynamic_files = [f for f in listdir(DYNAMIC_2D_PATH) if
-                         isfile(join(DYNAMIC_2D_PATH, f)) and re.match(f"{file.split('.')[0]}_[0-9]", f)]
+                         isfile(join(DYNAMIC_2D_PATH, f)) and re.match(f"[0-9]", f)]
 
         dynamic_files_paths = ",".join([join(DYNAMIC_2D_PATH, dynamic_file) for dynamic_file in dynamic_files])
         output_files_paths = ",".join(
-            [join(OUTPUT_2D_PATH, dynamic_input_file) for dynamic_input_file in dynamic_files])
+            [join(OUTPUT_2D_PATH, f"{file.split('.')[0]}_{dynamic_input_file}") for dynamic_input_file in dynamic_files])
         print(f'Running 2d simulation for {file} with {len(dynamic_files)} dynamic files')
         run_simulation(
             f'{RUN_SIMULATION_CMD} {join(STATIC_2D_PATH, file)} {dynamic_files_paths} {output_files_paths}'
@@ -33,10 +33,10 @@ if __name__ == '__main__':
 
     for file in STATIC_FILES_3D:
         dynamic_files = [f for f in listdir(DYNAMIC_2D_PATH) if
-                         isfile(join(DYNAMIC_2D_PATH, f)) and re.match(f"{file.split('.')[0]}_[0-9]", f)]
+                         isfile(join(DYNAMIC_2D_PATH, f)) and re.match(f"[0-9]", f)]
         dynamic_files_paths = ",".join([join(DYNAMIC_3D_PATH, dynamic_file) for dynamic_file in dynamic_files])
         output_files_paths = ",".join(
-            [join(OUTPUT_3D_PATH, dynamic_input_file) for dynamic_input_file in dynamic_files])
+            [join(OUTPUT_3D_PATH, f"{file.split('.')[0]}_{dynamic_input_file}") for dynamic_input_file in dynamic_files])
         print(f'Running 3d simulation for {file} with {len(dynamic_files)} dynamic files')
         run_simulation(
             f'{RUN_SIMULATION_CMD} {join(STATIC_3D_PATH, file)} {dynamic_files_paths} {output_files_paths}'
