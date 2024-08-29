@@ -1,3 +1,4 @@
+import re
 from os import listdir
 from os.path import join, isfile
 
@@ -20,3 +21,8 @@ PERCENTAGES = [(i+1) * 0.1 for i in range(10)]
 
 STATIC_FILES_3D = [f for f in listdir(STATIC_3D_PATH) if isfile(join(STATIC_3D_PATH, f))]
 STATIC_FILES_2D = [f for f in listdir(STATIC_2D_PATH) if isfile(join(STATIC_2D_PATH, f))]
+
+
+def extract_first_number(filename):
+    match = re.search(r'_(\d+)_', filename)
+    return int(match.group(1)) if match else None

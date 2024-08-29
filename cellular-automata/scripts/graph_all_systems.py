@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from utils import OUTPUT_2D_PATH, OUTPUT_IMAGES_2D_PATH, OUTPUT_IMAGES_3D_PATH, STATIC_FILES_2D, STATIC_FILES_3D, \
-    OUTPUT_3D_PATH, STATIC_2D_PATH, STATIC_3D_PATH
+    OUTPUT_3D_PATH, STATIC_2D_PATH, STATIC_3D_PATH, extract_first_number
 
 
 def graph_all_cells_alive(runs, output_file):
@@ -73,11 +73,6 @@ def graph_all_max_distance(runs, static, output_file):
     plt.clf()
 
 
-def extract_first_number(filename):
-    match = re.search(r'_(\d+)_', filename)
-    return int(match.group(1)) if match else None
-
-
 if __name__ == '__main__':
     Path(OUTPUT_IMAGES_2D_PATH).mkdir(parents=True, exist_ok=True)
     Path(OUTPUT_IMAGES_3D_PATH).mkdir(parents=True, exist_ok=True)
@@ -102,7 +97,7 @@ if __name__ == '__main__':
                 with open(join(OUTPUT_2D_PATH, output_file), 'r') as f:
                     percentage_run.append(json.load(f))
 
-            runs.append({"data": percentage_run, "label": key})
+            runs.append({"data": percentage_run, "label": f"{key}%"})
 
         graph_all_cells_alive(runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_cells_alive.png"))
         graph_all_max_distance(runs, static, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_max_distance.png"))
@@ -125,7 +120,7 @@ if __name__ == '__main__':
                 with open(join(OUTPUT_3D_PATH, output_file), 'r') as f:
                     percentage_run.append(json.load(f))
 
-            runs.append({"data": percentage_run, "label": key})
+            runs.append({"data": percentage_run, "label": f"{key}%"})
 
         graph_all_cells_alive(runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_cells_alive.png"))
         graph_all_max_distance(runs, static,
