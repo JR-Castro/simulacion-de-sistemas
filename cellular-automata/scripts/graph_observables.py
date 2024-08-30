@@ -121,7 +121,7 @@ def graph_slope_max_distance(static, all_runs, output_file):
             max([
                 sqrt((cell["x"] - 50) ** 2 +
                      (cell["y"] - 50) ** 2 +
-                     (cell["z"] - 50) ** 2) for cell in frame["cells"]
+                     ((cell["z"] - 50) ** 2 if static["is3D"] else 0)) for cell in frame["cells"]
             ], default=0) for frame in percentage_run
         ] for percentage_run in percentage_runs]
         slopes = []
@@ -197,7 +197,7 @@ if __name__ == '__main__':
 
         if file == "static_conway.json":
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
-            # graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
+            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
         elif file == "static_conway_von_neumann.json":
             graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
@@ -231,9 +231,10 @@ if __name__ == '__main__':
             all_runs.append({"data": percentage_run, "label": f"{key}%"})
 
         if file == "static_conway.json":
-            # graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
+            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         elif file == "static_conway_von_neumann.json":
+            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         elif file == "static_climbing_plants.json":
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
