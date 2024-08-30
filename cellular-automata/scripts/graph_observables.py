@@ -232,6 +232,7 @@ if __name__ == '__main__':
         if file == "static_conway.json":
             graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
+            graph_last_max_distance(static, all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_max_distance.png"))
         elif file == "static_conway_von_neumann.json":
             graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
             graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
