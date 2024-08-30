@@ -1,11 +1,12 @@
+import json
+import re
+import time
 from itertools import groupby
 from math import sqrt
 from os import listdir
 from os.path import join, isfile
 from pathlib import Path
-import time
-import re
-import json
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -198,7 +199,7 @@ if __name__ == '__main__':
         if file == "static_conway.json":
             graph_last_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_max_distance.png"))
         elif file == "static_conway_von_neumann.json":
-            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
+            plot_total_growth(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_total_growth.png"))
         elif file == "static_climbing_plants.json":
             plot_total_growth(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_total_growth.png"))
         else:
