@@ -49,7 +49,7 @@ def graph_all_max_distance(runs, static, output_file):
         max_distances = np.vstack([np.pad([max([
             sqrt((cell["x"] - center) ** 2 +
                  (cell["y"] - center) ** 2 +
-                 (cell["z"] - center) ** 2) for cell in frame["cells"]
+                 ((cell["z"] - center) ** 2 if static["is3D"] else 0)) for cell in frame["cells"]
         ], default=0) for frame in run], (0, runs_count - len(run))) for run in percentage_runs])
         means = []
         # stds = []

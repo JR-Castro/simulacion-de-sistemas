@@ -30,7 +30,7 @@ def graph_last_cells_alive(all_runs, output_file):
     plt.clf()
 
 
-def graph_last_max_distance(all_runs, output_file):
+def graph_last_max_distance(static, all_runs, output_file):
     print("Last Max Distance")
     plt.figure()
     for run in all_runs:
@@ -38,7 +38,7 @@ def graph_last_max_distance(all_runs, output_file):
         distances = [[
             sqrt((cell["x"] - 50) ** 2 +
                  (cell["y"] - 50) ** 2 +
-                 (cell["z"] - 50) ** 2) for cell in percentage_run[-1]["cells"]
+                 ((cell["z"] - 50) ** 2 if static["is3D"] else 0)) for cell in percentage_run[-1]["cells"]
         ] for percentage_run in percentage_runs]
         last_max_distance = [
             max(distance, default=0) for distance in distances
@@ -196,7 +196,7 @@ if __name__ == '__main__':
             all_runs.append({"data": percentage_run, "label": f"{key}%"})
 
         if file == "static_conway.json":
-            graph_last_max_distance(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_max_distance.png"))
+            graph_last_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_max_distance.png"))
         elif file == "static_conway_von_neumann.json":
             graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
         elif file == "static_climbing_plants.json":
@@ -239,4 +239,4 @@ if __name__ == '__main__':
         else:
             print("Invalid file")
 
-        plot_total_growth(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_total_growth.png"))
+        # plot_total_growth(all_runs, join(OUTPUT_IMAGES_3D_PATH, f"{file.split('.')[0]}_total_growth.png"))
