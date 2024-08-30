@@ -196,13 +196,11 @@ if __name__ == '__main__':
             all_runs.append({"data": percentage_run, "label": f"{key}%"})
 
         if file == "static_conway.json":
-            graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
-            graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
+            graph_last_max_distance(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_max_distance.png"))
         elif file == "static_conway_von_neumann.json":
             graph_slope_max_distance(static, all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_slope_max_distance.png"))
-            graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
         elif file == "static_climbing_plants.json":
-            graph_last_cells_alive(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_last_cells_alive.png"))
+            plot_total_growth(all_runs, join(OUTPUT_IMAGES_2D_PATH, f"{file.split('.')[0]}_total_growth.png"))
         else:
             print("Invalid file")
 
