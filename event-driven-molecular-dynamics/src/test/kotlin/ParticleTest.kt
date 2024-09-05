@@ -48,4 +48,22 @@ class ParticleTest {
 
         assertNull(prediction)
     }
+
+    @Test
+    @DisplayName("Rectilinear movement")
+    fun shouldMove() {
+        val particle = Particle(Vec2D.zero(), right, radius, mass)
+        particle.step(1.0)
+
+        assertEqualsWithTolerance(distance, particle.position.x)
+    }
+
+    @Test
+    @DisplayName("No movement")
+    fun shouldNotMove() {
+        val particle = Particle(Vec2D.zero(), Vec2D.zero(), radius, mass)
+        particle.step(1.0)
+
+        assertEqualsWithTolerance(0.0, particle.position.x)
+    }
 }

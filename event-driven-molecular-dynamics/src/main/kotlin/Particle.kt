@@ -3,7 +3,7 @@ package ar.edu.itba.ss
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-data class Particle(val position: Vec2D, val velocity: Vec2D, val radius: Double, val mass: Double) {
+data class Particle(var position: Vec2D, val velocity: Vec2D, val radius: Double, val mass: Double) {
     fun predictCollision(particle: Particle): ParticleCollision? {
         val deltaR = this.position - particle.position
         val deltaV = this.velocity - particle.velocity
@@ -16,6 +16,10 @@ data class Particle(val position: Vec2D, val velocity: Vec2D, val radius: Double
         if (d < 0) return null
 
         return ParticleCollision(- (deltaV * deltaR + sqrt(d)) / (deltaV * deltaV), this, particle)
+    }
+
+    fun step(time: Double) {
+        position += velocity * time
     }
 }
 
