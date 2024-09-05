@@ -11,7 +11,7 @@ data class Particle(val position: Vec2D, val velocity: Vec2D, val radius: Double
         if (deltaV * deltaR >= 0) return null
 
         val sigma = this.radius + particle.radius
-        val d = (deltaV * deltaR).pow(2) - (deltaV * deltaV) * (deltaR * deltaR - sigma)
+        val d = (deltaV * deltaR).pow(2) - (deltaV * deltaV) * (deltaR * deltaR - sigma.pow(2))
 
         if (d < 0) return null
 

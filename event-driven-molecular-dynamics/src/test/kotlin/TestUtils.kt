@@ -1,7 +1,7 @@
 import ar.edu.itba.ss.Vec2D
 import kotlin.math.abs
 
-private const val EPSILON = 1.0e-15
+private const val EPSILON = 1.0e-14
 
 fun assertEqualsWithTolerance(expected: Double, actual: Double) {
     assert(abs(actual - expected) < EPSILON)

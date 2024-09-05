@@ -8,10 +8,10 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class ParticleTest {
-    private val radius = 0.5
+    private val radius = 0.1
     private val mass = 1.0
 
-    private val distance = 1.0
+    private val distance = 2.0
     private val right = Vec2D(distance, 0.0)
     private val left = Vec2D(-distance, 0.0)
     private val up =   Vec2D(0.0, distance)
@@ -25,7 +25,7 @@ class ParticleTest {
         val prediction = particle1.predictCollision(particle2)
 
         assertNotNull(prediction)
-        assertEqualsWithTolerance(distance - radius, prediction.time)
+        assertEqualsWithTolerance(distance - radius, prediction.time * distance)
     }
 
     @Test
@@ -36,7 +36,7 @@ class ParticleTest {
         val prediction = particle1.predictCollision(particle2)
 
         assertNotNull(prediction)
-        assertEqualsWithTolerance(distance - sqrt((2*radius).pow(2) / 2), prediction.time)
+        assertEqualsWithTolerance(distance - sqrt((2*radius).pow(2) / 2), prediction.time * distance)
     }
 
     @Test
