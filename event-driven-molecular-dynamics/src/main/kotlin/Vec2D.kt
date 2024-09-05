@@ -23,6 +23,10 @@ data class Vec2D(val x: Double, val y: Double) {
         return Vec2D(this.x * scalar, this.y * scalar)
     }
 
+    operator fun div(scalar: Double): Vec2D {
+        return times(1.0 / scalar)
+    }
+
     fun modulus(): Double {
         return sqrt(this.x.pow(2) + this.y.pow(2))
     }

@@ -100,6 +100,18 @@ class Vec2DTest {
     @DisplayName("Vector unit 360º")
     fun shouldReturnUnitLoop() {
         val unit = Vec2D.unit(Math.PI * 2)
+
         assertEqualsWithTolerance(Vec2D(1.0, 0.0), unit)
+    }
+
+    @Test
+    @DisplayName("Mirror vector with surface normal")
+    fun shouldReturnMirrored() {
+        val vec = Vec2D(2.0, 3.0)
+        val normal = Vec2D(1.0, 0.0)
+
+        val mirrored = vec - normal * (normal * vec) * 2.0
+
+        assertEqualsWithTolerance(Vec2D(-2.0, 3.0), mirrored)
     }
 }

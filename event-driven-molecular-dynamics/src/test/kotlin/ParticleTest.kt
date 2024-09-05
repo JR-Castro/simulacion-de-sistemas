@@ -1,5 +1,4 @@
-import ar.edu.itba.ss.Particle
-import ar.edu.itba.ss.Vec2D
+import ar.edu.itba.ss.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import kotlin.math.pow
@@ -18,7 +17,7 @@ class ParticleTest {
     private val down = Vec2D(0.0, -distance)
 
     @Test
-    @DisplayName("Head on collision")
+    @DisplayName("Predict head on collision")
     fun shouldCollideHeadOn() {
         val particle1 = Particle(left, right, radius, mass)
         val particle2 = Particle(right, left, radius, mass)
@@ -29,7 +28,7 @@ class ParticleTest {
     }
 
     @Test
-    @DisplayName("90º angle collision")
+    @DisplayName("Predict 90º angle collision")
     fun shouldCollideAtAngle() {
         val particle1 = Particle(up, down, radius, mass)
         val particle2 = Particle(left, right, radius, mass)
@@ -40,7 +39,7 @@ class ParticleTest {
     }
 
     @Test
-    @DisplayName("No collision")
+    @DisplayName("Predict no collision")
     fun shouldNotCollide() {
         val particle1 = Particle(left, left, radius, mass)
         val particle2 = Particle(right, right, radius, mass)
@@ -65,5 +64,47 @@ class ParticleTest {
         particle.step(1.0)
 
         assertEqualsWithTolerance(0.0, particle.position.x)
+    }
+
+    @Test
+    @DisplayName("Collide with walls")
+    fun shouldReflectVelocity() {
+        val particle = Particle(Vec2D.zero(), Vec2D(2.0, 3.0), radius, mass)
+
+        particle.collideWith(WALL_RIGHT)
+        assertEqualsWithTolerance(Vec2D(-2.0, 3.0), particle.velocity)
+
+        particle.collideWith(WALL_TOP)
+        assertEqualsWithTolerance(Vec2D(-2.0, -3.0), particle.velocity)
+
+        particle.collideWith(WALL_BOTTOM)
+        assertEqualsWithTolerance(Vec2D(-2.0, 3.0), particle.velocity)
+
+        particle.collideWith(WALL_LEFT)
+        assertEqualsWithTolerance(Vec2D(2.0, 3.0), particle.velocity)
+    }
+
+    @Test
+    @DisplayName("Collide with particle head on")
+    fun shouldMirrorVelocity() {
+        val particle1 = Particle(Vec2D(-radius, 0.0), Vec2D(+1.0, 0.0), radius, mass)
+        val particle2 = Particle(Vec2D(+radius, 0.0), Vec2D(-1.0, 0.0), radius, mass)
+
+        particle1.collideWith(particle2)
+
+        assertEqualsWithTolerance(Vec2D(-1.0, 0.0), particle1.velocity)
+        assertEqualsWithTolerance(Vec2D(+1.0, 0.0), particle2.velocity)
+    }
+
+    @Test
+    @DisplayName("Collide with stationary particle")
+    fun shouldExchangeVelocity() {
+        val particle1 = Particle(Vec2D(-radius, 0.0), Vec2D(1.0, 0.0), radius, mass)
+        val particle2 = Particle(Vec2D(+radius, 0.0), Vec2D.zero(), radius, mass)
+
+        particle1.collideWith(particle2)
+
+        assertEqualsWithTolerance(Vec2D.zero(), particle1.velocity)
+        assertEqualsWithTolerance(Vec2D(1.0, 0.0), particle2.velocity)
     }
 }
