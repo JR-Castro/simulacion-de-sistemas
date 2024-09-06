@@ -1,5 +1,17 @@
 package ar.edu.itba.ss
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.File
+
+fun writeSimulationDataToFile(simulationSteps: Map<Double, SimulationStep>, fileName: String) {
+    val simulationData = SimulationData(simulationSteps)
+    val json = Json { prettyPrint = true }
+    val jsonString = json.encodeToString(simulationData)
+
+    File(fileName).writeText(jsonString)
+}
+
 fun main() {
     val L = 0.1
     val r = 0.001
@@ -18,6 +30,19 @@ fun main() {
         }
     }
 
+    // Collect particle data
+    var particlesData = particles.map { particle ->
+        ParticleData(
+            positionX = particle.position.x,
+            positionY = particle.position.y,
+            velocityX = particle.velocity.x,
+            velocityY = particle.velocity.y
+        )
+    }
+
+    val simulationSteps = mutableMapOf<Double, SimulationStep>()
+    simulationSteps[time] = SimulationStep(time, particlesData)
+
     while (time < T) {
         val containerCollision = particles
             .mapNotNull { container.predictCollision(it) }
@@ -32,25 +57,55 @@ fun main() {
             particleCollision == null || containerCollision.time <= particleCollision.time -> {
                 particles.onEach { it.step(containerCollision.time) }
                 containerCollision.particle.collideWith(containerCollision.wallNormal)
+
+                // Collect particle data
+                particlesData = particles.map { particle ->
+                    ParticleData(
+                        positionX = particle.position.x,
+                        positionY = particle.position.y,
+                        velocityX = particle.velocity.x,
+                        velocityY = particle.velocity.y
+                    )
+                }
+
+                // Store the collected data
+                simulationSteps[time] = SimulationStep(time, particlesData)
+
                 time += containerCollision.time
 
-                val position = containerCollision.particle.position
-                val normal = containerCollision.wallNormal
-                println(
-                    "TIME %f: Container collision at x=%f y=%f (normal x=%f y=%f)"
-                        .format(time, position.x, position.y, normal.x, normal.y)
-                )
+//                val position = containerCollision.particle.position
+//                val normal = containerCollision.wallNormal
+//                println(
+//                    "TIME %f: Container collision at x=%f y=%f (normal x=%f y=%f)"
+//                        .format(time, position.x, position.y, normal.x, normal.y)
+//                )
             }
             else -> {
                 particles.onEach { it.step(particleCollision.time) }
                 particleCollision.particle1.collideWith(particleCollision.particle2)
+
+                // Collect particle data
+                particlesData = particles.map { particle ->
+                    ParticleData(
+                        positionX = particle.position.x,
+                        positionY = particle.position.y,
+                        velocityX = particle.velocity.x,
+                        velocityY = particle.velocity.y
+                    )
+                }
+
+                // Store the collected data
+                simulationSteps[time] = SimulationStep(time, particlesData)
+
                 time += particleCollision.time
 
-                val position1 = particleCollision.particle1.position
-                val position2 = particleCollision.particle2.position
-                println("TIME %f: Particle collision at x=%f y=%f and x=%f y=%f (distance=%f)"
-                    .format(time, position1.x, position1.y, position2.x, position2.y, (position1 - position2).modulus()))
+//                val position1 = particleCollision.particle1.position
+//                val position2 = particleCollision.particle2.position
+//                println("TIME %f: Particle collision at x=%f y=%f and x=%f y=%f (distance=%f)"
+//                    .format(time, position1.x, position1.y, position2.x, position2.y, (position1 - position2).modulus()))
             }
         }
     }
+
+    writeSimulationDataToFile(simulationSteps, "output.json")
 }

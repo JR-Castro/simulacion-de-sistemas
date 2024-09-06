@@ -23,7 +23,7 @@ data class Particle(var position: Vec2D, var velocity: Vec2D, val radius: Double
     }
 
     fun collideWith(wallNormal: Vec2D) {
-        velocity -= wallNormal * (wallNormal * velocity) * 2.0
+        velocity -= wallNormal * (wallNormal * velocity) * 2.0 // TODO: Me parece que es +=(wallNormal * velocity) * 2.0
     }
 
     fun collideWith(particle: Particle) {
