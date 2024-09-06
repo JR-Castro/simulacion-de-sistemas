@@ -4,4 +4,4 @@ interface Container {
     fun predictCollision(particle: Particle): ContainerCollision?
 }
 
-data class ContainerCollision(val time: Double, val wallNormal: Vec2D, val particle: Particle)
+data class ContainerCollision(override var time: Double, val wallNormal: Vec2D, val particle: Particle) : Collision(time)

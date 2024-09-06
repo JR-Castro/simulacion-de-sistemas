@@ -1,5 +1,7 @@
 package ar.edu.itba.ss
 
+import java.util.PriorityQueue
+
 fun main() {
     val L = 0.1
     val r = 0.001
@@ -18,39 +20,59 @@ fun main() {
         }
     }
 
+    val collisionQueue = PriorityQueue<Collision>(compareBy { it.time })
+
+    collisionQueue.addAll(particles
+        .mapNotNull { container.predictCollision(it) })
+
+    collisionQueue.addAll(particles
+        .map { p1 -> particles.mapNotNull { p2 -> p1.predictCollision(p2) } }
+        .flatten())
+
     while (time < T) {
-        val containerCollision = particles
-            .mapNotNull { container.predictCollision(it) }
-            .reduce { acc, collision -> if (collision.time < acc.time) collision else acc }
+        val collision = collisionQueue.poll()
+        particles.onEach { it.step(collision.time - time) }
+        time = collision.time
 
-        val particleCollision = particles
-            .map { p1 -> particles.mapNotNull { p2 -> p1.predictCollision(p2) } }
-            .flatten()
-            .fold(null) { acc: ParticleCollision?, collision -> if (acc == null || collision.time < acc.time) collision else acc }
+        when (collision) {
+            is ContainerCollision -> {
+                collision.particle.collideWith(collision.wallNormal)
+                
+                updatePredictions(collisionQueue, particles, container, collision.particle, time)
 
-        when {
-            particleCollision == null || containerCollision.time <= particleCollision.time -> {
-                particles.onEach { it.step(containerCollision.time) }
-                containerCollision.particle.collideWith(containerCollision.wallNormal)
-                time += containerCollision.time
-
-                val position = containerCollision.particle.position
-                val normal = containerCollision.wallNormal
+                val position = collision.particle.position
+                val normal = collision.wallNormal
                 println(
                     "TIME %f: Container collision at x=%f y=%f (normal x=%f y=%f)"
                         .format(time, position.x, position.y, normal.x, normal.y)
                 )
             }
-            else -> {
-                particles.onEach { it.step(particleCollision.time) }
-                particleCollision.particle1.collideWith(particleCollision.particle2)
-                time += particleCollision.time
+            is ParticleCollision -> {
+                collision.particle1.collideWith(collision.particle2)
 
-                val position1 = particleCollision.particle1.position
-                val position2 = particleCollision.particle2.position
+                updatePredictions(collisionQueue, particles, container, collision.particle1, time)
+                updatePredictions(collisionQueue, particles, container, collision.particle2, time)
+
+                val position1 = collision.particle1.position
+                val position2 = collision.particle2.position
                 println("TIME %f: Particle collision at x=%f y=%f and x=%f y=%f (distance=%f)"
                     .format(time, position1.x, position1.y, position2.x, position2.y, (position1 - position2).modulus()))
             }
         }
     }
+}
+
+fun updatePredictions(
+    queue: PriorityQueue<Collision>,
+    particles: List<Particle>,
+    container: Container,
+    particle: Particle,
+    time: Double
+) {
+    queue.removeIf { when (it) {
+        is ContainerCollision -> it.particle === particle
+        is ParticleCollision -> it.particle1 === particle || it.particle2 === particle
+    } }
+    queue.addAll(particles.mapNotNull { particle.predictCollision(it)?.offset(time) })
+    queue.add(container.predictCollision(particle)!!.offset(time))
 }

@@ -40,4 +40,4 @@ data class Particle(var position: Vec2D, var velocity: Vec2D, val radius: Double
     }
 }
 
-data class ParticleCollision(val time: Double, val particle1: Particle, val particle2: Particle)
+data class ParticleCollision(override var time: Double, val particle1: Particle, val particle2: Particle) : Collision(time)
