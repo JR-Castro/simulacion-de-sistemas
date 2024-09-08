@@ -1,24 +1,47 @@
 package ar.edu.itba.ss
 
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.PriorityQueue
 
-fun main() {
-    val L = 0.1
-    val r = 0.001
-    val v = 1.0
-    val m = 1.0
-    val N = 200
-    val T = 0.5
+data class Quadruple<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
+
+
+fun processInputFiles(static_path: String, dynamic_path: String): Quadruple<String, Double, Double, List<Particle>> {
+    val staticFileLines = Files.readAllLines(Path.of(static_path))
+    val dynamicFileLines = Files.readAllLines(Path.of(dynamic_path))
+
+    val layout = staticFileLines[0]
+    val L = staticFileLines[1].toDouble()
+    val N = staticFileLines[2].toInt()
+    val T = staticFileLines[3].toDouble()
+
+    val particles = mutableListOf<Particle>()
+
+    for (i in 0 until N) {
+        val staticPartData = staticFileLines[i+4].split(" ")
+        val dynPartData = dynamicFileLines[i+1].split(" ")
+        val x = dynPartData[1].toDouble()
+        val y = dynPartData[2].toDouble()
+        val vx = dynPartData[3].toDouble()
+        val vy = dynPartData[4].toDouble()
+        val radius = staticPartData[1].toDouble()
+        val mass = staticPartData[2].toDouble()
+        particles.add(Particle(Vec2D(x, y), Vec2D(vx, vy), radius, mass))
+    }
+
+    return Quadruple(layout, L, T, particles)
+}
+
+fun main(args: Array<String>) {
+    if (args.size != 2) {
+        println("Usage: cmd <static_file> <dynamic_file>")
+        return
+    }
 
     var time = 0.0
-    val container = SquareContainer(L)
-    val particles = mutableListOf<Particle>()
-    while (particles.size < N) {
-        val particle = Particle(Vec2D.randomInRange(-L/2 + r,L/2 - r), Vec2D.randomWithModulus(v), r, m)
-        if (particles.none { (it.position - particle.position).modulus() < it.radius + particle.radius }) {
-            particles.add(particle)
-        }
-    }
+    val (layout, L, T, particles) = processInputFiles(args[0], args[1])
+    val container = if (layout == "SQUARE") SquareContainer(L) else CircularContainer(L / 2)
 
     val collisionQueue = PriorityQueue<Collision>(compareBy { it.time })
 

@@ -16,8 +16,8 @@ def generate_particle(p_num, layout, L, p_radius, p_mass, speed_module):
 
 
     if layout == 'SQUARE':
-        x = uniform(0, L - p_radius)
-        y = uniform(0, L - p_radius)
+        x = uniform(-L/2 + p_radius, L/2 - p_radius)
+        y = uniform(-L/2 + p_radius, L/2 + p_radius)
         return p_num, x, y, p_radius, p_mass, speed_x, speed_y
 
     r = L / 2
@@ -37,7 +37,7 @@ def check_particle_collision(particles, particle):
 
 
 def generate_particles(particles: list, layout, L, N, speed_module):
-    for i in range(len(particles) + 1, N):
+    for i in range(len(particles) + 1, N + 1):
         new_particle = generate_particle(i, layout, L, PARTICLE_RADIUS, PARTICLE_MASS, speed_module)
         while check_particle_collision(particles, new_particle):
             new_particle = generate_particle(i, layout, L, PARTICLE_RADIUS, PARTICLE_MASS, speed_module)
