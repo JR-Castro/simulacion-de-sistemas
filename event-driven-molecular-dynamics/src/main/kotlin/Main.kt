@@ -26,7 +26,7 @@ fun processInputFiles(static_path: String, dynamic_path: String): Quadruple<Stri
         val vx = dynPartData[3].toDouble()
         val vy = dynPartData[4].toDouble()
         val radius = staticPartData[1].toDouble()
-        val mass = staticPartData[2].toDouble()
+        val mass = if (staticPartData[2] == "inf") Double.POSITIVE_INFINITY else staticPartData[2].toDouble()
         particles.add(Particle(i + 1, Vec2D(x, y), Vec2D(vx, vy), radius, mass))
     }
 
@@ -61,6 +61,8 @@ fun main(args: Array<String>) {
         particles.onEach { it.step(collision.time - time) }
         time = collision.time
 
+        print("\r$time")
+
         when (collision) {
             is ContainerCollision -> {
                 collision.particle.collideWith(collision.wallNormal)
@@ -79,8 +81,7 @@ fun main(args: Array<String>) {
             is ParticleCollision -> {
                 collision.particle1.collideWith(collision.particle2)
 
-                updatePredictions(collisionQueue, particles, container, collision.particle1, time)
-                updatePredictions(collisionQueue, particles, container, collision.particle2, time)
+                updatePredictionsTwoParticles(collisionQueue, particles, container, collision.particle1, collision.particle2, time)
 
 //                val position1 = collision.particle1.position
 //                val position2 = collision.particle2.position
@@ -91,7 +92,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    println("Elapsed time: ${System.currentTimeMillis() - startTime} ms")
+    println("\rElapsed time: ${System.currentTimeMillis() - startTime} ms")
 
     Files.newBufferedWriter(Path.of(args[2])).use { file ->
         outputList.forEach {
@@ -131,5 +132,31 @@ fun updatePredictions(
         }
     }
     queue.addAll(particles.mapNotNull { particle.predictCollision(it)?.offset(time) })
-    queue.add(container.predictCollision(particle)!!.offset(time))
+    container.predictCollision(particle)?.let {
+        queue.add(it.offset(time))
+    }
+}
+
+fun updatePredictionsTwoParticles(
+    queue: PriorityQueue<Collision>,
+    particles: List<Particle>,
+    container: Container,
+    partticle1: Particle,
+    particle2: Particle,
+    time: Double
+) {
+    queue.removeIf {
+        when (it) {
+            is ContainerCollision -> it.particle === partticle1 || it.particle === particle2
+            is ParticleCollision -> it.particle1 === partticle1 || it.particle1 === particle2 || it.particle2 === partticle1 || it.particle2 === particle2
+        }
+    }
+    queue.addAll(particles.mapNotNull { partticle1.predictCollision(it)?.offset(time) })
+    queue.addAll(particles.mapNotNull { particle2.predictCollision(it)?.offset(time) })
+    container.predictCollision(partticle1)?.let {
+        queue.add(it.offset(time))
+    }
+    container.predictCollision(particle2)?.let {
+        queue.add(it.offset(time))
+    }
 }

@@ -1,4 +1,9 @@
 def read_static_file(file_path):
+    """
+    Returns a dictionary with the static information of the simulation
+    :param file_path: str
+    :return: { container: float, length: float, N: int, time: float, particles: List[(p_num: int, p_radius: float, p_mass: float)] }
+    """
     static = {}
     with open(file_path, 'r') as f:
         static["container"] = f.readline()
@@ -22,6 +27,12 @@ def read_static_file(file_path):
 
 
 def read_dynamic_file(static, file_path):
+    """
+    Returns the first state of the system
+    :param static: dict
+    :param file_path: str
+    :return: List[(p_num: int, x: float, y: float, vx: float, vy: float)]
+    """
     dynamic = []
     with open(file_path, 'r') as f:
         f.readline()
@@ -32,6 +43,12 @@ def read_dynamic_file(static, file_path):
 
 
 def read_output_file(file_path, dt):
+    """
+    Returns a list of dictionaries with the status of the system at each time step
+    :param file_path: str
+    :param dt: float
+    :return: List[{ time: float, particles: List[(p_num: int, x: float, y: float, vx: float, vy: float)] }]
+    """
     time = 0
     status = []
     with open(file_path, 'r') as f:
