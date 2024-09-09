@@ -54,6 +54,8 @@ fun main(args: Array<String>) {
 
     val outputList: MutableList<Triple<Double, Particle, Particle?>> = mutableListOf()
 
+    val startTime = System.currentTimeMillis()
+
     while (time < T) {
         val collision = collisionQueue.poll()
         particles.onEach { it.step(collision.time - time) }
@@ -89,16 +91,26 @@ fun main(args: Array<String>) {
         }
     }
 
+    println("Elapsed time: ${System.currentTimeMillis() - startTime} ms")
+
     Files.newBufferedWriter(Path.of(args[2])).use { file ->
         outputList.forEach {
             file.write("${it.first}")
-            file.newLine()
-            val part1 = it.second
-            file.write("${part1.partNum} ${part1.position.x} ${part1.position.y} ${part1.velocity.x} ${part1.velocity.y}")
-            file.newLine()
             if (it.third != null) {
+                // indicate there were two particles
+                file.write(" 2")
+                file.newLine()
+                val part1 = it.second
+                file.write("${part1.partNum} ${part1.position.x} ${part1.position.y} ${part1.velocity.x} ${part1.velocity.y}")
+                file.newLine()
                 val particle = it.third!!
                 file.write("${particle.partNum} ${particle.position.x} ${particle.position.y} ${particle.velocity.x} ${particle.velocity.y}")
+                file.newLine()
+            } else {
+                file.write(" 1")
+                file.newLine()
+                val part1 = it.second
+                file.write("${part1.partNum} ${part1.position.x} ${part1.position.y} ${part1.velocity.x} ${part1.velocity.y}")
                 file.newLine()
             }
         }
