@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
 
     var time = 0.0
     val (layout, L, T, particles) = processInputFiles(args[0], args[1])
-    val container = if (layout == "SQUARE") SquareContainer(L) else CircularContainer(L / 2)
+    val container = if (layout == "SQUARE") SquareContainer(L) else RoundContainer(L / 2)
 
     val collisionQueue = PriorityQueue<Collision>(compareBy { it.time })
 

@@ -15,7 +15,7 @@ class SquareContainerTest {
     @Test
     @DisplayName("Right side collision")
     fun shouldCollideRight() {
-        val particle = Particle(Vec2D.zero(), Vec2D.unit(0.0), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D.unit(0.0), radius, mass)
         val prediction = container.predictCollision(particle)
 
         assertNotNull(prediction)
@@ -26,7 +26,7 @@ class SquareContainerTest {
     @Test
     @DisplayName("Left side collision")
     fun shouldCollideLeft() {
-        val particle = Particle(Vec2D.zero(), Vec2D.unit(Math.PI), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D.unit(Math.PI), radius, mass)
         val prediction = container.predictCollision(particle)
 
         assertNotNull(prediction)
@@ -37,7 +37,7 @@ class SquareContainerTest {
     @Test
     @DisplayName("Top side collision")
     fun shouldCollideTop() {
-        val particle = Particle(Vec2D.zero(), Vec2D.unit(Math.PI / 2), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D.unit(Math.PI / 2), radius, mass)
         val prediction = container.predictCollision(particle)
 
         assertNotNull(prediction)
@@ -48,7 +48,7 @@ class SquareContainerTest {
     @Test
     @DisplayName("Bottom side collision")
     fun shouldCollideBottom() {
-        val particle = Particle(Vec2D.zero(), Vec2D.unit(Math.PI * 3 / 2), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D.unit(Math.PI * 3 / 2), radius, mass)
         val prediction = container.predictCollision(particle)
 
         assertNotNull(prediction)
@@ -59,7 +59,7 @@ class SquareContainerTest {
     @Test
     @DisplayName("No collision")
     fun shouldNotCollide() {
-        val particle = Particle(Vec2D.zero(), Vec2D.zero(), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D.zero(), radius, mass)
         val prediction = container.predictCollision(particle)
 
         assertNull(prediction)

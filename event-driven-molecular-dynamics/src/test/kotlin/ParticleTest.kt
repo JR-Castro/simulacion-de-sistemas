@@ -13,14 +13,14 @@ class ParticleTest {
     private val distance = 2.0
     private val right = Vec2D(distance, 0.0)
     private val left = Vec2D(-distance, 0.0)
-    private val up =   Vec2D(0.0, distance)
+    private val up = Vec2D(0.0, distance)
     private val down = Vec2D(0.0, -distance)
 
     @Test
     @DisplayName("Predict head on collision")
     fun shouldCollideHeadOn() {
-        val particle1 = Particle(left, right, radius, mass)
-        val particle2 = Particle(right, left, radius, mass)
+        val particle1 = Particle(0, left, right, radius, mass)
+        val particle2 = Particle(0, right, left, radius, mass)
         val prediction = particle1.predictCollision(particle2)
 
         assertNotNull(prediction)
@@ -30,19 +30,19 @@ class ParticleTest {
     @Test
     @DisplayName("Predict 90º angle collision")
     fun shouldCollideAtAngle() {
-        val particle1 = Particle(up, down, radius, mass)
-        val particle2 = Particle(left, right, radius, mass)
+        val particle1 = Particle(0, up, down, radius, mass)
+        val particle2 = Particle(0, left, right, radius, mass)
         val prediction = particle1.predictCollision(particle2)
 
         assertNotNull(prediction)
-        assertEqualsWithTolerance(distance - sqrt((2*radius).pow(2) / 2), prediction.time * distance)
+        assertEqualsWithTolerance(distance - sqrt((2 * radius).pow(2) / 2), prediction.time * distance)
     }
 
     @Test
     @DisplayName("Predict no collision")
     fun shouldNotCollide() {
-        val particle1 = Particle(left, left, radius, mass)
-        val particle2 = Particle(right, right, radius, mass)
+        val particle1 = Particle(0, left, left, radius, mass)
+        val particle2 = Particle(0, right, right, radius, mass)
         val prediction = particle1.predictCollision(particle2)
 
         assertNull(prediction)
@@ -51,7 +51,7 @@ class ParticleTest {
     @Test
     @DisplayName("Rectilinear movement")
     fun shouldMove() {
-        val particle = Particle(Vec2D.zero(), right, radius, mass)
+        val particle = Particle(0, Vec2D.zero(), right, radius, mass)
         particle.step(1.0)
 
         assertEqualsWithTolerance(distance, particle.position.x)
@@ -60,7 +60,7 @@ class ParticleTest {
     @Test
     @DisplayName("No movement")
     fun shouldNotMove() {
-        val particle = Particle(Vec2D.zero(), Vec2D.zero(), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D.zero(), radius, mass)
         particle.step(1.0)
 
         assertEqualsWithTolerance(0.0, particle.position.x)
@@ -69,7 +69,7 @@ class ParticleTest {
     @Test
     @DisplayName("Collide with walls")
     fun shouldReflectVelocity() {
-        val particle = Particle(Vec2D.zero(), Vec2D(2.0, 3.0), radius, mass)
+        val particle = Particle(0, Vec2D.zero(), Vec2D(2.0, 3.0), radius, mass)
 
         particle.collideWith(WALL_RIGHT)
         assertEqualsWithTolerance(Vec2D(-2.0, 3.0), particle.velocity)
@@ -87,8 +87,8 @@ class ParticleTest {
     @Test
     @DisplayName("Collide with particle head on")
     fun shouldMirrorVelocity() {
-        val particle1 = Particle(Vec2D(-radius, 0.0), Vec2D(+1.0, 0.0), radius, mass)
-        val particle2 = Particle(Vec2D(+radius, 0.0), Vec2D(-1.0, 0.0), radius, mass)
+        val particle1 = Particle(0, Vec2D(-radius, 0.0), Vec2D(+1.0, 0.0), radius, mass)
+        val particle2 = Particle(0, Vec2D(+radius, 0.0), Vec2D(-1.0, 0.0), radius, mass)
 
         particle1.collideWith(particle2)
 
@@ -99,8 +99,8 @@ class ParticleTest {
     @Test
     @DisplayName("Collide with stationary particle")
     fun shouldExchangeVelocity() {
-        val particle1 = Particle(Vec2D(-radius, 0.0), Vec2D(1.0, 0.0), radius, mass)
-        val particle2 = Particle(Vec2D(+radius, 0.0), Vec2D.zero(), radius, mass)
+        val particle1 = Particle(0, Vec2D(-radius, 0.0), Vec2D(1.0, 0.0), radius, mass)
+        val particle2 = Particle(0, Vec2D(+radius, 0.0), Vec2D.zero(), radius, mass)
 
         particle1.collideWith(particle2)
 

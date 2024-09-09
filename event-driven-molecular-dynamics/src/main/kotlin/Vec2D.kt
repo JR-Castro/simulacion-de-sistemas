@@ -27,6 +27,10 @@ data class Vec2D(val x: Double, val y: Double) {
         return times(1.0 / scalar)
     }
 
+    operator fun unaryMinus(): Vec2D {
+        return Vec2D(-this.x, -this.y)
+    }
+
     fun modulus(): Double {
         return sqrt(this.x.pow(2) + this.y.pow(2))
     }
