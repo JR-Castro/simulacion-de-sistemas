@@ -4,6 +4,9 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class Particle(val partNum: Int, var position: Vec2D, var velocity: Vec2D, val radius: Double, val mass: Double) {
+
+    var collisions = 0
+
     fun predictCollision(particle: Particle): ParticleCollision? {
         val deltaR = particle.position - this.position
         val deltaV = particle.velocity - this.velocity
@@ -24,6 +27,7 @@ data class Particle(val partNum: Int, var position: Vec2D, var velocity: Vec2D, 
 
     fun collideWith(wallNormal: Vec2D) {
         velocity -= wallNormal * (wallNormal * velocity) * 2.0
+        collisions += 1
     }
 
     fun collideWith(particle: Particle) {
@@ -37,7 +41,17 @@ data class Particle(val partNum: Int, var position: Vec2D, var velocity: Vec2D, 
 
         this.velocity += jVec / this.mass
         particle.velocity -= jVec / particle.mass
+        collisions += 1
+        particle.collisions += 1
     }
 }
 
-data class ParticleCollision(override var time: Double, val particle1: Particle, val particle2: Particle) : Collision(time)
+data class ParticleCollision(override var time: Double, val particle1: Particle, val particle2: Particle) : Collision(time) {
+
+    private val initialCollisions1 = particle1.collisions
+    private val initialCollisions2 = particle2.collisions
+
+    override fun isValid(): Boolean {
+        return particle1.collisions == initialCollisions1 && particle2.collisions == initialCollisions2
+    }
+}

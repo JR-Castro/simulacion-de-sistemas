@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
     val (layout, L, T, particles) = processInputFiles(args[0], args[1])
     val container = if (layout == "SQUARE") SquareContainer(L) else RoundContainer(L / 2)
 
-    val collisionQueue = PriorityQueue<Collision>(compareBy { it.time })
+    val collisionQueue = PriorityQueue<Collision>()
 
     collisionQueue.addAll(particles
         .mapNotNull { container.predictCollision(it) })
@@ -57,11 +57,13 @@ fun main(args: Array<String>) {
     val startTime = System.currentTimeMillis()
 
     while (time < T) {
-        val collision = collisionQueue.poll()
+
+        val collision = getFirstValid(collisionQueue) ?: break
+
         particles.onEach { it.step(collision.time - time) }
         time = collision.time
 
-        print("\r$time")
+//        print("\r$time")
 
         when (collision) {
             is ContainerCollision -> {
@@ -118,6 +120,20 @@ fun main(args: Array<String>) {
     }
 }
 
+fun getFirstValid(
+    collisionQueue: PriorityQueue<Collision>
+): Collision? {
+    while (collisionQueue.isNotEmpty() && !collisionQueue.peek().isValid()) {
+        collisionQueue.poll()
+    }
+
+    if (collisionQueue.isEmpty()) {
+        return null
+    }
+
+    return collisionQueue.poll()
+}
+
 fun updatePredictions(
     queue: PriorityQueue<Collision>,
     particles: List<Particle>,
@@ -125,15 +141,10 @@ fun updatePredictions(
     particle: Particle,
     time: Double
 ) {
-    queue.removeIf {
-        when (it) {
-            is ContainerCollision -> it.particle === particle
-            is ParticleCollision -> it.particle1 === particle || it.particle2 === particle
-        }
-    }
     queue.addAll(particles.mapNotNull { particle.predictCollision(it)?.offset(time) })
-    container.predictCollision(particle)?.let {
-        queue.add(it.offset(time))
+    val collision = container.predictCollision(particle)
+    if (collision != null) {
+        queue.add(collision.offset(time))
     }
 }
 
@@ -145,12 +156,6 @@ fun updatePredictionsTwoParticles(
     particle2: Particle,
     time: Double
 ) {
-    queue.removeIf {
-        when (it) {
-            is ContainerCollision -> it.particle === partticle1 || it.particle === particle2
-            is ParticleCollision -> it.particle1 === partticle1 || it.particle1 === particle2 || it.particle2 === partticle1 || it.particle2 === particle2
-        }
-    }
     queue.addAll(particles.mapNotNull { partticle1.predictCollision(it)?.offset(time) })
     queue.addAll(particles.mapNotNull { particle2.predictCollision(it)?.offset(time) })
     container.predictCollision(partticle1)?.let {

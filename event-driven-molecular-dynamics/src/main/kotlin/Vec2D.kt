@@ -15,6 +15,10 @@ data class Vec2D(val x: Double, val y: Double) {
         return Vec2D(x - vec2D.x, y - vec2D.y)
     }
 
+    fun normSq(): Double {
+        return x * x + y * y
+    }
+
     operator fun times(vec2D: Vec2D): Double {
         return x * vec2D.x + y * vec2D.y
     }
