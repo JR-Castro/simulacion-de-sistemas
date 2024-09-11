@@ -38,9 +38,9 @@ class RoundContainer(val radius: Double) : Container {
         val min = minOf(t1, t2)
 
         return when {
-            min > 0 -> min
-            t1 <= 0.0 && t2 > 0.0 -> t2
-            t1 > 0.0 && t2 <= 0.0 -> t1
+            min > 1e-10 -> min
+            t1 <= 1e-10 && t2 > 1e-10 -> t2
+            t1 > 1e-10 && t2 <= 1e-10 -> t1
             else -> null
         }
     }

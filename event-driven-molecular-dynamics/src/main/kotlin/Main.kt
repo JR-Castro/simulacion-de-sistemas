@@ -62,9 +62,8 @@ fun main(args: Array<String>) {
         if (collisionQueue.size > 50000) {
             collisionQueue.removeIf { !it.isValid() }
         }
-//        println(collisionQueue.size)
+
         if (outputList.size > 100000) {
-            println("\nWriting to file")
             writeList(bufferedWriter, outputList)
             outputList.clear()
         }
@@ -74,7 +73,7 @@ fun main(args: Array<String>) {
         particles.onEach { it.step(collision.time - time) }
         time = collision.time
 
-//        print("\r$time")
+        print("\r$time")
 
         when (collision) {
             is ContainerCollision -> {
