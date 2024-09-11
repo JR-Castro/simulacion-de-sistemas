@@ -6,22 +6,26 @@ class RoundContainer(val radius: Double) : Container {
     override fun predictCollision(particle: Particle): ContainerCollision? {
         val time = calculateWallCollisionTime(particle) ?: return null
 
-        val pos = particle.position + particle.velocity * time
+        val posX = particle.x + particle.vx * time
+        val posY = particle.y + particle.vy * time
 
-        val normal = -pos / (radius - particle.radius)
+        val normalX = -posX / (radius - particle.radius)
+        val normalY = -posY / (radius - particle.radius)
 
-        return ContainerCollision(time, normal, particle)
+        return ContainerCollision(time, normalX, normalY, particle)
     }
 
     private fun calculateWallCollisionTime(particle: Particle): Double? {
-        val velocity = particle.velocity
-        val position = particle.position
+        val vx = particle.vx
+        val vy = particle.vy
+        val px = particle.x
+        val py = particle.y
 
-        if (velocity.x == 0.0 && velocity.y == 0.0) return null
+        if (vx == 0.0 && vy == 0.0) return null
 
-        val A = velocity.normSq()
-        val B = 2 * (particle.position * particle.velocity)
-        val C = position.normSq() - (radius - particle.radius).pow(2)
+        val A = vx * vx + vy * vy
+        val B = 2 * (px * vx + py * vy)
+        val C = px * px + py * py - (radius - particle.radius).pow(2)
 
         val discriminant = B * B - 4 * A * C
 
