@@ -2,11 +2,11 @@ def read_static_file(file_path):
     """
     Returns a dictionary with the static information of the simulation
     :param file_path: str
-    :return: { container: float, length: float, N: int, time: float, particles: List[(p_num: int, p_radius: float, p_mass: float)] }
+    :return: { container: str, length: float, N: int, time: float, particles: List[(p_num: int, p_radius: float, p_mass: float)] }
     """
     static = {}
     with open(file_path, 'r') as f:
-        static["container"] = f.readline()
+        static["container"] = f.readline().strip()
         static["length"] = float(f.readline())
         static["N"] = int(f.readline())
         static["time"] = float(f.readline())
@@ -42,6 +42,27 @@ def read_dynamic_file(static, file_path):
     return dynamic
 
 
+def get_all_particles_states(sim_output):
+    states = []
+
+    states.append(sim_output[0])
+    last_particles = sim_output[0]['particles']
+
+    for state in sim_output[1:]:
+        time = state['time']
+        particles = state['particles']
+
+        full_state = list(last_particles)
+
+        for p in particles:
+            full_state[p[0]-1] = p
+
+        states.append({'time': time, 'particles': full_state})
+        last_particles = full_state
+
+    return states
+
+
 def read_output_file(file_path, dt):
     """
     Returns a list of dictionaries with the status of the system at each time step
@@ -50,33 +71,43 @@ def read_output_file(file_path, dt):
     :return: List[{ time: float, particles: List[(p_num: int, x: float, y: float, vx: float, vy: float)] }]
     """
     time = 0
-    status = []
+    sim_output = []
     with open(file_path, 'r') as f:
 
         time_state = {}
         particles = []
         time_state['time'] = time
-        time_state['particles'] = particles
 
         while True:
             line = f.readline()
             if not line:
-                status.append(time_state)
+                time_state['particles'] = particles
+                sim_output.append(time_state)
                 break
             coll_time, coll_particles = read_output_collision_info(line)
             if coll_time >= time + dt:
-                status.append(time_state)
+                time_state['particles'] = particles
+                sim_output.append(time_state)
                 time = time + dt
                 time_state = {}
                 particles = []
                 time_state['time'] = time
                 time_state['particles'] = particles
 
-            particles.append(read_output_particle(f.readline()))
-            if coll_particles > 2:
-                particles.append(read_output_particle(f.readline()))
+            particle = read_output_particle(f.readline())
 
-    return status
+            # Prevent same particle from havin different states in same time step
+            particles = [p for p in particles if p[0] != particle[0]]
+
+            particles.append(particle)
+            if coll_particles == 2:
+                particle = read_output_particle(f.readline())
+                particles = [p for p in particles if p[0] != particle[0]]
+                particles.append(particle)
+
+        time_state['particles'] = particles
+
+    return sim_output
 
 
 def read_output_collision_info(line: str):
