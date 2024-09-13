@@ -83,6 +83,7 @@ if __name__ == '__main__':
         f.write('\n')
         f.write(str(T))
         f.write('\n')
+        f.write('0.1\n')
         for i, particle in enumerate(particles):
             p_num, x, y, p_radius, p_mass, speed_x, speed_y = particle
             f.write(' '.join(map(str, [p_num, p_radius, p_mass])))

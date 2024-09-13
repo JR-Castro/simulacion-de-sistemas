@@ -1,9 +1,10 @@
 import sys
-import matplotlib.pyplot as plt
+
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 import numpy as np
 
-from read_files import read_static_file, read_dynamic_file, read_output_file, get_all_particles_states
+from read_files import read_static_file, read_dynamic_file, read_states_output_file
 
 
 def update_circle(frame, sim_output, ax, static_data):
@@ -18,6 +19,12 @@ def update_circle(frame, sim_output, ax, static_data):
 
     # Draw the boundary of the circle (container)
     ax.add_patch(plt.Circle((0, 0), radius=static_data['length'] / 2, color='black', fill=False, linestyle='--'))
+
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    time_text = f"Tiempo: {sim_output[frame]['time']:.2f}s"
+    ax.text(0.5, 1.1, time_text, transform=ax.transAxes, fontsize=10,
+            horizontalalignment='center', verticalalignment='top', bbox=dict(facecolor='white', alpha=0.5, edgecolor='none'))
 
     # Plot particles
     particles = sim_output[frame]['particles']
@@ -86,9 +93,7 @@ if __name__ == '__main__':
 
     static_data = read_static_file(static_file)
     dynamic_data = read_dynamic_file(static_data, dynamic_file)
-    sim_output = read_output_file(output_file, dt)
-    sim_output.insert(0, {'time': 0, 'particles': dynamic_data})
-    full_states = get_all_particles_states(sim_output)
+    sim_states = read_states_output_file(static_data, output_file)
 
 
-    animate(full_states, static_data, output_animation_file)
+    animate(sim_states, static_data, output_animation_file)

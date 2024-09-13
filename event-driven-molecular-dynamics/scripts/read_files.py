@@ -10,6 +10,7 @@ def read_static_file(file_path):
         static["length"] = float(f.readline())
         static["N"] = int(f.readline())
         static["time"] = float(f.readline())
+        static["outputStep"] = float(f.readline())
 
         particles = []
         for i in range(static["N"]):
@@ -43,9 +44,8 @@ def read_dynamic_file(static, file_path):
 
 
 def get_all_particles_states(sim_output):
-    states = []
+    states = [sim_output[0]]
 
-    states.append(sim_output[0])
     last_particles = sim_output[0]['particles']
 
     for state in sim_output[1:]:
@@ -63,7 +63,7 @@ def get_all_particles_states(sim_output):
     return states
 
 
-def read_output_file(file_path, dt):
+def read_collisions_output_file(file_path, dt):
     """
     Returns a list of dictionaries with the status of the system at each time step
     :param file_path: str
@@ -106,6 +106,31 @@ def read_output_file(file_path, dt):
                 particles.append(particle)
 
         time_state['particles'] = particles
+
+    return sim_output
+
+
+def read_states_output_file(static_data, file_path):
+    """
+    Returns a list of dictionaries with the whole status of the system at each time step
+    :param static_data: Static data
+    :param file_path: str
+    :return: List[{ time: float, particles: List[(p_num: int, x: float, y: float, vx: float, vy: float)] }]
+    """
+    sim_output = []
+    with open(file_path, 'r') as f:
+
+        while True:
+            particles = []
+            line = f.readline()
+            if line is None or line.strip() == '':
+                break
+            time = float(line)
+
+            for i in range(static_data['N']):
+                particles.append(read_output_particle(f.readline()))
+
+            sim_output.append({'time': time, 'particles': particles})
 
     return sim_output
 

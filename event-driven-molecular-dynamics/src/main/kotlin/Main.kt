@@ -5,10 +5,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.PriorityQueue
 
-data class Quadruple<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
+data class Quintuple<A, B, C, D, E>(val a: A, val b: B, val c: C, val d: D, val e: E)
 
 
-fun processInputFiles(static_path: String, dynamic_path: String): Quadruple<String, Double, Double, List<Particle>> {
+fun processInputFiles(static_path: String, dynamic_path: String): Quintuple<String, Double, Double, Double, List<Particle>> {
     val staticFileLines = Files.readAllLines(Path.of(static_path))
     val dynamicFileLines = Files.readAllLines(Path.of(dynamic_path))
 
@@ -16,11 +16,12 @@ fun processInputFiles(static_path: String, dynamic_path: String): Quadruple<Stri
     val L = staticFileLines[1].toDouble()
     val N = staticFileLines[2].toInt()
     val T = staticFileLines[3].toDouble()
+    val outputStep = staticFileLines[4].toDouble()
 
     val particles = mutableListOf<Particle>()
 
     for (i in 0 until N) {
-        val staticPartData = staticFileLines[i + 4].split(" ")
+        val staticPartData = staticFileLines[i + 5].split(" ")
         val dynPartData = dynamicFileLines[i + 1].split(" ")
         val x = dynPartData[1].toDouble()
         val y = dynPartData[2].toDouble()
@@ -31,7 +32,7 @@ fun processInputFiles(static_path: String, dynamic_path: String): Quadruple<Stri
         particles.add(Particle(i + 1, x, y, vx, vy, radius, mass))
     }
 
-    return Quadruple(layout, L, T, particles)
+    return Quintuple(layout, L, T, outputStep, particles)
 }
 
 fun main(args: Array<String>) {
@@ -41,7 +42,7 @@ fun main(args: Array<String>) {
     }
 
     var time = 0.0
-    val (layout, L, T, particles) = processInputFiles(args[0], args[1])
+    val (layout, L, T, outputStep, particles) = processInputFiles(args[0], args[1])
     val container = if (layout == "SQUARE") SquareContainer(L) else RoundContainer(L / 2)
 
     val collisionQueue = PriorityQueue<Collision>()
@@ -51,21 +52,32 @@ fun main(args: Array<String>) {
         .map { p1 -> particles.mapNotNull { p2 -> p1.predictCollision(p2) } }
         .flatten())
 
-    val outputList: MutableList<Triple<Double, Particle, Particle?>> = mutableListOf()
+    val collisionsList: MutableList<Triple<Double, Particle, Particle?>> = mutableListOf()
+    val statesList: MutableList<Pair<Double, List<Particle>>> = mutableListOf()
+    statesList.add(Pair(time, particles.map { it.copy() }))
 
-    val bufferedWriter = Files.newBufferedWriter(Path.of(args[2]))
+    val collisionsWriter = Files.newBufferedWriter(Path.of(args[2] + "_collisions.txt"))
+    val statesWriter = Files.newBufferedWriter(Path.of(args[2] + "_states.txt"))
+
 
     val startTime = System.currentTimeMillis()
+    var lastStateOutputTime = 0.0
 
     while (time < T) {
+
+        if (time - lastStateOutputTime >= outputStep) {
+            statesList.add(Pair(time, particles.map { it.copy() }))
+            lastStateOutputTime = time
+        }
 
         if (collisionQueue.size > 50000) {
             collisionQueue.removeIf { !it.isValid() }
         }
 
-        if (outputList.size > 100000) {
-            writeList(bufferedWriter, outputList)
-            outputList.clear()
+        if (collisionsList.size > 100000 || statesList.size > 10000) {
+            writeOutput(collisionsWriter, statesWriter, collisionsList, statesList)
+            collisionsList.clear()
+            statesList.clear()
         }
 
         val collision = getFirstValid(collisionQueue) ?: break
@@ -81,14 +93,7 @@ fun main(args: Array<String>) {
 
                 updatePredictions(collisionQueue, particles, container, collision.particle, time)
 
-//                val particle = collision.particle
-//                val normalX = collision.wallNormalX
-//                val normalY = collision.wallNormalY
-//                println(
-//                    "TIME %f: Container collision at x=%f y=%f (normal x=%f y=%f)"
-//                        .format(time, particle.x, particle.y, normalX, normalY)
-//                )
-                outputList.add(Triple(time, collision.particle.copy(), null))
+                collisionsList.add(Triple(time, collision.particle.copy(), null))
             }
 
             is ParticleCollision -> {
@@ -103,41 +108,45 @@ fun main(args: Array<String>) {
                     time
                 )
 
-//                val particle1 = collision.particle1
-//                val particle2 = collision.particle2
-//                println("TIME %f: Particle collision at x=%f y=%f and x=%f y=%f "
-//                    .format(time, particle1.x, particle1.y, particle2.x, particle2.y, /*(position1 - position2).modulus()*/))
-                outputList.add(Triple(time, collision.particle1.copy(), collision.particle2.copy()))
+                collisionsList.add(Triple(time, collision.particle1.copy(), collision.particle2.copy()))
             }
         }
     }
 
     println("\rElapsed time: ${System.currentTimeMillis() - startTime} ms")
 
-    bufferedWriter.use { file ->
-        writeList(file, outputList)
-    }
+    writeOutput(collisionsWriter, statesWriter, collisionsList, statesList)
+
+    collisionsWriter.close()
+    statesWriter.close()
 }
 
-fun writeList(file: BufferedWriter, outputList: List<Triple<Double, Particle, Particle?>>) {
-    outputList.forEach {
-        file.write("${it.first}")
+fun writeOutput(
+    collisionsWriter: BufferedWriter,
+    statesWriter: BufferedWriter,
+    collisionsList: List<Triple<Double, Particle, Particle?>>,
+    statesList: List<Pair<Double, List<Particle>>>
+) {
+    collisionsList.forEach {
+        collisionsWriter.write("${it.first}")
         if (it.third != null) {
             // indicate there were two particles
-            file.write(" 2")
-            file.newLine()
+            collisionsWriter.write(" 2\n")
             val part1 = it.second
-            file.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.x} ${part1.y}")
-            file.newLine()
+            collisionsWriter.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.x} ${part1.y}\n")
             val particle = it.third!!
-            file.write("${particle.partNum} ${particle.x} ${particle.y} ${particle.x} ${particle.y}")
-            file.newLine()
+            collisionsWriter.write("${particle.partNum} ${particle.x} ${particle.y} ${particle.x} ${particle.y}\n")
         } else {
-            file.write(" 1")
-            file.newLine()
+            collisionsWriter.write(" 1\n")
             val part1 = it.second
-            file.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.x} ${part1.y}")
-            file.newLine()
+            collisionsWriter.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.x} ${part1.y}\n")
+        }
+    }
+    for ((time, particles) in statesList) {
+        statesWriter.write("$time")
+        statesWriter.newLine()
+        particles.forEach {
+            statesWriter.write("${it.partNum} ${it.x} ${it.y} ${it.vx} ${it.vy}\n")
         }
     }
 }
