@@ -63,7 +63,23 @@ def get_all_particles_states(sim_output):
     return states
 
 
-def read_collisions_output_file(file_path, dt):
+def read_collisions(file_path):
+    output = []
+    with open(file_path, 'r') as f:
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            coll_time, coll_particles = read_output_collision_info(line)
+            particles = [read_output_particle(f.readline())]
+            if coll_particles == 2:
+                particles.append(read_output_particle(f.readline()))
+            output.append({'time': coll_time, 'particles': particles})
+
+    return output
+
+
+def read_collisions_discrete_steps(file_path, dt, avoid_repeats=True):
     """
     Returns a list of dictionaries with the status of the system at each time step
     :param file_path: str
@@ -96,8 +112,9 @@ def read_collisions_output_file(file_path, dt):
 
             particle = read_output_particle(f.readline())
 
-            # Prevent same particle from havin different states in same time step
-            particles = [p for p in particles if p[0] != particle[0]]
+            # Prevent same particle from having different states in same time step
+            if avoid_repeats:
+                particles = [p for p in particles if p[0] != particle[0]]
 
             particles.append(particle)
             if coll_particles == 2:

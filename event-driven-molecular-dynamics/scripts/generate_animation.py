@@ -95,5 +95,16 @@ if __name__ == '__main__':
     dynamic_data = read_dynamic_file(static_data, dynamic_file)
     sim_states = read_states_output_file(static_data, output_file)
 
+    # state = sim_states[19]
+    #
+    # for s in sim_states:
+    #     k_energy = 0
+    #     for p in state['particles']:
+    #         if p[0] == 1:
+    #             continue
+    #         k_energy += 0.5 * static_data['particles'][p[0]-1][2] * (p[3]**2 + p[4]**2)
+    #
+    #     print(f"{s['time']} energy: {k_energy}")
+    #
 
     animate(sim_states, static_data, output_animation_file)

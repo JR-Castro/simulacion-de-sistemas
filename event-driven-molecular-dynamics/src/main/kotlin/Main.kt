@@ -89,14 +89,16 @@ fun main(args: Array<String>) {
 
         when (collision) {
             is ContainerCollision -> {
+                collisionsList.add(Triple(time, collision.particle.copy(), null))
+
                 collision.particle.collideWithWall(collision.wallNormalX, collision.wallNormalY)
 
                 updatePredictions(collisionQueue, particles, container, collision.particle, time)
-
-                collisionsList.add(Triple(time, collision.particle.copy(), null))
             }
 
             is ParticleCollision -> {
+                collisionsList.add(Triple(time, collision.particle1.copy(), collision.particle2.copy()))
+
                 collision.particle1.collideWith(collision.particle2)
 
                 updatePredictionsTwoParticles(
@@ -107,8 +109,6 @@ fun main(args: Array<String>) {
                     collision.particle2,
                     time
                 )
-
-                collisionsList.add(Triple(time, collision.particle1.copy(), collision.particle2.copy()))
             }
         }
     }

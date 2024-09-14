@@ -47,20 +47,21 @@ def generate_particles(particles: list, layout, L, N, speed_module):
 if __name__ == '__main__':
     if len(sys.argv) < 5:
         print(
-            'Usage: python generate_static.py <output_file> <layout> <L> <N> <T> <speed_module> [Obstacle_radius Obstacle_mass]')
+            'Usage: python generate_static.py <output_file> <dynamic_amount> <layout> <L> <N> <T> <speed_module> [Obstacle_radius Obstacle_mass]')
         sys.exit(1)
 
     output_file = sys.argv[1]
-    layout = sys.argv[2]
-    L = float(sys.argv[3])
-    N = int(sys.argv[4])
-    T = float(sys.argv[5])
-    speed_module = float(sys.argv[6])
+    dynamic_amount = int(sys.argv[2])
+    layout = sys.argv[3]
+    L = float(sys.argv[4])
+    N = int(sys.argv[5])
+    T = float(sys.argv[6])
+    speed_module = float(sys.argv[7])
 
     particles = []
-    if len(sys.argv) == 9:
-        obstacle_radius = float(sys.argv[7])
-        obstacle_mass = float(sys.argv[8])
+    if len(sys.argv) == 10:
+        obstacle_radius = float(sys.argv[8])
+        obstacle_mass = float(sys.argv[9])
         particles.append((1, 0, 0, obstacle_radius, obstacle_mass, 0, 0))
 
     if L <= 0 or N <= 0 or T <= 0 or speed_module <= 0:
@@ -74,7 +75,7 @@ if __name__ == '__main__':
 
     output_file_parts = output_file.split('.')
 
-    with open(''.join(output_file_parts[:-1]) + '_static.' + output_file_parts[-1], 'w') as f:
+    with open(''.join(output_file_parts[:-1]) + '.' + output_file_parts[-1], 'w') as f:
         f.write(layout)
         f.write('\n')
         f.write(str(L))
@@ -90,11 +91,14 @@ if __name__ == '__main__':
             if i < len(particles) - 1:
                 f.write('\n')
 
-    with open(''.join(output_file_parts[:-1]) + '_dynamic.' + output_file_parts[-1], 'w') as f:
-        f.write('0')
-        f.write('\n')
-        for i, particle in enumerate(particles):
-            p_num, x, y, p_radius, p_mass, speed_x, speed_y = particle
-            f.write(' '.join(map(str, [p_num, x, y, speed_x, speed_y])))
-            if i < len(particles) - 1:
-                f.write('\n')
+    for i in range(dynamic_amount):
+        with open(''.join(output_file_parts[:-1]) + f'_{i}.' + output_file_parts[-1], 'w') as f:
+            f.write('0')
+            f.write('\n')
+            for i, particle in enumerate(particles):
+                p_num, x, y, p_radius, p_mass, speed_x, speed_y = particle
+                f.write(' '.join(map(str, [p_num, x, y, speed_x, speed_y])))
+                if i < len(particles) - 1:
+                    f.write('\n')
+        particles = particles[:1]
+        generate_particles(particles, layout, L, N, speed_module)
