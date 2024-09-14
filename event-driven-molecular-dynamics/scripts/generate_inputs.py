@@ -6,7 +6,7 @@ PARTICLE_MASS = 1
 
 def generate_particle(p_num, layout, L, p_radius, p_mass, speed_module):
     speed_x = uniform(-speed_module, speed_module)
-    speed_y = (speed_module - speed_x ** 2) ** 0.5
+    speed_y = abs(speed_module - speed_x ** 2) ** 0.5
     if bool(getrandbits(1)):
         speed_y *= -1
 

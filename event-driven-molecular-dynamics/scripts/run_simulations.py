@@ -14,7 +14,7 @@ def run_simulation(cmd):
 if __name__ == '__main__':
     # static, dynamic_pattern, output_dir
     if len(sys.argv) < 4:
-        print("Usage: run_simulations.py <static_file> <dynamic_file_pattern>")
+        print("Usage: run_simulations.py <static_file> <dynamic_file_pattern> <output_dir>")
         sys.exit(1)
 
     static_file = sys.argv[1]
