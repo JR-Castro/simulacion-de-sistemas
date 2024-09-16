@@ -133,13 +133,13 @@ fun writeOutput(
             // indicate there were two particles
             collisionsWriter.write(" 2\n")
             val part1 = it.second
-            collisionsWriter.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.x} ${part1.y}\n")
+            collisionsWriter.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.vx} ${part1.vy}\n")
             val particle = it.third!!
-            collisionsWriter.write("${particle.partNum} ${particle.x} ${particle.y} ${particle.x} ${particle.y}\n")
+            collisionsWriter.write("${particle.partNum} ${particle.x} ${particle.y} ${particle.vx} ${particle.vy}\n")
         } else {
             collisionsWriter.write(" 1\n")
             val part1 = it.second
-            collisionsWriter.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.x} ${part1.y}\n")
+            collisionsWriter.write("${part1.partNum} ${part1.x} ${part1.y} ${part1.vx} ${part1.vy}\n")
         }
     }
     for ((time, particles) in statesList) {
