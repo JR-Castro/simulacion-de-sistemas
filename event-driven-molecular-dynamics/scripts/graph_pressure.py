@@ -1,6 +1,7 @@
 import math
 import re
 import sys
+import time
 from os import listdir, path
 from os.path import abspath, isfile
 import matplotlib.pyplot as plt
@@ -83,7 +84,7 @@ def calculate_wall_pressures(static, collisions, dt):
     for step in range(1, steps):
         s_time = step * dt
 
-        s_pressures = [p['pressure'] for p in pressures if p['time'] <= s_time < p['time'] + dt]
+        s_pressures = [p['pressure'] for p in pressures if s_time - dt / 2 <= p['time'] < s_time + dt]
         output.append({
             'time': s_time,
             'pressure': sum(s_pressures)
@@ -108,7 +109,7 @@ def graph_pressure(pressures, output_file):
                      color='blue', alpha=0.2)
 
     plt.xlabel("Tiempo (s)", fontsize=12)
-    plt.ylabel("Presión (Pa)", fontsize=12)
+    plt.ylabel("Presión (N/m)", fontsize=12)
 
     # Set y-axis limits to make the fluctuations more visible
     plt.ylim(bottom = 0.0)
@@ -133,8 +134,12 @@ if __name__ == '__main__':
     output_path = abspath(output_file)[:abspath(output_file).rfind('/')]
     output_file_pattern = output_file[output_file.rfind('/') + 1:]
 
+    start_time = time.time()
+
     files = [f for f in listdir(output_path) if
              isfile(path.join(output_path, f)) and re.match(output_file_pattern, f) and 'collisions' in f]
+
+    print(f"Output files: {files}")
 
     collisions = [read_collisions(path.join(output_path, f)) for f in files]
 
@@ -143,3 +148,5 @@ if __name__ == '__main__':
 
     graph_pressure(wall_pressures, "wall_pressure.png")
     graph_pressure(obstacle_pressures, "obstacle_pressure.png")
+
+    print(f"Total time: {time.time() - start_time}s")
