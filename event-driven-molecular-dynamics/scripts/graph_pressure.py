@@ -33,7 +33,7 @@ def calculate_obstacle_pressures(static, collisions, dt):
                 p1 = p2
                 p2 = c['particles'][0]
 
-            p1_id, p1_x, p1_y, p1_vx, p1_vy = p1 # Obstacle
+            p1_id, p1_x, p1_y, p1_vx, p1_vy = p1  # Obstacle
             p2_id, p2_x, p2_y, p2_vx, p2_vy = p2
             _, p2_r, p2_m = static['particles'][p2[0] - 1]
 
@@ -50,7 +50,7 @@ def calculate_obstacle_pressures(static, collisions, dt):
 
         output.append({
             'time': s_time,
-            'pressure': momentum / (len(filtered_collisions) * dt * 2 * math.pi * obstacle_radius)
+            'pressure': momentum / (dt * 2 * math.pi * obstacle_radius)
         })
 
     print(f"Minimum collisions: {minimum_collisions}")
@@ -85,7 +85,7 @@ def calculate_wall_pressures(static, collisions, dt):
 
         output.append({
             'time': s_time,
-            'pressure': momentum / (len(filtered_collisions) * dt * 2 * math.pi * radius)
+            'pressure': momentum / (dt * 2 * math.pi * radius)
         })
 
     print(f"Minimum collisions: {minimum_collisions}")
@@ -138,7 +138,8 @@ if __name__ == '__main__':
     start_time = time.time()
 
     files = [f for f in listdir(output_path) if
-             isfile(path.join(output_path, f)) and re.match(output_file_pattern, f) and 'collisions' in f and 'wall' not in f]
+             isfile(path.join(output_path, f)) and re.match(output_file_pattern,
+                                                            f) and 'collisions' in f and 'wall' not in f]
 
     print(f"Output files: {files}")
 
