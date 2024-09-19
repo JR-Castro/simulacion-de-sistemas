@@ -1,14 +1,14 @@
+import math
 import sys
-from random import uniform, getrandbits
+from random import uniform
 
 PARTICLE_RADIUS = 0.001
 PARTICLE_MASS = 1
 
 def generate_particle(p_num, layout, L, p_radius, p_mass, speed_module):
-    speed_x = uniform(-speed_module, speed_module)
-    speed_y = abs(speed_module - speed_x ** 2) ** 0.5
-    if bool(getrandbits(1)):
-        speed_y *= -1
+    rand_angle = uniform(0, 2 * math.pi)
+    speed_x = math.cos(rand_angle) * speed_module
+    speed_y = math.sin(rand_angle) * speed_module
 
     if (speed_x ** 2 + speed_y ** 2) ** 0.5 > speed_module ** 2:
         print('something went wrong')
@@ -47,21 +47,22 @@ def generate_particles(particles: list, layout, L, N, speed_module):
 if __name__ == '__main__':
     if len(sys.argv) < 5:
         print(
-            'Usage: python generate_static.py <output_file> <dynamic_amount> <layout> <L> <N> <T> <speed_module> [Obstacle_radius Obstacle_mass]')
+            'Usage: python generate_static.py <output_file> <dynamic_amount> <events_per_state_write> <layout> <L> <N> <T> <speed_module> [Obstacle_radius Obstacle_mass]')
         sys.exit(1)
 
     output_file = sys.argv[1]
     dynamic_amount = int(sys.argv[2])
-    layout = sys.argv[3]
-    L = float(sys.argv[4])
-    N = int(sys.argv[5])
-    T = float(sys.argv[6])
-    speed_module = float(sys.argv[7])
+    events_per_state_write = int(sys.argv[3])
+    layout = sys.argv[4]
+    L = float(sys.argv[5])
+    N = int(sys.argv[6])
+    T = float(sys.argv[7])
+    speed_module = float(sys.argv[8])
 
     particles = []
-    if len(sys.argv) == 10:
-        obstacle_radius = float(sys.argv[8])
-        obstacle_mass = float(sys.argv[9])
+    if len(sys.argv) == 11:
+        obstacle_radius = float(sys.argv[9])
+        obstacle_mass = float(sys.argv[10])
         particles.append((1, 0, 0, obstacle_radius, obstacle_mass, 0, 0))
 
     if L <= 0 or N <= 0 or T <= 0 or speed_module <= 0:
@@ -84,7 +85,8 @@ if __name__ == '__main__':
         f.write('\n')
         f.write(str(T))
         f.write('\n')
-        f.write('0.1\n')
+        f.write(str(events_per_state_write))
+        f.write('\n')
         for i, particle in enumerate(particles):
             p_num, x, y, p_radius, p_mass, speed_x, speed_y = particle
             f.write(' '.join(map(str, [p_num, p_radius, p_mass])))

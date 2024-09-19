@@ -8,7 +8,7 @@ import java.util.PriorityQueue
 data class Quintuple<A, B, C, D, E>(val a: A, val b: B, val c: C, val d: D, val e: E)
 
 
-fun processInputFiles(static_path: String, dynamic_path: String): Quintuple<String, Double, Double, Double, List<Particle>> {
+fun processInputFiles(static_path: String, dynamic_path: String): Quintuple<String, Double, Double, Int, List<Particle>> {
     val staticFileLines = Files.readAllLines(Path.of(static_path))
     val dynamicFileLines = Files.readAllLines(Path.of(dynamic_path))
 
@@ -16,7 +16,7 @@ fun processInputFiles(static_path: String, dynamic_path: String): Quintuple<Stri
     val L = staticFileLines[1].toDouble()
     val N = staticFileLines[2].toInt()
     val T = staticFileLines[3].toDouble()
-    val outputStep = staticFileLines[4].toDouble()
+    val outputStep = staticFileLines[4].toInt()
 
     val particles = mutableListOf<Particle>()
 
@@ -61,13 +61,14 @@ fun main(args: Array<String>) {
 
 
     val startTime = System.currentTimeMillis()
-    var lastStateOutputTime = 0.0
+    var lastEventIndex = 0
+    var events = 0
 
     while (time < T) {
 
-        if (time - lastStateOutputTime >= outputStep) {
+        if (events - lastEventIndex >= outputStep) {
             statesList.add(Pair(time, particles.map { it.copy() }))
-            lastStateOutputTime = time
+            lastEventIndex = events
         }
 
         if (collisionQueue.size > 50000) {
@@ -84,6 +85,7 @@ fun main(args: Array<String>) {
 
         particles.onEach { it.step(collision.time - time) }
         time = collision.time
+        events += 1
 
         print("\r$time")
 
