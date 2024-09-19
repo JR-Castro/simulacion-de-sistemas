@@ -8,7 +8,7 @@ from read_files import read_static_file, read_dynamic_file, read_states_output_f
 
 
 def update_circle(frame, sim_output, ax, static_data):
-    print(f"{frame}/{len(sim_output)}")
+    print(f"\r{frame}/{len(sim_output)}", end='')
     ax.clear()
 
     # Set axis limits and ensure 1:1 aspect ratio
@@ -68,12 +68,16 @@ def animate(sim_output, static_data, output_file):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
+    fps = 4
+
+    frames = 5 * fps
+
     # sim_output = sim_output[:10]
 
     if static_data['container'] == 'CIRCLE':
-        ani = animation.FuncAnimation(fig, update_circle, frames=len(sim_output), fargs=(sim_output, ax, static_data))
+        ani = animation.FuncAnimation(fig, update_circle, frames=frames, fargs=(sim_output, ax, static_data))
     else:
-        ani = animation.FuncAnimation(fig, update_square, frames=len(sim_output), fargs=(sim_output, ax, static_data))
+        ani = animation.FuncAnimation(fig, update_square, frames=frames, fargs=(sim_output, ax, static_data))
 
     ani.save(output_file, fps=4, dpi=300)
     plt.close(fig)
@@ -81,7 +85,7 @@ def animate(sim_output, static_data, output_file):
 
 if __name__ == '__main__':
     if len(sys.argv) < 5:
-        print("Usage: python generate_animation.py <static_file> <dynamic_file> <output_file> <dt>")
+        print("Usage: python generate_animation.py <static_file> <dynamic_file> <sim_output_file> <dt> [animation_output_file]")
         sys.exit(1)
 
     static_file = sys.argv[1]
