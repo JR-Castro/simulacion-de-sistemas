@@ -9,6 +9,9 @@ import numpy as np
 
 from read_files import read_collisions, read_static_file
 
+def calc_pressure(momentum, events, dt, radius):
+    return momentum / (dt * 2 * math.pi * radius)
+
 
 def calculate_obstacle_pressures(static, collisions, dt):
     collisions = [c for c in collisions if 1 in [p[0] for p in c['particles']]]
@@ -44,13 +47,13 @@ def calculate_obstacle_pressures(static, collisions, dt):
             n_x = diff_x / dist
             n_y = diff_y / dist
 
-            v_n = p2_vx * n_x + p2_vy * n_y
+            v_n = abs(p2_vx * n_x + p2_vy * n_y)
 
-            momentum -= 2 * v_n * p2_m
+            momentum += 2 * v_n * p2_m
 
         output.append({
             'time': s_time,
-            'pressure': momentum / (len(filtered_collisions) * dt * 2 * math.pi * obstacle_radius)
+            'pressure': calc_pressure(momentum, len(filtered_collisions), dt, obstacle_radius)
         })
 
     print(f"Minimum collisions: {minimum_collisions}")
@@ -79,13 +82,13 @@ def calculate_wall_pressures(static, collisions, dt):
             n_x = -p_x / (radius - p_r)
             n_y = -p_y / (radius - p_r)
 
-            v_n = p_vx * n_x + p_vy * n_y
+            v_n = abs(p_vx * n_x + p_vy * n_y)
 
-            momentum -= 2 * v_n * p_m
+            momentum += 2 * v_n * p_m
 
         output.append({
             'time': s_time,
-            'pressure': momentum / (len(filtered_collisions) * dt * 2 * math.pi * radius)
+            'pressure': calc_pressure(momentum, len(filtered_collisions), dt, radius)
         })
 
     print(f"Minimum collisions: {minimum_collisions}")
@@ -129,8 +132,11 @@ def graph_pressure(wall_pressures, obstacle_pressures, output_file):
     plt.grid(True, linestyle='--', alpha=0.6)
     # plt.title('Pressure over Time', fontsize=14)
     # Legend outside of graph
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), shadow=True)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.0, -0.1), shadow=True)
     plt.tight_layout()
+
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
 
     plt.savefig(output_file, dpi=400)
     plt.clf()
@@ -143,6 +149,8 @@ if __name__ == '__main__':
 
     static_file = sys.argv[1]
     output_file = sys.argv[2]
+
+    plot_output = sys.argv[3] if len(sys.argv) > 3 else 'pressures_vs_time.png'
 
     static = read_static_file(static_file)
     output_path = abspath(output_file)[:abspath(output_file).rfind('/')]
@@ -162,6 +170,6 @@ if __name__ == '__main__':
     print()
     obstacle_pressures = [calculate_obstacle_pressures(static, c, 0.1) for c in collisions]
 
-    graph_pressure(wall_pressures, obstacle_pressures, "pressures.png")
+    graph_pressure(wall_pressures, obstacle_pressures, plot_output)
 
     print(f"\nTotal time: {time.time() - start_time}s")
