@@ -166,9 +166,10 @@ if __name__ == '__main__':
 
     collisions = [read_collisions(path.join(output_path, f)) for f in files]
 
-    wall_pressures = [calculate_wall_pressures(static, c, 0.01) for c in collisions]
+    TIME_STEP = 0.01
+    wall_pressures = [calculate_wall_pressures(static, c, TIME_STEP) for c in collisions]
     print()
-    obstacle_pressures = [calculate_obstacle_pressures(static, c, 0.1) for c in collisions]
+    obstacle_pressures = [calculate_obstacle_pressures(static, c, TIME_STEP) for c in collisions]
 
     graph_pressure(wall_pressures, obstacle_pressures, plot_output)
 
