@@ -80,9 +80,11 @@ if __name__ == '__main__':
     combined_mean = [0.5 * (wall_press_mean[i] + obs_press_mean[i]) for i in range(len(wall_press_mean))]
 
     # Perform linear regression to fit the line f(x) = c*x
-    c_fit, b = np.polyfit(x_values, combined_mean, 1)
+    numerator = sum(x * y for x, y in zip(x_values, combined_mean))
+    denominator = sum(x ** 2 for x in x_values)
+    c_fit = numerator / denominator
 
-    print(f"Best c: {c_fit} * x + {b}")
+    print(f"Best c: {c_fit} * x")
     print(f"Error: {compute_square_error(c_fit, x_values, combined_mean)}")
 
     plt.errorbar(x_values, wall_press_mean, yerr=wall_press_std, fmt='o', capsize=5, label='Paredes')

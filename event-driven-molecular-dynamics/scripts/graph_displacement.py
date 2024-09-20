@@ -4,6 +4,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
+from graph_two import compute_square_error
 from read_files import read_collisions, read_static_file
 
 if __name__ == '__main__':
@@ -14,6 +15,8 @@ if __name__ == '__main__':
     static_file = sys.argv[1]
     output_file = sys.argv[2]
     collisions_files = sys.argv[3:]
+
+    print("Collision files: ", collisions_files)
 
     static = read_static_file(static_file)
 
@@ -42,6 +45,18 @@ if __name__ == '__main__':
     mean = np.mean(data, axis=0)
     std = np.std(data, axis=0, ddof=1)
 
+    new_times = [time for time in times if time <= 0.5]
+    new_mean = mean[:len(new_times)]
+
+    numerator = sum(x * y for x, y in zip(new_times, new_mean))
+    denominator = sum(x ** 2 for x in new_times)
+    c_fit = numerator / denominator
+
+    print(f"Fit: y = {c_fit}x")
+    print(f"Square error: {compute_square_error(c_fit, new_times, new_mean)}")
+
+    plt.plot(new_times, [c_fit * x for x in new_times], label=f"y = {c_fit:.2f}x", color='red', linestyle='--')
+
     plt.xlim(0, static["time"])
     plt.errorbar(times, mean, std, marker='.')
     plt.xlabel("Tiempo (s)", fontsize=12)
@@ -49,3 +64,27 @@ if __name__ == '__main__':
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
     plt.savefig(output_file, dpi=400)
+
+    plt.clf()
+
+    c_values = np.linspace(c_fit / 2, 3 * c_fit / 2, 100)
+
+    errors = [compute_square_error(c, new_times, new_mean) for c in c_values]
+    plt.plot(c_values, errors, label="Error cuadrático")
+    plt.plot(c_fit, min(errors), marker='o', linestyle='', color='black', label="Mejor c")
+
+    plt.axvline(x=c_fit, color='grey', linestyle='--')
+    plt.axhline(y=min(errors), color='grey', linestyle='--')
+
+    # plt.gca().yaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
+    # plt.tight_layout()
+
+    plt.xlabel("c", fontsize=12)
+    plt.ylabel("Error cuadrático", fontsize=12)
+    plt.legend(loc='upper center')
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
+    # plt.savefig("error_" + output_file, dpi=400)
+    plt.show()
+
