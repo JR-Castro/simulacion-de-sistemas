@@ -42,12 +42,15 @@ if __name__ == '__main__':
     obs_press_mean = []
     obs_press_std = []
 
+    n = 0
+
     time_start = time.time()
 
     TIME_STEP = 0.01
     i = 0
     for static_file in static_files:
         static_data = read_static_file(os.path.join(static_files_path, static_file))
+        n = static_data['N']
         collisions = [read_collisions(os.path.join(output_files_path, output_file)) for output_file in output_files[i]]
         wall_pressures = [[p['pressure'] for p in calculate_wall_pressures(static_data, c, TIME_STEP)] for c in
                           collisions]
@@ -70,7 +73,8 @@ if __name__ == '__main__':
         obs_press_std.append(obs_std)
         i += 1
 
-    x_values = [3 ** 2, 6 ** 2, 10 ** 2]
+    speed_values = [3 ** 2, 6 ** 2, 10 ** 2]
+    x_values = [n * 0.5 * 1 * v for v in speed_values]
 
     # Combine the mean pressures of wall and obstacle
     combined_mean = [0.5 * (wall_press_mean[i] + obs_press_mean[i]) for i in range(len(wall_press_mean))]
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 
     plt.plot(x_values, [c_fit * x for x in x_values], linestyle='--', label=f'f(x) = {c_fit:.2f}x', color='red')
 
-    plt.xlabel("$v_0^2$ (m/s)", fontsize=12)
+    plt.xlabel("Energía Cinética (J)", fontsize=12)
     plt.ylabel("Presión (N/m)", fontsize=12)
     plt.legend(loc='upper left', shadow=True)
     plt.xticks(fontsize=12)
