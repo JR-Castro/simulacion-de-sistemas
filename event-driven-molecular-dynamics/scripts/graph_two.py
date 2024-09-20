@@ -54,7 +54,7 @@ if __name__ == '__main__':
         collisions = [read_collisions(os.path.join(output_files_path, output_file)) for output_file in output_files[i]]
         wall_pressures = [[p['pressure'] for p in calculate_wall_pressures(static_data, c, TIME_STEP)] for c in
                           collisions]
-        obstacle_pressures = [[p['pressure'] for p in calculate_obstacle_pressures(static_data, c, TIME_STEP * 10)] for
+        obstacle_pressures = [[p['pressure'] for p in calculate_obstacle_pressures(static_data, c, TIME_STEP)] for
                               c in
                               collisions]
 
