@@ -44,9 +44,10 @@ def plot_observable(x_values, y_values, y_label, output):
     # Create bar plot
     plt.figure(figsize=(10, 6))
     plt.bar(unique_x, means, yerr=std_devs, capsize=5, color='blue', alpha=0.7)
-    plt.xlabel('Energía cinética (J)')
-    plt.ylabel(y_label)
-    plt.xticks(unique_x)
+    plt.xlabel('Energía cinética (J)', fontsize=12)
+    plt.ylabel(y_label, fontsize=12)
+    plt.xticks(unique_x, fontsize=12)
+    plt.yticks(fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.tight_layout()
     plt.savefig(output, dpi=400)
@@ -81,9 +82,9 @@ if __name__ == '__main__':
     print(collisions_by_file)
     print(unique_collisions_by_file)
 
-    k_energies = [0.5 * 1 * (v ** 2) for v in velocities_by_file]
+    k_energies = [400 * 0.5 * 1 * (v ** 2) for v in velocities_by_file]
 
-    plot_observable(k_energies, collisions_by_file, 'Colisiones totales con obstáculo', 'total_collisions_kinetic.png')
+    plot_observable(k_energies, collisions_by_file, 'Colisiones totales con obstáculo en 1s', 'total_collisions_kinetic.png')
     plot_observable(k_energies, unique_collisions_by_file, 'Tiempo hasta que ½ de las partículas han colisionado (s)', 'new_collisions_kinetic.png')
 
     print(f"Elapsed time: {time.time() - start_time} s")
