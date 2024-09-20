@@ -79,6 +79,15 @@ def read_collisions(file_path):
     return output
 
 
+def read_collisions_with_obstacle(file_path):
+    count = 0
+    with open(file_path, 'r') as file:
+        for line in file:
+            if line.rstrip().endswith(" 1"):
+                count += 1
+    return count
+
+
 def read_collisions_discrete_steps(file_path, dt, avoid_repeats=True):
     """
     Returns a list of dictionaries with the status of the system at each time step
