@@ -88,6 +88,32 @@ def read_collisions_with_obstacle(file_path):
     return count
 
 
+def read_unique_collisions_with_obstacle(file_path):
+    count = 0
+    previous_first_words = set()
+
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+        for i in range(len(lines) - 1):
+            current_line = lines[i].rstrip()  # Remove trailing whitespace
+            next_line = lines[i + 1].rstrip()
+
+            # Check if the current line ends with " 1"
+            if current_line.endswith(" 1"):
+                # Get the first word of the next line
+                next_first_word = next_line.split()[0] if next_line else ''
+
+                # If the first word is distinct, count it
+                if next_first_word not in previous_first_words:
+                    count += 1
+                    if count >= 200:
+                        return float(current_line.split()[0])
+                    previous_first_words.add(next_first_word)
+
+    return 1.0
+
+
 def read_collisions_discrete_steps(file_path, dt, avoid_repeats=True):
     """
     Returns a list of dictionaries with the status of the system at each time step

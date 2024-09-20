@@ -8,7 +8,7 @@ from os.path import abspath, isfile
 import numpy as np
 from matplotlib import pyplot as plt
 
-from read_files import read_collisions_with_obstacle
+from read_files import read_collisions_with_obstacle, read_unique_collisions_with_obstacle
 
 
 def group_by_first_element(zip_object):
@@ -24,7 +24,7 @@ def group_by_first_element(zip_object):
     return result
 
 
-def plot_observable(x_values, y_values):
+def plot_observable(x_values, y_values, y_label, output):
     print(x_values)
     # Calculate means and standard deviations
     unique_x = np.unique(x_values)
@@ -34,6 +34,7 @@ def plot_observable(x_values, y_values):
     for x in unique_x:
         # Get the corresponding y values for each unique x
         corresponding_y = [y for x_val, y in zip(x_values, y_values) if x_val == x]
+        print('CORRESPONDING ' + str(corresponding_y))
         means.append(np.mean(corresponding_y))
         std_devs.append(np.std(corresponding_y))
 
@@ -44,10 +45,12 @@ def plot_observable(x_values, y_values):
     plt.figure(figsize=(10, 6))
     plt.bar(unique_x, means, yerr=std_devs, capsize=5, color='blue', alpha=0.7)
     plt.xlabel('Energía cinética (J)')
-    plt.ylabel('Colisiones totales con obstáculo')
+    plt.ylabel(y_label)
     plt.xticks(unique_x)
-    plt.grid()
-    plt.show()
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.savefig(output, dpi=400)
+    plt.close()
 
 
 def extract_velocity_from_filename(file_path):
@@ -73,11 +76,14 @@ if __name__ == '__main__':
     print(f"Output files: {files}")
 
     collisions_by_file = [read_collisions_with_obstacle(path.join(output_path, f)) for f in files]
+    unique_collisions_by_file = [read_unique_collisions_with_obstacle(path.join(output_path, f)) for f in files]
     velocities_by_file = [extract_velocity_from_filename(path.join(output_path, f)) for f in files]
     print(collisions_by_file)
+    print(unique_collisions_by_file)
 
     k_energies = [0.5 * 1 * (v ** 2) for v in velocities_by_file]
 
-    plot_observable(k_energies, collisions_by_file)
+    plot_observable(k_energies, collisions_by_file, 'Colisiones totales con obstáculo', 'total_collisions_kinetic.png')
+    plot_observable(k_energies, unique_collisions_by_file, 'Tiempo hasta que ½ de las partículas han colisionado (s)', 'new_collisions_kinetic.png')
 
     print(f"Elapsed time: {time.time() - start_time} s")
