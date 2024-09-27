@@ -6,7 +6,6 @@ class VerletIntegrator(
     val dt: Double,
     private val positions: DoubleArray,
     private val speeds: DoubleArray,
-    private val masses: DoubleArray,
     val forceUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ) : Integrator {
 
@@ -21,7 +20,7 @@ class VerletIntegrator(
                     it,
                     positions,
                     speeds
-                ) * dt * dt / masses[it]
+                ) * dt * dt
             }.toDoubleArray()
             private var v = speeds
 
@@ -37,7 +36,7 @@ class VerletIntegrator(
                         it,
                         currentR,
                         v
-                    ) * dt * dt / masses[it]
+                    ) * dt * dt
                 }.toDoubleArray()
                 val newV = currentR.indices.map { (newR[it] - previousR[it]) / (2 * dt) }.toDoubleArray()
 

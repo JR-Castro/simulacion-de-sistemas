@@ -1,6 +1,6 @@
 package ar.edu.itba.ss
 
-import ar.edu.itba.ss.integrators.VerletIntegrator
+import ar.edu.itba.ss.integrators.BeemanIntegrator
 import java.io.BufferedWriter
 import java.io.FileWriter
 import kotlin.math.pow
@@ -18,16 +18,15 @@ fun main() {
     val stepsToWrite = 1000
 //    val startAcceleration = -10e4 * startPos - 100 * startSpeed
 
-    val writer = BufferedWriter(FileWriter("output.txt"), 1024 * 1024 * 8)
+    val writer = BufferedWriter(FileWriter("outputBeeman.txt"), 1024 * 1024 * 8)
     val csvWriter = CSVFormatter(writer)
 
-    val integrator = VerletIntegrator(
-        1e-6,
+    val integrator = BeemanIntegrator(
+        1e-4,
         doubleArrayOf(startPos),
         doubleArrayOf(startSpeed),
-        doubleArrayOf(mass)
     ) { time, i, r, v ->
-        -k * r[i] - gamma * v[i]
+        (-k * r[i] - gamma * v[i]) / mass
     }.iterator()
 
     var currentStep = 0

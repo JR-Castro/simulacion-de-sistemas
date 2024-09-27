@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     # Load the data
-    data = pd.read_csv('output.txt')
+    data_beeman = pd.read_csv('outputBeeman.txt')
+    data_verlet = pd.read_csv('outputVerlet.txt')
 
-    print(data)
+    print(data_beeman)
 
     # Plot the data
-    plt.plot(data['time'], data['position'], marker='o', linestyle='')
+    plt.plot(data_beeman['time'], data_beeman['position'], label='Beeman', marker='o', linestyle='')
+    plt.plot(data_verlet['time'], data_verlet['position'], label='Verlet', marker='o', linestyle='')
     plt.xlabel('Time (s)')
     plt.ylabel('Position (m)')
+    plt.legend('bottom right')
     plt.show()
