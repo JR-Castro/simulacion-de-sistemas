@@ -6,7 +6,7 @@ class VerletIntegrator(
     val dt: Double,
     private val positions: DoubleArray,
     private val speeds: DoubleArray,
-    val forceUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
+    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ) : Integrator {
 
     override fun iterator(): Iterator<SimulationState> {
@@ -14,28 +14,29 @@ class VerletIntegrator(
             private var time = 0.0
 
             private var currentR = positions
+            private var currentV = speeds
+
             private var previousR = positions.indices.map {
-                positions[it] - speeds[it] * dt + 0.5 * forceUpdater(
+                positions[it] - speeds[it] * dt + 0.5 * accelerationUpdater(
                     time,
                     it,
                     positions,
                     speeds
                 ) * dt * dt
             }.toDoubleArray()
-            private var v = speeds
 
             override fun hasNext(): Boolean {
                 return true
             }
 
             override fun next(): SimulationState {
-                val returnVal = SimulationState(time, currentR, v)
+                val returnVal = SimulationState(time, currentR, currentV)
                 val newR = currentR.indices.map {
-                    2 * currentR[it] - previousR[it] + forceUpdater(
+                    2 * currentR[it] - previousR[it] + accelerationUpdater(
                         time,
                         it,
                         currentR,
-                        v
+                        currentV
                     ) * dt * dt
                 }.toDoubleArray()
                 val newV = currentR.indices.map { (newR[it] - previousR[it]) / (2 * dt) }.toDoubleArray()
@@ -43,11 +44,10 @@ class VerletIntegrator(
                 time += dt
                 previousR = currentR
                 currentR = newR
-                v = newV
+                currentV = newV
 
                 return returnVal
             }
         }
     }
-
 }
