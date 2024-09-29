@@ -36,14 +36,14 @@ fun main() {
 
     val initialR = doubleArrayOf(startPos)
     val initialR1 = doubleArrayOf(startSpeed)
-    val initialR2 = doubleArrayOf(-k / mass * startPos)
+    val initialR2 = doubleArrayOf(-k / mass * initialR[0])
     val initialR3 = doubleArrayOf(-k / mass * initialR1[0])
-    val initialR4 = doubleArrayOf(-k / mass * initialR2[0])
-    val initialR5 = doubleArrayOf(-k / mass * initialR3[0])
+    val initialR4 = doubleArrayOf((k / mass).pow(2) * initialR[0])
+    val initialR5 = doubleArrayOf((k / mass).pow(2) * initialR1[0])
 
-    for (i in 1 until 8) {
+    for (i in 2 until 7) {
         val dt = 0.1.pow(i)
-        val dt2 = 0.005
+        val dt2 = 0.0
         println("dt: $dt")
         val verletIterator = VerletIntegrator(
             dt,

@@ -48,14 +48,19 @@ class GearIntegrator(
                     r5_p[i] = r5[i]
                 }
 
+                val dt2 = dt * dt
+                val dt3 = dt2 * dt
+                val dt4 = dt3 * dt
+                val dt5 = dt4 * dt
+
                 for (i in r.indices) {
-                    delta[i] = (accelerationUpdater(time + dt, i, r_p, r1_p) - r2_p[i]) * dt.pow(2) / 2
-                    r[i] = r_p[i] + 3/16 * delta[i] // / dt ^ 0 = 1
-                    r1[i] = r1_p[i] + 251/360 * delta[i] * 1 / dt
-                    r2[i] = r2_p[i] + 1 * delta[i] * 2 / dt.pow(2)
-                    r3[i] = r3_p[i] + 11/18 * delta[i] * 6 / dt.pow(3)
-                    r4[i] = r4_p[i] + 1/6 * delta[i] * 24 / dt.pow(4)
-                    r5[i] = r5_p[i] + 1/60 * delta[i] * 120 / dt.pow(5)
+                    delta[i] = (accelerationUpdater(time + dt, i, r_p, r1_p) - r2_p[i]) * dt2 / 2
+                    r[i] = r_p[i] + 3.0 / 16.0 * delta[i] // / dt ^ 0 = 1
+                    r1[i] = r1_p[i] + 251.0 / 360.0 * delta[i] * 1.0 / dt
+                    r2[i] = r2_p[i] + 1.0 * delta[i] * 2.0 / dt2
+                    r3[i] = r3_p[i] + 11.0 / 18.0 * delta[i] * 6.0 / dt3
+                    r4[i] = r4_p[i] + 1.0 / 6.0 * delta[i] * 24.0 / dt4
+                    r5[i] = r5_p[i] + 1.0 / 60.0 * delta[i] * 120.0 / dt5
                 }
                 time += dt
 
