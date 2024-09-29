@@ -17,12 +17,12 @@ class GearIntegrator(
         return object : Iterator<SimulationState> {
             private var time = 0.0
 
-            private var r = initialR
-            private var r1 = initialR1
-            private var r2 = initialR2
-            private var r3 = initialR3
-            private var r4 = initialR4
-            private var r5 = initialR5
+            private var r = initialR.clone()
+            private var r1 = initialR1.clone()
+            private var r2 = initialR2.clone()
+            private var r3 = initialR3.clone()
+            private var r4 = initialR4.clone()
+            private var r5 = initialR5.clone()
 
             override fun hasNext(): Boolean {
                 return true

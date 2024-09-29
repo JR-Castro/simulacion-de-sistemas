@@ -1,8 +1,10 @@
 package ar.edu.itba.ss
 
+import java.io.Closeable
+import java.io.Flushable
 import java.io.Writer
 
-class CSVFormatter(val writer: Writer) {
+class CSVWriter(private val writer: Writer): Closeable, Flushable {
 
     private val SEPARATOR = ","
 
@@ -16,4 +18,11 @@ class CSVFormatter(val writer: Writer) {
         }
     }
 
+    override fun close() {
+        writer.close()
+    }
+
+    override fun flush() {
+        writer.flush()
+    }
 }

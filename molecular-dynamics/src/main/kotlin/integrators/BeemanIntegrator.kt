@@ -5,8 +5,8 @@ import kotlin.math.pow
 
 class BeemanIntegrator(
     val dt: Double,
-    private val positions: DoubleArray,
-    private val speeds: DoubleArray,
+    private val initialR: DoubleArray,
+    private val initialR1: DoubleArray,
     val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ) : Integrator {
 
@@ -14,17 +14,17 @@ class BeemanIntegrator(
         return object : Iterator<SimulationState> {
             private var time = 0.0
 
-            private var currentR = positions
-            private var currentV = speeds
+            private var currentR = initialR
+            private var currentV = initialR1
 
-            private var previousR = positions.indices.map {
-                positions[it] - speeds[it] * dt + 0.5 * accelerationUpdater(
-                    time, it, positions, speeds
+            private var previousR = initialR.indices.map {
+                initialR[it] - initialR1[it] * dt + 0.5 * accelerationUpdater(
+                    time, it, initialR, initialR1
                 ) * dt.pow(2)
             }.toDoubleArray()
-            private var previousV = speeds.indices.map {
-                speeds[it] - accelerationUpdater(
-                    time, it, positions, speeds
+            private var previousV = initialR1.indices.map {
+                initialR1[it] - accelerationUpdater(
+                    time, it, initialR, initialR1
                 ) * dt
             }.toDoubleArray()
 
@@ -37,22 +37,22 @@ class BeemanIntegrator(
 
                 val newR = currentR.indices.map {
                     currentR[it] +
-                    currentV[it] * dt +
-                            (2.0 / 3.0 * accelerationUpdater( time, it, currentR, currentV) -
-                    1.0 / 6.0 * accelerationUpdater( time - dt, it, previousR, previousV)) * dt.pow(2)
+                            currentV[it] * dt +
+                            (2.0 / 3.0 * accelerationUpdater(time, it, currentR, currentV) -
+                                    1.0 / 6.0 * accelerationUpdater(time - dt, it, previousR, previousV)) * dt.pow(2)
                 }.toDoubleArray()
 
                 val predictedV = currentV.indices.map {
                     currentV[it] +
-                    3.0 / 2.0 * accelerationUpdater(time, it, currentR, currentV) * dt -
-                    1.0 / 2.0 * accelerationUpdater(time - dt, it, previousR, previousV) * dt
+                            3.0 / 2.0 * accelerationUpdater(time, it, currentR, currentV) * dt -
+                            1.0 / 2.0 * accelerationUpdater(time - dt, it, previousR, previousV) * dt
                 }.toDoubleArray()
 
                 val newV = currentV.indices.map {
                     currentV[it] +
-                    1.0 / 3.0 * accelerationUpdater(time + dt, it, newR, predictedV) * dt +
-                    5.0 / 6.0 * accelerationUpdater(time, it, currentR, currentV) * dt -
-                    1.0 / 6.0 * accelerationUpdater(time - dt, it, previousR, previousV) * dt
+                            1.0 / 3.0 * accelerationUpdater(time + dt, it, newR, predictedV) * dt +
+                            5.0 / 6.0 * accelerationUpdater(time, it, currentR, currentV) * dt -
+                            1.0 / 6.0 * accelerationUpdater(time - dt, it, previousR, previousV) * dt
                 }.toDoubleArray()
 
                 time += dt

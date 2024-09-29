@@ -4,8 +4,8 @@ import ar.edu.itba.ss.SimulationState
 
 class VerletIntegrator(
     val dt: Double,
-    private val positions: DoubleArray,
-    private val speeds: DoubleArray,
+    private val initialR: DoubleArray,
+    private val initialR1: DoubleArray,
     val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ) : Integrator {
 
@@ -13,15 +13,15 @@ class VerletIntegrator(
         return object : Iterator<SimulationState> {
             private var time = 0.0
 
-            private var currentR = positions
-            private var currentV = speeds
+            private var currentR = initialR
+            private var currentV = initialR1
 
-            private var previousR = positions.indices.map {
-                positions[it] - speeds[it] * dt + 0.5 * accelerationUpdater(
+            private var previousR = initialR.indices.map {
+                initialR[it] - initialR1[it] * dt + 0.5 * accelerationUpdater(
                     time,
                     it,
-                    positions,
-                    speeds
+                    initialR,
+                    initialR1
                 ) * dt * dt
             }.toDoubleArray()
 
