@@ -33,7 +33,7 @@ class BeemanIntegrator(
             }
 
             override fun next(): SimulationState {
-                val returnVal = SimulationState(time, currentR, currentV)
+                val returnVal = SimulationState(time, currentR.clone(), currentV.clone())
 
                 val newR = currentR.indices.map {
                     currentR[it] +

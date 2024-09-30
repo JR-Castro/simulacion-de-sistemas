@@ -30,7 +30,7 @@ class VerletIntegrator(
             }
 
             override fun next(): SimulationState {
-                val returnVal = SimulationState(time, currentR, currentV)
+                val returnVal = SimulationState(time, currentR.clone(), currentV.clone())
                 val newR = currentR.indices.map {
                     2 * currentR[it] - previousR[it] + accelerationUpdater(
                         time,
