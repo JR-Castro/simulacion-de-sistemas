@@ -33,6 +33,9 @@ fun main() {
     val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double = { time, i, r, v ->
         (-k * r[i] - gamma * v[i]) / mass
     }
+    val positionUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double = { _, i, r, _ ->
+        r[i]
+    }
 
     val initialR = doubleArrayOf(startPos)
     val initialR1 = doubleArrayOf(startSpeed)
@@ -49,13 +52,15 @@ fun main() {
             dt,
             initialR,
             initialR1,
-            accelerationUpdater
+            accelerationUpdater,
+            positionUpdater
         ).iterator()
         val beemanIterator = BeemanIntegrator(
             dt,
             initialR,
             initialR1,
-            accelerationUpdater
+            accelerationUpdater,
+            positionUpdater
         ).iterator()
         val gearIterator = GearIntegrator(
             dt,
@@ -65,7 +70,8 @@ fun main() {
             initialR3,
             initialR4,
             initialR5,
-            accelerationUpdater
+            accelerationUpdater,
+            positionUpdater
         ).iterator()
 
         testIntegrator(verletIterator, "outputVerlet_${i}.txt", dt2, maxTime)

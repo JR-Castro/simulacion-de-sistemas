@@ -5,23 +5,25 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import animation
 
-N = 1000
+N = 100
+L0 = 1E-3
+POSITIONS = [i * L0 for i in range(N)]
+MAX_POSITION = max(POSITIONS)
 
 def update_animation(frame, data, ax, dt, frames):
     print(f"Frame: {frame}/{frames}")
     ax.clear()
 
-    ax.set_xlabel('N')
+    ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
-    ax.set_ylim(-0.005, 0.005)
-    ax.set_xlim(0, N)
+    ax.set_ylim(-2.0, 2.0)
+    ax.set_xlim(0, MAX_POSITION)
 
     # Enhance background aesthetics
     ax.set_facecolor('#f0f0f0')
     ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
 
     # Calculate the current time for the given frame
-    current_time = frame * dt
 
     # Filter the data for the current time, accounting for float error
     time_data = data.iloc[frame * N:(frame + 1) * N, :]
@@ -30,10 +32,10 @@ def update_animation(frame, data, ax, dt, frames):
         print("Error")
 
     # Plot the oscillators' positions as blue dots
-    ax.scatter(time_data.index % N, time_data['position'], c=time_data['position'], cmap='coolwarm', s=20,)
+    ax.scatter(POSITIONS, time_data['position'], s=20,)
 
     # Display the current time with a semi-transparent background
-    time_text = f"Time: {current_time:.2f}s"
+    time_text = f"Time: {time_data['time'].iloc[0]:.2f}s"
     ax.text(0.5, 1.05, time_text, transform=ax.transAxes, fontsize=12,
             horizontalalignment='center', verticalalignment='top',
             bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
@@ -41,8 +43,8 @@ def update_animation(frame, data, ax, dt, frames):
 
 if __name__ == '__main__':
     start_time = time.time()
-    data_coupled = pd.read_csv('coupled_oscillators.csv')
-    data_coupled = data_coupled.iloc[N*500:, :]
+    data_coupled = pd.read_csv('output/coupled_oscillator_w_2.csv')
+    # data_coupled = data_coupled.iloc[N*500:, :]
     print(len(data_coupled))
 
     fig = plt.figure()
@@ -52,7 +54,7 @@ if __name__ == '__main__':
     dt = math.pow(10, -2)
 
     frames = int(len(data_coupled['time'])/N)
-    # frames = 500
+    # frames = 1000
 
     ani = animation.FuncAnimation(fig, update_animation, frames=frames, fargs=(data_coupled, ax, dt, frames))
 

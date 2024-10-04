@@ -10,7 +10,8 @@ class GearIntegrator(
     private val initialR3: DoubleArray,
     private val initialR4: DoubleArray,
     private val initialR5: DoubleArray,
-    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
+    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double,
+    val positionUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ): Integrator {
     companion object {
         private val ALPHAS = doubleArrayOf(3.0 / 16.0, 251.0 / 360.0, 1.0, 11.0 / 18.0, 1.0 / 6.0, 1.0 / 60.0)
@@ -69,6 +70,7 @@ class GearIntegrator(
                     r5[i] = r5_p[i] + ALPHAS[5] * delta[i] * 120.0 / dt5
                 }
                 time += dt
+                r = r.indices.map { positionUpdater(time, it, r, r1) }.toDoubleArray()
 
                 return returnVal
             }

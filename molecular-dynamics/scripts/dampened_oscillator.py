@@ -16,7 +16,7 @@ AMPLITUDE = 1
 V0 = -AMPLITUDE * GAMMA / (2 * MASS)
 
 RUNS = range(2, 7)
-GRAPH_RUN = 4
+GRAPH_RUN = 3
 
 ALGORITHMS = ['Verlet', 'Beeman', 'Gear']
 COLORS = {
@@ -125,6 +125,9 @@ if __name__ == '__main__':
     ax.scatter(dts, err_verlet, s=default_size, label='Verlet', facecolors='none', edgecolors='blue')
     ax.scatter(dts, err_beeman, s=default_size, label='Beeman', facecolors='none', edgecolors='orange')
     ax.scatter(dts, err_gear, s=default_size, label='Gear', facecolors='none', edgecolors='green')
+    ax.plot(dts, err_verlet, linestyle='-', color='blue')
+    ax.plot(dts, err_beeman, linestyle='-', color='orange')
+    ax.plot(dts, err_gear, linestyle='-', color='green')
 
     ax.set_xlabel('dt (s)', fontdict=font)
     ax.set_ylabel('Error Cuadrático Medio', fontdict=font)

@@ -6,7 +6,8 @@ class VerletIntegrator(
     val dt: Double,
     private val initialR: DoubleArray,
     private val initialR1: DoubleArray,
-    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
+    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double,
+    val positionUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ) : Integrator {
 
     override fun iterator(): Iterator<SimulationState> {
@@ -43,7 +44,7 @@ class VerletIntegrator(
 
                 time += dt
                 previousR = currentR
-                currentR = newR
+                currentR = newR.indices.map{ positionUpdater(time, it, newR, newV) }.toDoubleArray()
                 currentV = newV
 
                 return returnVal

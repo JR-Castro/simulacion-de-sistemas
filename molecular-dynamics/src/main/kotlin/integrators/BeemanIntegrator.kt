@@ -7,7 +7,8 @@ class BeemanIntegrator(
     val dt: Double,
     private val initialR: DoubleArray,
     private val initialR1: DoubleArray,
-    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
+    val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double,
+    val positionUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double
 ) : Integrator {
 
     override fun iterator(): Iterator<SimulationState> {
@@ -58,7 +59,7 @@ class BeemanIntegrator(
                 time += dt
                 previousR = currentR
                 previousV = currentV
-                currentR = newR
+                currentR = newR.indices.map { positionUpdater(time, it, newR, newV) }.toDoubleArray()
                 currentV = newV
 
                 return returnVal
