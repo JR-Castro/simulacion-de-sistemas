@@ -5,36 +5,38 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.File
-import kotlin.math.min
-import kotlin.math.pow
+import java.nio.file.Files
 
-fun main() = runBlocking {
+fun main(args: Array<String>) = runBlocking {
     val startTime = System.currentTimeMillis()
 
-    val maxTime = 120.0
-    val k = 100
-    val amplitude = 10.0.pow(-2)
-//    val l0 = 10.0.pow(-3)
-    val N = 100
-    val wValues = (0..8).map { 9.0 + it * 0.25 }
-    val dtValues = wValues.map { min(1E-3, 1 / (100 * it)) }
-    val dt2 = 0.05
-    val mass = 0.001
+    val files = args.sliceArray(0 until args.size)
 
     val jobs = mutableListOf<Job>()
 
-    for (i in wValues.indices) {
-        val outputFile = File("output/coupled_oscillator_w_$i.csv")
+    for (file in files) {
+        val fileName = file.split("/").last()
+        val fileNameWithoutExtension = fileName.substring(0, fileName.length - 4)
+        val outputFile = File("output/coupled_oscillator_$fileNameWithoutExtension.csv")
+        val lines = Files.readAllLines(File(file).toPath())
+        val maxtime = lines[0].toDouble()
+        val k = lines[1].toDouble()
+        val amplitude = lines[2].toDouble()
+        val N = lines[3].toInt()
+        val w = lines[4].toDouble()
+        val dt = lines[5].toDouble()
+        val dt2 = lines[6].toDouble()
+        val mass = lines[7].toDouble()
         jobs.add(launch {
             CoupledOscillator(
-                maxTime,
-                k.toDouble(),
-                amplitude,
-                N,
-                wValues[i],
-                dtValues[i],
-                dt2,
-                mass,
+                maxTime = maxtime,
+                k = k,
+                amplitude = amplitude,
+                N = N,
+                w = w,
+                dt = dt,
+                dt2 = dt2,
+                mass = mass,
                 outputFile
             ).run()
         })

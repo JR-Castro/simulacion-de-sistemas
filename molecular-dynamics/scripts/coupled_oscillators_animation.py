@@ -43,7 +43,7 @@ def update_animation(frame, data, ax, dt, frames):
 
 if __name__ == '__main__':
     start_time = time.time()
-    data_coupled = pd.read_csv('output/coupled_oscillator_w_2.csv')
+    data_coupled = pd.read_csv('output/coupled_oscillator_w4.csv')
     # data_coupled = data_coupled.iloc[N*500:, :]
     print(len(data_coupled))
 
