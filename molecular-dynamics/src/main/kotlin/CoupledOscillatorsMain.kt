@@ -1,20 +1,17 @@
 package ar.edu.itba.ss
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.selects.select
 import java.io.File
 import java.nio.file.Files
 
 fun main(args: Array<String>) = runBlocking {
     val startTime = System.currentTimeMillis()
 
-    val files = args.sliceArray(0 until args.size)
-
     val jobs = mutableListOf<Job>()
 
-    for (file in files) {
+    for (a in args.withIndex()) {
+        val file = a.value
         val fileName = file.split("/").last()
         val fileNameWithoutExtension = fileName.substring(0, fileName.length - 4)
         val outputFile = File("output/coupled_oscillator_$fileNameWithoutExtension.csv")
@@ -27,7 +24,16 @@ fun main(args: Array<String>) = runBlocking {
         val dt = lines[5].toDouble()
         val dt2 = lines[6].toDouble()
         val mass = lines[7].toDouble()
-        jobs.add(launch {
+        if (jobs.size == 12) {
+            select<Unit> {
+                jobs.forEach { job ->
+                    job.onJoin {
+                        jobs.remove(job) // Remove the completed job
+                    }
+                }
+            }
+        }
+        jobs.add(launch(Dispatchers.IO) {
             CoupledOscillator(
                 maxTime = maxtime,
                 k = k,
@@ -39,6 +45,7 @@ fun main(args: Array<String>) = runBlocking {
                 mass = mass,
                 outputFile
             ).run()
+            println("Finished $file (${a.index}/${args.size})")
         })
     }
 

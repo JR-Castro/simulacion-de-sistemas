@@ -50,7 +50,7 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    fps = 24
+    fps = 100
     dt = math.pow(10, -2)
 
     frames = int(len(data_coupled['time'])/N)
