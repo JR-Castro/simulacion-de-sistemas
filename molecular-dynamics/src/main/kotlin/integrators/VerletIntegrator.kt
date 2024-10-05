@@ -14,7 +14,10 @@ class VerletIntegrator(
         return object : Iterator<SimulationState> {
             private var time = 0.0
 
+            // r(t)
             private var currentR = initialR
+
+            // v(t)
             private var currentV = initialR1
 
             private var previousR = initialR.indices.map {
@@ -26,26 +29,30 @@ class VerletIntegrator(
                 ) * dt * dt
             }.toDoubleArray()
 
-            override fun hasNext(): Boolean {
-                return true
-            }
+            // r(t+dt)
+            private var nextR = initialR.indices.map {
+                2.0 * currentR[it] - previousR[it] + dt * dt * accelerationUpdater(time, it, initialR, initialR1)
+            }.toDoubleArray()
+
+
+            override fun hasNext(): Boolean = true
 
             override fun next(): SimulationState {
                 val returnVal = SimulationState(time, currentR.clone(), currentV.clone())
-                val newR = currentR.indices.map {
-                    2 * currentR[it] - previousR[it] + accelerationUpdater(
-                        time,
-                        it,
-                        currentR,
-                        currentV
-                    ) * dt * dt
-                }.toDoubleArray()
-                val newV = currentR.indices.map { (newR[it] - previousR[it]) / (2 * dt) }.toDoubleArray()
 
                 time += dt
+
                 previousR = currentR
-                currentR = newR.indices.map{ positionUpdater(time, it, newR, newV) }.toDoubleArray()
-                currentV = newV
+                currentR = nextR
+
+                val newNextR = currentR.indices.map {
+                    2.0 * currentR[it] - previousR[it] + dt * dt * accelerationUpdater(time, it, currentR, currentV)
+                }.toDoubleArray()
+                nextR = newNextR.indices.map { positionUpdater(time, it, newNextR, currentV) }.toDoubleArray()
+
+                currentV = nextR.indices.map {
+                    (nextR[it] - previousR[it]) / (2.0 * dt)
+                }.toDoubleArray()
 
                 return returnVal
             }
