@@ -1,11 +1,12 @@
 import math
 import time
 
-import numpy as np
+import matplotlib.pyplot as plt
 import pandas
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import ticker, rcParams
+from matplotlib import rcParams
+
+from graph_constants import formatter, FONT, DPI, set_axis_formatter
 
 K = 10 ** 4
 MAX_TIME = 5
@@ -24,13 +25,6 @@ COLORS = {
     'Beeman': 'orange',
     'Gear': 'green'
 }
-
-
-# Define a custom formatter
-def formatter(value, pos):
-    exponent = int(np.floor(np.log10(abs(value)))) if value != 0 else 0
-    coeff = value / 10 ** exponent
-    return f'${coeff:.2f} \\times 10^{{{exponent}}}$'
 
 
 def calc_solution(t):
@@ -66,11 +60,6 @@ if __name__ == '__main__':
 
     # print(data_beeman)
 
-    font = {'family': 'serif',
-            'color': 'black',
-            'weight': 'normal',
-            'size': 14}
-
     # Filter the data to show only the last second
     data_verlet_filter = data_verlet
     data_beeman_filter = data_beeman
@@ -89,14 +78,14 @@ if __name__ == '__main__':
 
     plt.plot(data_solution_filter['time'], data_solution_filter['position'], label='Solución', linestyle='--')
 
-    plt.xlabel('Tiempo (s)', fontdict=font)
-    plt.ylabel('Posición (m)', fontdict=font)
+    plt.xlabel('Tiempo (s)', fontdict=FONT)
+    plt.ylabel('Posición (m)', fontdict=FONT)
     plt.legend(loc='lower right')
-    plt.savefig('position_vs_time.png', dpi=400)
+    plt.savefig('position_vs_time.png', dpi=DPI)
 
     plt.xlim(3.2, 3.3)
     plt.ylim(0, 0.1)
-    plt.savefig('position_vs_time_zoom.png', dpi=400)
+    plt.savefig('position_vs_time_zoom.png', dpi=DPI)
     plt.clf()
 
     fig, ax = plt.subplots()
@@ -129,10 +118,9 @@ if __name__ == '__main__':
     ax.plot(dts, err_beeman, linestyle='-', color='orange')
     ax.plot(dts, err_gear, linestyle='-', color='green')
 
-    ax.set_xlabel('dt (s)', fontdict=font)
-    ax.set_ylabel('Error Cuadrático Medio', fontdict=font)
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(formatter))
-    ax.yaxis.set_major_formatter(ticker.FuncFormatter(formatter))
+    ax.set_xlabel('dt (s)', fontdict=FONT)
+    ax.set_ylabel('Error Cuadrático Medio', fontdict=FONT)
+    set_axis_formatter(ax)
     plt.legend()
     plt.xscale('log')
     plt.yscale('log')
@@ -144,6 +132,6 @@ if __name__ == '__main__':
     # Grid
     # ax.grid(True, which='both', linestyle='--', linewidth=0.5)
 
-    plt.savefig('error_vs_dt.png', dpi=400)
+    plt.savefig('error_vs_dt.png', dpi=DPI)
 
     print(f'--- {time.time() - start_time} seconds ---')
