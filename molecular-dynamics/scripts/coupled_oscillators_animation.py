@@ -16,7 +16,7 @@ def update_animation(frame, data, ax, dt, frames):
 
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
-    ax.set_ylim(-2.0, 2.0)
+    ax.set_ylim(-85.0, 85.0)
     ax.set_xlim(0, MAX_POSITION)
 
     # Enhance background aesthetics
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    fps = 100
+    fps = 24
     dt = math.pow(10, -2)
 
     frames = int(len(data_coupled['time'])/N)

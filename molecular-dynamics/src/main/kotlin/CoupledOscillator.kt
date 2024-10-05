@@ -1,6 +1,6 @@
 package ar.edu.itba.ss
 
-import ar.edu.itba.ss.integrators.VerletIntegrator
+import ar.edu.itba.ss.integrators.OriginalVerletIntegrator
 import java.io.File
 import kotlin.math.sin
 
@@ -15,7 +15,7 @@ class CoupledOscillator(
     val mass: Double,
     val outputFile: File
 ) {
-    private val accelerationUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double = { _, i, r, _ ->
+    private val accelerationUpdater: (Double, Int, DoubleArray) -> Double = { _, i, r ->
         if (i == 0 || i == N - 1) {
             0.0
         } else {
@@ -23,7 +23,7 @@ class CoupledOscillator(
         }
     }
 
-    private val positionUpdater: (Double, Int, DoubleArray, DoubleArray) -> Double = { t, i, r, r1 ->
+    private val positionUpdater: (Double, Int, DoubleArray) -> Double = { t, i, r ->
         if (i == 0) {
             amplitude * sin(w * t)
         } else {
@@ -33,12 +33,12 @@ class CoupledOscillator(
 
     val initialR = DoubleArray(N) { 0.0 }
     val initialR1 = DoubleArray(N) { 0.0 }
-    val initialR2 = initialR.indices.map { accelerationUpdater(0.0, it, initialR, initialR1) }.toDoubleArray()
+    val initialR2 = initialR.indices.map { accelerationUpdater(0.0, it, initialR) }.toDoubleArray()
     val initialR3 = DoubleArray(N) { 0.0 }
     val initialR4 = DoubleArray(N) { 0.0 }
     val initialR5 = DoubleArray(N) { 0.0 }
 
-    val stateIterator = VerletIntegrator(
+    val stateIterator = OriginalVerletIntegrator(
         dt,
         initialR,
         initialR1,
