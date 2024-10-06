@@ -1,6 +1,5 @@
 import math
 import os
-import sys
 
 MAX_TIME = 120
 AMPLITUDE = 10E-2
@@ -39,11 +38,7 @@ def calculate_test_w_values(k):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Usage: generate_static.py <output_dir>")
-        sys.exit(1)
-
-    output_dir = sys.argv[1]
+    output_dir = 'static'
     # Make sure the dir exists
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs('output', exist_ok=True)

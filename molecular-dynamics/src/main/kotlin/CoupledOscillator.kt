@@ -3,7 +3,6 @@ package ar.edu.itba.ss
 import ar.edu.itba.ss.integrators.OriginalVerletIntegrator
 import java.io.File
 import kotlin.math.sin
-
 class CoupledOscillator(
     val maxTime: Double,
     val k: Double,
@@ -16,10 +15,16 @@ class CoupledOscillator(
     val outputFile: File
 ) {
     private val accelerationUpdater: (Double, Int, DoubleArray) -> Double = { _, i, r ->
-        if (i == 0 || i == N - 1) {
-            0.0
-        } else {
-            (-k * (r[i] - r[i - 1]) + k * (r[i + 1] - r[i])) / mass
+        when (i) {
+            0 -> {
+                0.0
+            }
+            N - 1 -> {
+                (-k * (r[i] - r[i-1]) - k * r[i]) / mass // The second spring is anchored
+            }
+            else -> {
+                (-k * (r[i] - r[i - 1]) - k * (r[i] - r[i + 1])) / mass
+            }
         }
     }
 

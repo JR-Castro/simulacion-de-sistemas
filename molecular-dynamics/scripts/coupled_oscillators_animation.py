@@ -11,7 +11,7 @@ POSITIONS = [i * L0 for i in range(N)]
 MAX_POSITION = max(POSITIONS)
 
 def update_animation(frame, data, ax, dt, frames, amplitude):
-    print(f"Frame: {frame}/{frames}")
+    print(f"\rFrame: {frame}/{frames}", end='')
     ax.clear()
 
     ax.set_xlabel('x (m)')
@@ -43,7 +43,7 @@ def update_animation(frame, data, ax, dt, frames, amplitude):
 
 if __name__ == '__main__':
     start_time = time.time()
-    data_coupled = pd.read_csv('output/coupled_oscillator_w2.csv')
+    data_coupled = pd.read_csv('output/coupled_oscillator_w10.csv')
     amplitude = max(data_coupled['position'].max(), abs(data_coupled['position'].min()))
     amplitude = round(amplitude, 2)
     # data_coupled = data_coupled.iloc[N*500:, :]
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    fps = 24
+    fps = 20
     dt = math.pow(10, -2)
 
     frames = int(len(data_coupled['time'])/N)
@@ -63,4 +63,4 @@ if __name__ == '__main__':
     ani.save('coupled_oscillators.mp4', fps=fps, dpi=300)
     plt.close(fig)
 
-    print(f"Time taken: {time.time() - start_time:.2f}s")
+    print(f"\rTime taken: {time.time() - start_time:.2f}s")
