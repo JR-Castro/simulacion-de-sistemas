@@ -10,13 +10,13 @@ L0 = 1E-3
 POSITIONS = [i * L0 for i in range(N)]
 MAX_POSITION = max(POSITIONS)
 
-def update_animation(frame, data, ax, dt, frames):
+def update_animation(frame, data, ax, dt, frames, amplitude):
     print(f"Frame: {frame}/{frames}")
     ax.clear()
 
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
-    ax.set_ylim(-85.0, 85.0)
+    ax.set_ylim(-amplitude, amplitude)
     ax.set_xlim(0, MAX_POSITION)
 
     # Enhance background aesthetics
@@ -43,7 +43,9 @@ def update_animation(frame, data, ax, dt, frames):
 
 if __name__ == '__main__':
     start_time = time.time()
-    data_coupled = pd.read_csv('output/coupled_oscillator_w4.csv')
+    data_coupled = pd.read_csv('output/coupled_oscillator_w2.csv')
+    amplitude = max(data_coupled['position'].max(), abs(data_coupled['position'].min()))
+    amplitude = round(amplitude, 2)
     # data_coupled = data_coupled.iloc[N*500:, :]
     print(len(data_coupled))
 
@@ -56,7 +58,7 @@ if __name__ == '__main__':
     frames = int(len(data_coupled['time'])/N)
     # frames = 1000
 
-    ani = animation.FuncAnimation(fig, update_animation, frames=frames, fargs=(data_coupled, ax, dt, frames))
+    ani = animation.FuncAnimation(fig, update_animation, frames=frames, fargs=(data_coupled, ax, dt, frames, amplitude))
 
     ani.save('coupled_oscillators.mp4', fps=fps, dpi=300)
     plt.close(fig)
