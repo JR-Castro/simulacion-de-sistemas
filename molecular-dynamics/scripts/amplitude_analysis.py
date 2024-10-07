@@ -100,7 +100,7 @@ def graph_amplitude_k(output):
     ticks = sorted({current_ticks[0], current_ticks[-1]}.union(list(resonance_w.values())))
     plt.xticks(ticks, labels=[f'{w:.2f}' for w in ticks], fontsize=14)
     plt.yticks(fontsize=14)
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper right')
     plt.savefig(output, dpi=DPI)
     plt.clf()
 
