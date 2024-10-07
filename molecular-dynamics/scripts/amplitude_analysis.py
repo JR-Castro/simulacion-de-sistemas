@@ -1,4 +1,3 @@
-import math
 import os
 import time
 
@@ -14,7 +13,7 @@ OUTPUT_DIR = 'amplitude'
 
 
 def compute_square_error(c, x_values, real):
-    predicted = [c * x for x in x_values]
+    predicted = [x ** c for x in x_values]
     squared_errors = [(p - r) ** 2 for p, r in zip(predicted, real)]
     return sum(squared_errors)
 
@@ -90,12 +89,16 @@ def graph_amplitude_k(output):
         plt.plot(calculate_test_w_values(k), amplitudes, '.--', label=f'k = {k}',
                  color=COLOR_PALETTE[i % len(COLOR_PALETTE)])
 
-    plt.subplots_adjust(right=0.75)
+    # plt.subplots_adjust(right=0.75)
     # plt.text(1.05, 0.5, f''
     #             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('ω (rad/s)', fontdict=FONT)
     plt.ylabel('$A$ (m)', fontdict=FONT)
-    plt.xticks(fontsize=14)
+    plt.yscale('log')
+
+    current_ticks = ax.get_xticks()
+    ticks = sorted({current_ticks[0], current_ticks[-1]}.union(list(resonance_w.values())))
+    plt.xticks(ticks, labels=[f'{w:.2f}' for w in ticks], fontsize=14)
     plt.yticks(fontsize=14)
     plt.legend(loc='upper left')
     plt.savefig(output, dpi=DPI)
@@ -111,24 +114,25 @@ def graph_w_vs_k(resonance_w, max_w_idx):
         graph_amplitude_over_time(pd.read_csv(files[i][max_w_idx[k]]), f'max_amplitude_time_k{i}.png', resonance_w[k],
                                   k)
 
-    xs = [math.sqrt(k) for k in K_VALUES]
+    xs = K_VALUES
     ys = [resonance_w[k] for k in K_VALUES]
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    plt.xlabel('$k^{1/2}$ (N/m)', fontdict=FONT)
+    plt.xlabel('$k$ (N/m)', fontdict=FONT)
     plt.ylabel('ω (rad/s)', fontdict=FONT)
 
     plt.scatter(xs, ys, marker='o', label="Resonancia")
 
-    numerator = sum(x * y for x, y in zip(xs, ys))
-    denominator = sum(x ** 2 for x in xs)
-    c_fit = numerator / denominator
+    c_values = np.linspace(0.5 - 0.5, 0.5 + 0.5, 500)
+    errors = [compute_square_error(c, xs, ys) for c in c_values]
+    min_error_idx = errors.index(min(errors))
+    c_fit = float(c_values[min_error_idx])
 
     print(f"Best c: {c_fit} * x")
     print(f"Error: {compute_square_error(c_fit, xs, ys)}")
 
-    plt.plot(xs, [c_fit * x for x in xs], linestyle='--',
-             label=f'f(x) = {c_fit:.2f}x (ECM = {compute_square_error(c_fit, xs, ys):.3f})',
+    plt.plot(xs, [x ** c_fit for x in xs], linestyle='--',
+             label=f'f(x) = $x^{{{c_fit:.2f}}}$ (ECM = {errors[min_error_idx]:.2f})',
              color=COLOR_PALETTE[1])
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
@@ -138,10 +142,6 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     plt.savefig(f'{OUTPUT_DIR}/resonance_analysis.png', dpi=DPI)
     plt.clf()
 
-    c_values = np.linspace(c_fit - 0.15, c_fit + 0.15, 250)
-
-    errors = [compute_square_error(c, xs, ys) for c in c_values]
-    min_error_idx = errors.index(min(errors))
 
     plt.plot(c_values, errors, label="Error cuadrático", color='blue')
     plt.plot(c_values[min_error_idx], min(errors), linestyle='', marker='o', color='black', label=f"Mejor c")

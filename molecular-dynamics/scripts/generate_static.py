@@ -9,6 +9,13 @@ MASS = 0.001
 DEFAULT_K = 100.0
 K_VALUES = [100, 250, 500, 750, 1000]
 OPTIMUM_W_VALUES = [10.0, 15.5, 22.0, 27.0, 31.0]
+TEST_W_VALUES = {
+    K_VALUES[0]: (7.5,12.5),
+    K_VALUES[1]: (12.5,17.5),
+    K_VALUES[2]: (20,25),
+    K_VALUES[3]: (25,30),
+    K_VALUES[4]: (30,35)
+}
 
 RUNS = 20
 
@@ -30,8 +37,11 @@ def get_dt(w):
 
 def calculate_test_w_values(k):
     w0 = OPTIMUM_W_VALUES[K_VALUES.index(k)] if k in K_VALUES else optimum_w(k)
-    start = w0 - 1.25
-    end = w0 + 1.25
+    if k in K_VALUES:
+        start, end = TEST_W_VALUES[k]
+    else:
+        start = w0 - 5
+        end = w0 + 5
     step = (end - start) / (RUNS - 1)
 
     return [start + i * step for i in range(RUNS)]
