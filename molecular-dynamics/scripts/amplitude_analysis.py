@@ -1,3 +1,4 @@
+import math
 import os
 import time
 
@@ -13,7 +14,7 @@ OUTPUT_DIR = 'amplitude'
 
 
 def compute_square_error(c, x_values, real):
-    predicted = [x ** c for x in x_values]
+    predicted = [c * math.sqrt(x) for x in x_values]
     squared_errors = [(p - r) ** 2 for p, r in zip(predicted, real)]
     return sum(squared_errors)
 
@@ -121,19 +122,21 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     plt.xlabel('$k$ (N/m)', fontdict=FONT)
     plt.ylabel('ω (rad/s)', fontdict=FONT)
 
-    plt.scatter(xs, ys, marker='o', label="Resonancia")
+    plt.scatter(xs, ys, marker='o', color=COLOR_PALETTE[1], label="Resonancia")
 
-    c_values = np.linspace(0.5 - 0.5, 0.5 + 0.5, 500)
+    c_values = np.linspace(1.0 - 0.25, 1.0 + 0.25, 500)
     errors = [compute_square_error(c, xs, ys) for c in c_values]
     min_error_idx = errors.index(min(errors))
     c_fit = float(c_values[min_error_idx])
 
-    print(f"Best c: {c_fit} * x")
+    print(f"Best c: {c_fit} * x ** 0.5")
     print(f"Error: {compute_square_error(c_fit, xs, ys)}")
 
-    plt.plot(xs, [x ** c_fit for x in xs], linestyle='--',
-             label=f'f(x) = $x^{{{c_fit:.2f}}}$ (ECM = {errors[min_error_idx]:.2f})',
-             color=COLOR_PALETTE[1])
+    xs_line = np.linspace(min(xs), max(xs), 500)
+
+    plt.plot(xs_line, [c_fit * math.sqrt(x) for x in xs_line], linestyle='--',
+             label=f'f(x) = ${c_fit:.2f} x^{{0.5}}$ (ECM = {errors[min_error_idx]:.3f})',
+             color=COLOR_PALETTE[0])
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
     plt.legend()
@@ -149,6 +152,10 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     plt.axvline(x=c_fit, color='grey', linestyle='--')
     plt.axhline(y=min(errors), color='grey', linestyle='--')
 
+    xlim_min = 1.0 - 0.1
+    xlim_max = 1.0 + 0.1
+    plt.xlim(xlim_min, xlim_max)
+    plt.ylim(0, max([errors[i] for i in range(len(errors)) if xlim_min <= c_values[i] <= xlim_max])/2)
     plt.xlabel('c', fontdict=FONT)
     plt.ylabel('Error cuadrático medio', fontdict=FONT)
 
