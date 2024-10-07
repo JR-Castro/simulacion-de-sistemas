@@ -25,6 +25,16 @@ COLORS = {
     'Beeman': 'orange',
     'Gear': 'green'
 }
+FACECOLOR = {
+    'Verlet': 'none',
+    'Beeman': 'none',
+    'Gear': 'none'
+}
+MARKERS = {
+    'Verlet': '1',
+    'Beeman': '2',
+    'Gear': '3'
+}
 
 
 def calc_solution(t):
@@ -37,6 +47,7 @@ def calc_mean_cuadratic_error(solution, aproximate):
     for i in range(len(aproximate)):
         error += (aproximate[i] - solution[i]) ** 2
     return error / len(aproximate)
+
 
 def get_files(integrator):
     return [f'output{integrator}_{i}.txt' for i in RUNS]
@@ -65,21 +76,29 @@ if __name__ == '__main__':
     data_beeman_filter = data_beeman
     data_gear_filter = data_gear
     data_solution_filter = data_solution
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     # Plot the data
-    plt.plot(data_verlet_filter['time'], data_verlet_filter['position'],
-             label=f'Verlet E:{formatter(error_verlet, None)}', linestyle='-', color=COLORS['Verlet'])
+    plt.scatter(data_verlet_filter['time'], data_verlet_filter['position'], marker=MARKERS['Verlet'],
+                label=f'Verlet E:{formatter(error_verlet, None)}', s=10, color=COLORS['Verlet'])
 
-    plt.plot(data_beeman_filter['time'], data_beeman_filter['position'],
-             label=f'Beeman E:{formatter(error_beeman, None)}', linestyle='-', color=COLORS['Beeman'])
+    plt.scatter(data_beeman_filter['time'], data_beeman_filter['position'], marker=MARKERS['Beeman'],
+                label=f'Beeman E:{formatter(error_beeman, None)}', s=10, color=COLORS['Beeman'])
 
-    plt.plot(data_gear_filter['time'], data_gear_filter['position'],
-             label=f'Gear E:{formatter(error_gear, None)}', linestyle='-', color=COLORS['Gear'])
+    plt.scatter(data_gear_filter['time'], data_gear_filter['position'], marker=MARKERS['Gear'],
+                label=f'Gear E:{formatter(error_gear, None)}', s=10, color=COLORS['Gear'])
 
-    plt.plot(data_solution_filter['time'], data_solution_filter['position'], label='Solución', linestyle='--')
+    plt.plot(data_solution_filter['time'], data_solution_filter['position'], label='Solución', linestyle='-')
 
+    plt.subplots_adjust(right=0.75)
+    plt.text(1.05, 0.5,  # Adjusted x and y coordinates to place the text outside the graph
+             f'$k$ = {formatter(K, None)}\n'
+             f'$γ$ = {formatter(GAMMA, None)}\n'
+             f'$dt_1$ = {formatter(math.pow(0.1, GRAPH_RUN), None)}\n'
+             f'$m$ = {MASS}\n'
+             f'$r(0)$ = {AMPLITUDE}\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('Tiempo (s)', fontdict=FONT)
-    plt.ylabel('Posición (m)', fontdict=FONT)
+    plt.ylabel('$r$ (m)', fontdict=FONT)
     plt.legend(loc='lower right')
     plt.savefig('position_vs_time.png', dpi=DPI)
 
@@ -88,7 +107,7 @@ if __name__ == '__main__':
     plt.savefig('position_vs_time_zoom.png', dpi=DPI)
     plt.clf()
 
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots(figsize=(10, 6))
 
     default_size = rcParams['lines.markersize'] ** 2
     print(default_size)
@@ -118,10 +137,16 @@ if __name__ == '__main__':
     ax.plot(dts, err_beeman, linestyle='-', color='orange')
     ax.plot(dts, err_gear, linestyle='-', color='green')
 
+    plt.subplots_adjust(right=0.75)
+    plt.text(1.05, 0.5,  # Adjusted x and y coordinates to place the text outside the graph
+             f'$k$ = {formatter(K, None)}\n'
+             f'$γ$ = {formatter(GAMMA, None)}\n'
+             f'$m$ = {MASS}\n'
+             f'$r(0)$ = {AMPLITUDE}\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     ax.set_xlabel('dt (s)', fontdict=FONT)
     ax.set_ylabel('Error Cuadrático Medio', fontdict=FONT)
     set_axis_formatter(ax)
-    plt.legend()
+    ax.legend()
     plt.xscale('log')
     plt.yscale('log')
 

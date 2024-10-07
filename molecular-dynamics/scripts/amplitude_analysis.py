@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from generate_static import K_VALUES, RUNS, calculate_test_w_values, DEFAULT_K
-from graph_constants import DPI, FONT, COLOR_PALETTE
+from generate_static import K_VALUES, RUNS, calculate_test_w_values, DEFAULT_K, get_dt
+from graph_constants import DPI, FONT, COLOR_PALETTE, formatter
 
 N = 100
 OUTPUT_DIR = 'amplitude'
@@ -19,7 +19,8 @@ def compute_square_error(c, x_values, real):
     return sum(squared_errors)
 
 
-def graph_amplitude_over_time(df, output_file, w):
+def graph_amplitude_over_time(df, output_file, w, k):
+    fig, ax = plt.subplots(figsize=(10, 6))
     frames = int(len(df['time']) / N)
     amplitudes = [df.iloc[i * N:(i + 1) * N, :]['position'].max() for i in range(frames)]
 
@@ -30,12 +31,20 @@ def graph_amplitude_over_time(df, output_file, w):
     plt.ylabel('$A$ (m)', fontdict=FONT)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
+
+    plt.subplots_adjust(right=0.75)
+    plt.text(1.05, 0.5,
+             f'$k$ = {k}\n'
+             f'$ω$ = {w}\n'
+             f'$dt_1$ = {formatter(get_dt(w), None)}\n'
+             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
+
     plt.tight_layout()
     plt.savefig(output_file, dpi=DPI)
     plt.clf()
 
 
-def graph_amplitude_default(w_values, runs, output):
+def graph_amplitude_default(w_values, runs, output, k):
     files = [f'output/coupled_oscillator_w{i}.csv' for i in runs]
 
     amplitude = []
@@ -46,13 +55,19 @@ def graph_amplitude_default(w_values, runs, output):
 
         print(f"w = {w_values[i]}, a = {amplitude[-1]}")
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(w_values, amplitude, '.-', color=COLOR_PALETTE[1])
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(w_values, amplitude, '.-', color=COLOR_PALETTE[1])
 
     plt.xlabel('ω (rad/s)', fontdict=FONT)
     plt.ylabel('$A$ (m)', fontdict=FONT)
     plt.yticks(fontsize=14)
     plt.xticks(fontsize=14)
+
+    plt.subplots_adjust(right=0.75)
+    plt.text(1.05, 0.5,
+             f'$k$ = {k}\n'
+             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
+
     plt.tight_layout()
     plt.savefig(output, dpi=DPI)
     plt.clf()
@@ -64,7 +79,7 @@ def graph_amplitude_k(output):
     resonance_w = {}
     max_w_idx = {}
 
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
     for i, k in enumerate(K_VALUES):
         w_values = calculate_test_w_values(k)
         amplitudes = [pd.read_csv(file)['position'].max() for file in files[i]]
@@ -75,11 +90,14 @@ def graph_amplitude_k(output):
         plt.plot(calculate_test_w_values(k), amplitudes, '.--', label=f'k = {k}',
                  color=COLOR_PALETTE[i % len(COLOR_PALETTE)])
 
+    plt.subplots_adjust(right=0.75)
+    # plt.text(1.05, 0.5, f''
+    #             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('ω (rad/s)', fontdict=FONT)
     plt.ylabel('$A$ (m)', fontdict=FONT)
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
-    plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+    plt.legend(loc='upper left')
     plt.savefig(output, dpi=DPI)
     plt.clf()
 
@@ -90,12 +108,13 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     files = [[f'output/coupled_oscillator_k{i}_{j}.csv' for j in range(RUNS)] for i in range(len(K_VALUES))]
 
     for i, k in enumerate(resonance_w.keys()):
-        graph_amplitude_over_time(pd.read_csv(files[i][max_w_idx[k]]), f'max_amplitude_time_k{i}.png', resonance_w[k])
+        graph_amplitude_over_time(pd.read_csv(files[i][max_w_idx[k]]), f'max_amplitude_time_k{i}.png', resonance_w[k],
+                                  k)
 
     xs = [math.sqrt(k) for k in K_VALUES]
     ys = [resonance_w[k] for k in K_VALUES]
 
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
     plt.xlabel('$k^{1/2}$ (N/m)', fontdict=FONT)
     plt.ylabel('ω (rad/s)', fontdict=FONT)
 
@@ -147,7 +166,7 @@ if __name__ == '__main__':
     runs = range(len(w_values))
 
     print("=== DEFAULT K ANALYSIS ===")
-    graph_amplitude_default(w_values, runs, f'{OUTPUT_DIR}/amplitude_analysis.png')
+    graph_amplitude_default(w_values, runs, f'{OUTPUT_DIR}/amplitude_analysis.png', DEFAULT_K)
 
     print("=== K ANALYSIS ===")
     resonance_w, max_w_idx = graph_amplitude_k(f'{OUTPUT_DIR}/amplitude_analysis_k.png')
