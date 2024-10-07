@@ -24,14 +24,12 @@ def optimum_w(k):
     return math.pi / (N + 1) * math.sqrt(k / MASS)
 
 def get_max_time(k):
-    if k < 251:
-        return MAX_TIME
-    if k < 750:
-        return MAX_TIME + 60
-    if k < 900:
-        return MAX_TIME + 90
-    return 4 * MAX_TIME
-
+    if k <= 500:
+        return 100
+    elif k < 1000:
+        return 50
+    else:
+        return 120
 def get_dt(w):
     return min(1E-3, 1 / (100 * w))
 

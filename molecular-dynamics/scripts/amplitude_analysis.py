@@ -95,7 +95,7 @@ def graph_amplitude_k(output):
     #             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('ω (rad/s)', fontdict=FONT)
     plt.ylabel('$A$ (m)', fontdict=FONT)
-    plt.yscale('log')
+    # plt.yscale('log')
 
     current_ticks = ax.get_xticks()
     ticks = sorted({current_ticks[0], current_ticks[-1]}.union(list(resonance_w.values())))
@@ -112,7 +112,7 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     files = [[f'output/coupled_oscillator_k{i}_{j}.csv' for j in range(RUNS)] for i in range(len(K_VALUES))]
 
     for i, k in enumerate(resonance_w.keys()):
-        graph_amplitude_over_time(pd.read_csv(files[i][max_w_idx[k]]), f'max_amplitude_time_k{i}.png', resonance_w[k],
+        graph_amplitude_over_time(pd.read_csv(files[i][max_w_idx[k]]), f'amplitude/max_amplitude_time_k{i}.png', resonance_w[k],
                                   k)
 
     xs = K_VALUES
