@@ -26,15 +26,15 @@ fun main(args: Array<String>) = runBlocking {
         val dt = lines[5].toDouble()
         val dt2 = lines[6].toDouble()
         val mass = lines[7].toDouble()
-         if (jobs.size == maxConcurrentJobs) {
-             select<Unit> {
-                 jobs.forEach { job ->
-                     job.onJoin {
-                         jobs.remove(job) // Remove the completed job
-                     }
-                 }
-             }
-         }
+        if (jobs.size == maxConcurrentJobs) {
+            select<Unit> {
+                jobs.forEach { job ->
+                    job.onJoin {
+                        jobs.remove(job) // Remove the completed job
+                    }
+                }
+            }
+        }
         jobs.add(launch(Dispatchers.IO) {
             CoupledOscillator(
                 maxTime = maxtime,

@@ -30,6 +30,7 @@ def get_max_time(k):
         return 50
     else:
         return 120
+
 def get_dt(w):
     return min(1E-3, 1 / (100 * w))
 

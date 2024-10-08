@@ -3,6 +3,7 @@ package ar.edu.itba.ss
 import ar.edu.itba.ss.integrators.OriginalVerletIntegrator
 import java.io.File
 import kotlin.math.sin
+
 class CoupledOscillator(
     val maxTime: Double,
     val k: Double,
