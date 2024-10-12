@@ -39,10 +39,10 @@ fun main() {
 
     val initialR = doubleArrayOf(startPos)
     val initialR1 = doubleArrayOf(startSpeed)
-    val initialR2 = doubleArrayOf(-k / mass * initialR[0] - gamma / mass * initialR1[0])
-    val initialR3 = doubleArrayOf(-k / mass * initialR1[0] - gamma / mass * initialR2[0])
-    val initialR4 = doubleArrayOf(-k / mass * initialR2[0] - gamma / mass * initialR3[0])
-    val initialR5 = doubleArrayOf(-k / mass * initialR3[0] - gamma / mass * initialR4[0])
+    val initialR2 = doubleArrayOf(-k * initialR[0] / mass - gamma * initialR1[0] / mass)
+    val initialR3 = doubleArrayOf(-k * initialR1[0] / mass - gamma * initialR2[0] / mass)
+    val initialR4 = doubleArrayOf(-k * initialR2[0] / mass - gamma * initialR3[0] / mass)
+    val initialR5 = doubleArrayOf(-k * initialR3[0] / mass - gamma * initialR4[0] / mass)
 
     for (i in 2 until 7) {
         val dt = 0.1.pow(i)
