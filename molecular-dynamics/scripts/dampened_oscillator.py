@@ -99,11 +99,12 @@ if __name__ == '__main__':
              f'$r(0)$ = {AMPLITUDE}\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('Tiempo (s)', fontdict=FONT)
     plt.ylabel('$r$ (m)', fontdict=FONT)
-    plt.legend(loc='lower right')
+    legend = plt.legend(loc='lower right')
     plt.savefig('position_vs_time.png', dpi=DPI)
 
     plt.xlim(3.2, 3.3)
     plt.ylim(0, 0.1)
+    legend.set_loc('upper right')
     plt.savefig('position_vs_time_zoom.png', dpi=DPI)
     plt.clf()
 

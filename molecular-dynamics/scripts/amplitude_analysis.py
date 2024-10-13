@@ -95,7 +95,7 @@ def graph_amplitude_k(output):
     #             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('ω (rad/s)', fontdict=FONT)
     plt.ylabel('$A$ (m)', fontdict=FONT)
-    # plt.yscale('log')
+    plt.yscale('log')
 
     current_ticks = ax.get_xticks()
     ticks = sorted({current_ticks[0], current_ticks[-1]}.union(list(resonance_w.values())))
