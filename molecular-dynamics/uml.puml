@@ -1,0 +1,65 @@
+@startuml
+!define DoubleArray List<Double>
+!define Job List<String>
+!define File String
+!define Writer String
+!define Unit void
+
+class CoupledOscillator {
+    - maxTime: Double
+    - k: Double
+    - amplitude: Double
+    - N: Int
+    - w: Double
+    - dt: Double
+    - dt2: Double
+    - mass: Double
+    - outputFile: File
+    - accelerationUpdater: (Double, Int, DoubleArray) -> Double
+    - positionUpdater: (Double, Int, DoubleArray) -> Double
+    - initialR: DoubleArray
+    - initialR1: DoubleArray
+    - initialR2: DoubleArray
+    - initialR3: DoubleArray
+    - initialR4: DoubleArray
+    - initialR5: DoubleArray
+    - stateIterator: OriginalVerletIntegrator
+
+    + run(): Unit
+}
+
+class OriginalVerletIntegrator {
+    - dt: Double
+    - initialR: DoubleArray
+    - initialR1: DoubleArray
+    - accelerationUpdater: (Double, Int, DoubleArray) -> Double
+    - positionUpdater: (Double, Int, DoubleArray) -> Double
+
+    + iterator(): Iterator<SimulationState>
+}
+
+interface Integrator {
+    + iterator(): Iterator<SimulationState>
+}
+
+class SimulationState {
+    + time: Double
+    + positions: DoubleArray
+    + speeds: DoubleArray
+}
+
+class CSVWriter {
+    - writer: Writer
+    - SEPARATOR: String
+
+    + CSVWriter(writer: Writer)
+    + write(state: SimulationState): Unit
+    + close(): Unit
+    + flush(): Unit
+}
+
+CoupledOscillator "1" --> "1" OriginalVerletIntegrator
+OriginalVerletIntegrator ..|> Integrator
+OriginalVerletIntegrator "1" --> "many" SimulationState
+CoupledOscillator "1" --> "1" CSVWriter
+@enduml
