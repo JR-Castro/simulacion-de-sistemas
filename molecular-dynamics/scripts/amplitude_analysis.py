@@ -22,11 +22,11 @@ def compute_square_error(c, x_values, real):
 def graph_amplitude_over_time(df, output_file, w, k):
     fig, ax = plt.subplots(figsize=(10, 6))
     frames = int(len(df['time']) / N)
-    amplitudes = [df.iloc[i * N:(i + 1) * N, :]['position'].max() for i in range(frames)]
+    amplitudes = [df.iloc[i * N:(i + 1) * N, :]['position'].abs().max() for i in range(frames)]
 
     time = [df.iloc[i * N]['time'] for i in range(frames)]
 
-    plt.plot(time, amplitudes, color=COLOR_PALETTE[0])
+    plt.scatter(time, amplitudes, color=COLOR_PALETTE[0], marker='.')
     plt.xlabel('Tiempo (s)', fontdict=FONT)
     plt.ylabel('$A$ (m)', fontdict=FONT)
     plt.xticks(fontsize=14)
@@ -50,7 +50,7 @@ def graph_amplitude_default(w_values, runs, output, k):
     for i, file in enumerate(files):
         df = pd.read_csv(file)
 
-        amplitude.append(df['position'].max())
+        amplitude.append(df['position'].abs().max())
 
         print(f"w = {w_values[i]}, a = {amplitude[-1]}")
 
@@ -81,7 +81,7 @@ def graph_amplitude_k(output):
     fig, ax = plt.subplots(figsize=(10, 6))
     for i, k in enumerate(K_VALUES):
         w_values = calculate_test_w_values(k)
-        amplitudes = [pd.read_csv(file)['position'].max() for file in files[i]]
+        amplitudes = [pd.read_csv(file)['position'].abs().max() for file in files[i]]
         max_w_idx[k] = amplitudes.index(max(amplitudes))
         resonance_w[k] = w_values[amplitudes.index(max(amplitudes))]
         for w, a in zip(w_values, amplitudes):
