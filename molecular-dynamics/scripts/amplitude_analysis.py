@@ -35,9 +35,8 @@ def graph_amplitude_over_time(df, output_file, w, k):
     plt.subplots_adjust(right=0.75)
     plt.text(1.05, 0.5,
              f'$k$ = {k}\n'
-             f'$ω$ = {w}\n'
-             f'$dt_1$ = {formatter(get_dt(w), None)}\n'
-             , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
+             f'$ω$ = {w:.2f}\n'
+             f'$dt_1$ = {formatter(get_dt(w), None)}\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
 
     plt.tight_layout()
     plt.savefig(output_file, dpi=DPI)
@@ -101,7 +100,7 @@ def graph_amplitude_k(output):
     ticks = sorted({current_ticks[0], current_ticks[-1]}.union(list(resonance_w.values())))
     plt.xticks(ticks, labels=[f'{w:.2f}' for w in ticks], fontsize=14)
     plt.yticks(fontsize=14)
-    plt.legend(loc='upper right')
+    plt.legend(loc='lower right')
     plt.savefig(output, dpi=DPI)
     plt.clf()
 
