@@ -34,7 +34,7 @@ def get_max_time(k):
     elif 100 < k <= 1500:
         return 130
     elif 1500 < k <= 2750:
-        return 250
+        return 260
     elif 2750 < k:
         return 60
 
