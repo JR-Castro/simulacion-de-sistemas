@@ -95,7 +95,7 @@ if __name__ == '__main__':
                     f'$k$ = {formatter(K, None)} Kg/$s^2$\n'
                     f'$γ$ = {formatter(GAMMA, None)} Kg/s\n'
                     f'$dt_1$ = {formatter(math.pow(0.1, GRAPH_RUN), None)} s\n'
-                    f'$r_1(0)$ = -0.71 s\n'
+                    f'$r_1(0)$ = -0.71 m/s\n'
                     f'$m$ = {MASS} Kg\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     plt.xlabel('Tiempo (s)', fontdict=FONT)
     plt.ylabel('$r$ (m)', fontdict=FONT)
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     plt.text(1.05, 0.5,  # Adjusted x and y coordinates to place the text outside the graph
              f'$k$ = {formatter(K, None)} Kg/$s^2$\n'
              f'$γ$ = {formatter(GAMMA, None)} Kg/s\n'
-             f'$m$ = {MASS}\n Kg'
+             f'$m$ = {MASS} Kg\n'
              f'$r(0)$ = {AMPLITUDE} m\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     ax.set_xlabel('dt (s)', fontdict=FONT)
     ax.set_ylabel('Error Cuadrático Medio', fontdict=FONT)
