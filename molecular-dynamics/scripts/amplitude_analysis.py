@@ -134,7 +134,7 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     xs_line = np.linspace(min(xs), max(xs), 500)
 
     plt.plot(xs_line, [c_fit * math.sqrt(x) for x in xs_line], linestyle='--',
-             label=f'f(x) = ${c_fit:.2f} x^{{0.5}}$ (ECM = {errors[min_error_idx]:.3f})',
+             label=f'f(x) = ${c_fit:.3f} x^{{0.5}}$ (ECM = {errors[min_error_idx]:.3f})',
              color=COLOR_PALETTE[0])
     plt.xticks(fontsize=14)
     plt.yticks(fontsize=14)
