@@ -34,9 +34,9 @@ def graph_amplitude_over_time(df, output_file, w, k):
 
     plt.subplots_adjust(right=0.75)
     plt.text(1.05, 0.5,
-             f'$k$ = {k}\n'
-             f'$ω$ = {w:.2f}\n'
-             f'$dt_1$ = {formatter(get_dt(w), None)}\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
+             f'$k$ = {k} Kg/$s^2$\n'
+             f'ω = {w:.2f} rad/s\n'
+             f'$dt_1$ = {formatter(get_dt(w), None)} s\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
 
     plt.tight_layout()
     plt.savefig(output_file, dpi=DPI)
@@ -64,7 +64,7 @@ def graph_amplitude_default(w_values, runs, output, k):
 
     plt.subplots_adjust(right=0.75)
     plt.text(1.05, 0.5,
-             f'$k$ = {k}\n'
+             f'$k$ = {k} Kg/s$^2$\n'
              , fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
 
     plt.tight_layout()
@@ -86,7 +86,7 @@ def graph_amplitude_k(output):
         resonance_w[k] = w_values[amplitudes.index(max(amplitudes))]
         for w, a in zip(w_values, amplitudes):
             print(f"k = {k}, w = {w}, a = {a}")
-        plt.plot(calculate_test_w_values(k), amplitudes, '.--', label=f'k = {k}',
+        plt.plot(calculate_test_w_values(k), amplitudes, '.--', label=f'k = {k} Kg/s$^2$',
                  color=COLOR_PALETTE[i % len(COLOR_PALETTE)])
 
     # plt.subplots_adjust(right=0.75)
@@ -100,7 +100,7 @@ def graph_amplitude_k(output):
     ticks = sorted({current_ticks[0], current_ticks[-1]}.union(list(resonance_w.values())))
     plt.xticks(ticks, labels=[f'{w:.2f}' for w in ticks], fontsize=14)
     plt.yticks(fontsize=14)
-    plt.legend(loc='lower right')
+    plt.legend(loc='lower right', ncol=2)
     plt.savefig(output, dpi=DPI)
     plt.clf()
 
@@ -155,7 +155,7 @@ def graph_w_vs_k(resonance_w, max_w_idx):
     xlim_max = 1.0 + 0.1
     plt.xlim(xlim_min, xlim_max)
     plt.ylim(0, max([errors[i] for i in range(len(errors)) if xlim_min <= c_values[i] <= xlim_max])/2)
-    plt.xlabel('c', fontdict=FONT)
+    plt.xlabel('c ($m/\\sqrt{Kg}$)', fontdict=FONT)
     plt.ylabel('Error cuadrático medio', fontdict=FONT)
 
     plt.legend(loc='upper right')

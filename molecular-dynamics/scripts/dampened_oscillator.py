@@ -155,10 +155,10 @@ if __name__ == '__main__':
 
     plt.subplots_adjust(right=0.75)
     plt.text(1.05, 0.5,  # Adjusted x and y coordinates to place the text outside the graph
-             f'$k$ = {formatter(K, None)}\n'
-             f'$γ$ = {formatter(GAMMA, None)}\n'
-             f'$m$ = {MASS}\n'
-             f'$r(0)$ = {AMPLITUDE}\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
+             f'$k$ = {formatter(K, None)} Kg/$s^2$\n'
+             f'$γ$ = {formatter(GAMMA, None)} Kg/s\n'
+             f'$m$ = {MASS}\n Kg'
+             f'$r(0)$ = {AMPLITUDE} m\n', fontdict=FONT, ha='left', va='center', transform=ax.transAxes)
     ax.set_xlabel('dt (s)', fontdict=FONT)
     ax.set_ylabel('Error Cuadrático Medio', fontdict=FONT)
     set_axis_formatter(ax)
