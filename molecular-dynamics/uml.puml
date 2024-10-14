@@ -19,10 +19,6 @@ class CoupledOscillator {
     - positionUpdater: (Double, Int, DoubleArray) -> Double
     - initialR: DoubleArray
     - initialR1: DoubleArray
-    - initialR2: DoubleArray
-    - initialR3: DoubleArray
-    - initialR4: DoubleArray
-    - initialR5: DoubleArray
     - stateIterator: OriginalVerletIntegrator
 
     + run(): Unit
