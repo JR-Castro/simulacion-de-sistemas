@@ -5,17 +5,14 @@ import pandas as pd
 from matplotlib import animation
 import matplotlib.pyplot as plt
 
-N = 100
-W = 0.2
-L = 0.7
-OBSTACLE_RADIUS = 0.01
-PARTICLE_RADIUS = 0.01
+N = 5
+M = 0
+W = 20
+L = 70
+OBSTACLE_RADIUS = 1
+PARTICLE_RADIUS = 1
 
-cm_to_points = lambda cm: (cm / 2.54) * 72
-
-OBSTACLE_SIZE = cm_to_points(OBSTACLE_RADIUS)
-PARTICLE_SIZE = cm_to_points(PARTICLE_RADIUS)
-
+# TODO: MAKE THE PARTICLES AND OBSTACLES SCALED TO THE WALLS
 
 def update_animation(frame, data, scatter, text, frames):
     print(f"\rFrame: {frame}/{frames}", end='')
@@ -42,15 +39,15 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.set_xlabel('x (m)')
-    ax.set_ylabel('y (m)')
+    ax.set_xlabel('x (cm)')
+    ax.set_ylabel('y (cm)')
     ax.set_ylim(0, W)
     ax.set_xlim(0, L)
 
     obstacleSctr = ax.scatter(
         obstacles['x'],
         obstacles['y'],
-        s=OBSTACLE_SIZE,
+        s=20,
         color='black'
     )
 
@@ -59,7 +56,7 @@ if __name__ == '__main__':
     particleSctr = ax.scatter(
         data.iloc[0:N, :]['x'],
         data.iloc[0:N, :]['y'],
-        s=PARTICLE_SIZE,
+        s=20,
         color='blue'
     )
 
@@ -69,7 +66,6 @@ if __name__ == '__main__':
                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
     frames = int(len(data['time']) / N)
-    # frames = 1000
 
     ani = animation.FuncAnimation(
         fig,

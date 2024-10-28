@@ -12,9 +12,9 @@ class CSVWriter(private val writer: Writer) : Closeable, Flushable {
         writer.write("time${SEPARATOR}x${SEPARATOR}y${SEPARATOR}vx${SEPARATOR}vy\n")
     }
 
-    fun write(xState: SimulationState, yState: SimulationState) {
-        for (i in xState.speeds.indices) {
-            writer.write("${xState.time}${SEPARATOR}${xState.positions[i]}${SEPARATOR}${yState.positions[i]}${SEPARATOR}${xState.speeds[i]}${SEPARATOR}${yState.speeds[i]}\n")
+    fun write(state: SimulationState) {
+        for (i in state.x.indices) {
+            writer.write("${state.time}${SEPARATOR}${state.x[i]}${SEPARATOR}${state.y[i]}${SEPARATOR}${state.vx[i]}${SEPARATOR}${state.vy[i]}\n")
         }
     }
 
