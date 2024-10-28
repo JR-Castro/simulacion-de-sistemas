@@ -8,7 +8,7 @@ fun main() {
             5,
             0,
             1.0,
-            10.0,
+            20.0,
             1E-3,
             1E-2,
             File("outputStates.csv"),

@@ -2,6 +2,7 @@ package ar.edu.itba.ss
 
 import ar.edu.itba.ss.integrators.BeemanIntegrator
 import java.io.File
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -16,14 +17,12 @@ class GranularSimulation(
     val outputExits: File,
     val outputObstacles: File
 ) {
-    // TODO: Change to use the units of the assignment instead of Kg, m, etc.
     companion object {
         private val W = 20              // cm
         private val L = 70              // cm
         private val particleRadius = 1.0// cm
         private val obstacleRadius = 1.0// cm
 
-        // TODO: Get gamma from the previous TP, scaled to this k_n
         private val k_n = 250           // dina/m
         private val k_t = 2 * k_n       // dina/m
         private val gamma = 2.5         // g/m
@@ -33,13 +32,9 @@ class GranularSimulation(
 
         private val TOP_WALL_NORM_X = 0.0
         private val TOP_WALL_NORM_Y = 1.0
-        private val TOP_WALL_TAN_X = -TOP_WALL_NORM_Y
-        private val TOP_WALL_TAN_Y = TOP_WALL_NORM_X
 
         private val BOTTOM_WALL_NORM_X = 0.0
         private val BOTTOM_WALL_NORM_Y = -1.0
-        private val BOTTOM_WALL_TAN_X = -BOTTOM_WALL_NORM_Y
-        private val BOTTOM_WALL_TAN_Y = BOTTOM_WALL_NORM_X
     }
 
     val obstaclesX = DoubleArray(m)
@@ -109,18 +104,12 @@ class GranularSimulation(
                 // Check collision with top wall
                 if (y[i] + particleRadius >= W) {
                     val superposition = y[i] + particleRadius - W
-                    val f_n = -k_n * superposition - gamma * speedsY[i]
-                    val f_t = -k_t * superposition * x1[i]
-                    f_x += f_n * TOP_WALL_NORM_X + f_t * TOP_WALL_TAN_X
-                }
-                if (y[i] - particleRadius <= 0) {
-                    val superposition = y[i] - particleRadius
-                    val f_n = -k_n * superposition - gamma * speedsY[i]
-                    val f_t = -k_t * superposition * x1[i]
-                    f_x += f_n * BOTTOM_WALL_NORM_X + f_t * BOTTOM_WALL_TAN_X
+                    val f_n = -k_n * superposition - gamma * speedsY[i]  // Normal force
+                    val f_t = -k_t * superposition * abs(speedsX[i])    // Tangential force based on x speed
+                    f_x += f_t * -TOP_WALL_NORM_Y
                 }
 
-                f_x / mass + a0
+                f_x / mass
             },  // TODO: Calculate forces
             { time, i, x, x1, y, y1 ->
                 if (collisions.isEmpty()) {
@@ -132,15 +121,9 @@ class GranularSimulation(
                 // Check collision with top wall
                 if (y[i] + particleRadius >= W) {
                     val superposition = y[i] + particleRadius - W
-                    val f_n = -k_n * superposition - gamma * speedsY[i]
-                    val f_t = -k_t * superposition * x1[i]
-                    f_y += f_n * TOP_WALL_NORM_Y + f_t * TOP_WALL_TAN_Y
-                }
-                if (y[i] - particleRadius <= 0) {
-                    val superposition = y[i] - particleRadius
-                    val f_n = -k_n * superposition - gamma * speedsY[i]
-                    val f_t = -k_t * superposition * x1[i]
-                    f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_TAN_Y
+                    val f_n = -k_n * superposition - gamma * speedsY[i]  // Normal force
+                    val f_t = -k_t * superposition * abs(speedsX[i])    // Tangential force based on x speed                    f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_NORM_X
+                    f_y += f_n * TOP_WALL_NORM_Y
                 }
 
                 f_y / mass + a0
