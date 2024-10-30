@@ -5,8 +5,8 @@ import java.io.File
 fun main() {
     val simulation =
         GranularSimulation(
-            1,
-            0,
+            2,
+            2,
             1.0,
             20.0,
             3,

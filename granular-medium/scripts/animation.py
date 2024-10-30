@@ -5,8 +5,8 @@ import pandas as pd
 from matplotlib import animation
 import matplotlib.pyplot as plt
 
-N = 1
-M = 0
+N = 2
+M = 2
 W = 20
 L = 70
 OBSTACLE_RADIUS = 1

@@ -26,7 +26,6 @@ class GranularSimulation(
         private val gamma = 2.5         // g/m
 
         private val mass = 1.0          // g
-        private val obstacleMass: Double = Double.POSITIVE_INFINITY
 
         private val dt = 0.1 * sqrt(mass / k_n) // s
 
@@ -48,7 +47,8 @@ class GranularSimulation(
     var speedsX = DoubleArray(n)
     var speedsY = DoubleArray(n)
 
-    val collisions: MutableMap<Int, List<Int>> = HashMap()
+    val obstacleCollisions: MutableMap<Int, List<Int>> = HashMap()
+    val particleCollisions: MutableMap<Int, List<Int>> = HashMap()
 
     init {
         for (i in 0 until m) {
@@ -67,10 +67,8 @@ class GranularSimulation(
             var posX: Double
             var posY: Double
             do {
-//                posX = Math.random() * (L - 2 * particleRadius) + particleRadius
-                posX = 0.0
-//                posY = Math.random() * W
-                posY = 0.0
+                posX = Math.random() * (L - 2 * particleRadius) + particleRadius
+                posY = Math.random() * W
             } while (
                 (0 until m).any {
                     (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) <
@@ -110,12 +108,12 @@ class GranularSimulation(
 
         do {
             val state = integrator.next()
-            // TODO: Detect when they crossed the limits
             particlesX = state.x
             particlesY = state.y
             speedsX = state.vx
             speedsY = state.vy
-            collisions.clear()
+            particleCollisions.clear()
+            obstacleCollisions.clear()
             if (step % dt2Interval == 0) {
                 statesWriter.write(state)
                 step = 0
@@ -128,22 +126,24 @@ class GranularSimulation(
 
     fun calculateCollisions(x: DoubleArray, y: DoubleArray) {
         for (i in x.indices) {
-            val collisionList = mutableListOf<Int>()
+            val particleCollisionList = mutableListOf<Int>()
             for (j in x.indices) {
                 if (i != j) {
                     val distance = sqrt((x[i] - x[j]).pow(2) + (y[i] - y[j]).pow(2))
                     if (distance < 2 * particleRadius) {
-                        collisionList.add(j)
+                        particleCollisionList.add(j)
                     }
                 }
             }
+            particleCollisions[i] = particleCollisionList
+            val obstacleCollisionList = mutableListOf<Int>()
             for (j in obstaclesX.indices) {
                 val distance = sqrt((x[i] - obstaclesX[j]).pow(2) + (y[i] - obstaclesY[j]).pow(2))
                 if (distance < obstacleRadius + particleRadius) {
-                    collisionList.add(j)
+                    obstacleCollisionList.add(j)
                 }
             }
-            collisions[i] = collisionList
+            obstacleCollisions[i] = obstacleCollisionList
         }
     }
 
@@ -154,7 +154,7 @@ class GranularSimulation(
         y: DoubleArray,
         y1: DoubleArray
     ): Pair<Double, Double> {
-        if (collisions.isEmpty()) {
+        if (particleCollisions.isEmpty() || obstacleCollisions.isEmpty()) {
             calculateCollisions(x, y)
         }
 
@@ -164,12 +164,61 @@ class GranularSimulation(
         // Check collision with top wall
         if (y[i] + particleRadius >= W) {
             val superposition = y[i] + particleRadius - W
+
             val f_n = -k_n * superposition - gamma * y1[i] * TOP_WALL_NORM_Y  // Normal force
             val f_t = -k_t * superposition * x1[i] * TOP_WALL_TAN_X
+
             f_x += f_n * TOP_WALL_NORM_X + f_t * TOP_WALL_TAN_X
             f_y += f_n * TOP_WALL_NORM_Y + f_t * TOP_WALL_TAN_Y
         }
 
-        return Pair(f_x / mass + a0, f_y / mass + a0)
+        // Check collision with bottom wall
+        if (y[i] - particleRadius <= 0) {
+            val superposition = y[i] - particleRadius
+
+            val f_n = -k_n * superposition - gamma * y1[i] * BOTTOM_WALL_NORM_Y  // Normal force
+            val f_t = -k_t * superposition * x1[i] * BOTTOM_WALL_TAN_X
+
+            f_x += f_n * BOTTOM_WALL_NORM_X + f_t * BOTTOM_WALL_TAN_X
+            f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_TAN_Y
+        }
+
+        particleCollisions[i]?.forEach {
+            val dist = sqrt((x[it] - x[i]).pow(2) + (y[it] - y[i]).pow(2))
+            val superposition = 2 * particleRadius - dist
+            val relX1 = x1[i] - x1[it]
+            val relY1 = y1[i] - y1[it]
+
+            val normX = (x[it] - x[i]) / dist
+            val normY = (y[it] - y[i]) / dist
+            val tanX = -normY
+            val tanY = normX
+
+            val f_n = -k_n * superposition + gamma * (normX * relX1 + normY * relY1)
+            val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
+
+            f_x += f_n * normX + f_t * tanX
+            f_y += f_n * normY + f_t * tanY
+        }
+
+        obstacleCollisions[i]?.forEach {
+            val dist = sqrt((obstaclesX[it] - x[i]).pow(2) + (obstaclesY[it] - y[i]).pow(2))
+            val superposition = particleRadius + obstacleRadius - dist
+            val relX1 = x1[i] - 0.0
+            val relY1 = y1[i] - 0.0
+
+            val normX = (obstaclesX[it] - x[i]) / dist
+            val normY = (obstaclesY[it] - y[i]) / dist
+            val tanX = -normY
+            val tanY = normX
+
+            val f_n = -k_n * superposition + gamma * (normX * relX1 + normY * relY1)
+            val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
+
+            f_x += f_n * normX + f_t * tanX
+            f_y += f_n * normY + f_t * tanY
+        }
+
+        return Pair(f_x / mass + a0, f_y / mass)
     }
 }
