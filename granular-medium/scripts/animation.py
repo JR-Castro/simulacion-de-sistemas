@@ -5,7 +5,7 @@ import pandas as pd
 from matplotlib import animation
 import matplotlib.pyplot as plt
 
-N = 5
+N = 1
 M = 0
 W = 20
 L = 70
@@ -66,6 +66,7 @@ if __name__ == '__main__':
                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
     frames = int(len(data['time']) / N)
+    frames = 1000
 
     ani = animation.FuncAnimation(
         fig,

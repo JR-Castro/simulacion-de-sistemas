@@ -2,7 +2,6 @@ package ar.edu.itba.ss
 
 import ar.edu.itba.ss.integrators.BeemanIntegrator
 import java.io.File
-import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -11,8 +10,7 @@ class GranularSimulation(
     m: Int,
     val a0: Double,     // cm/s^2
     val T: Double,
-    val dt: Double,
-    val dt2: Double,
+    val dt2Interval: Int,
     val outputStates: File,
     val outputExits: File,
     val outputObstacles: File
@@ -30,11 +28,17 @@ class GranularSimulation(
         private val mass = 1.0          // g
         private val obstacleMass: Double = Double.POSITIVE_INFINITY
 
+        private val dt = 0.1 * sqrt(mass / k_n) // s
+
         private val TOP_WALL_NORM_X = 0.0
         private val TOP_WALL_NORM_Y = 1.0
+        private val TOP_WALL_TAN_X = -TOP_WALL_NORM_Y
+        private val TOP_WALL_TAN_Y = TOP_WALL_NORM_X
 
         private val BOTTOM_WALL_NORM_X = 0.0
         private val BOTTOM_WALL_NORM_Y = -1.0
+        private val BOTTOM_WALL_TAN_X = -BOTTOM_WALL_NORM_Y
+        private val BOTTOM_WALL_TAN_Y = BOTTOM_WALL_NORM_X
     }
 
     val obstaclesX = DoubleArray(m)
@@ -63,8 +67,10 @@ class GranularSimulation(
             var posX: Double
             var posY: Double
             do {
-                posX = Math.random() * (L - 2 * particleRadius) + particleRadius
-                posY = Math.random() * W
+//                posX = Math.random() * (L - 2 * particleRadius) + particleRadius
+                posX = 0.0
+//                posY = Math.random() * W
+                posY = 0.0
             } while (
                 (0 until m).any {
                     (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) <
@@ -94,45 +100,13 @@ class GranularSimulation(
             speedsX,
             particlesY,
             speedsY,
-            { time, i, x, x1, y, y1 ->
-                if (collisions.isEmpty()) {
-                    calculateCollisions(x, y)
-                }
-
-                var f_x = 0.0
-
-                // Check collision with top wall
-                if (y[i] + particleRadius >= W) {
-                    val superposition = y[i] + particleRadius - W
-                    val f_n = -k_n * superposition - gamma * speedsY[i]  // Normal force
-                    val f_t = -k_t * superposition * abs(speedsX[i])    // Tangential force based on x speed
-                    f_x += f_t * -TOP_WALL_NORM_Y
-                }
-
-                f_x / mass
-            },  // TODO: Calculate forces
-            { time, i, x, x1, y, y1 ->
-                if (collisions.isEmpty()) {
-                    calculateCollisions(x, y)
-                }
-
-                var f_y = 0.0
-
-                // Check collision with top wall
-                if (y[i] + particleRadius >= W) {
-                    val superposition = y[i] + particleRadius - W
-                    val f_n = -k_n * superposition - gamma * speedsY[i]  // Normal force
-                    val f_t = -k_t * superposition * abs(speedsX[i])    // Tangential force based on x speed                    f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_NORM_X
-                    f_y += f_n * TOP_WALL_NORM_Y
-                }
-
-                f_y / mass + a0
-            },  // TODO: Calculate forces
+            { _, i, x, x1, y, y1 -> calculateForces(i, x, x1, y, y1).first },
+            { _, i, x, x1, y, y1 -> calculateForces(i, x, x1, y, y1).second },
             { time, i, x, x1, y, y1 -> x[i] }, // TODO: Detect when they crossed the limits
             { time, i, x, x1, y, y1 -> y[i] }
         ).iterator()
 
-        var lastPrint = -dt2
+        var step = 0
 
         do {
             val state = integrator.next()
@@ -142,10 +116,11 @@ class GranularSimulation(
             speedsX = state.vx
             speedsY = state.vy
             collisions.clear()
-            if (state.time - lastPrint >= dt2) {
+            if (step % dt2Interval == 0) {
                 statesWriter.write(state)
-                lastPrint = state.time
+                step = 0
             }
+            step++
         } while (state.time < T)
         statesWriter.close()
         exitsWriter.close()
@@ -170,5 +145,31 @@ class GranularSimulation(
             }
             collisions[i] = collisionList
         }
+    }
+
+    fun calculateForces(
+        i: Int,
+        x: DoubleArray,
+        x1: DoubleArray,
+        y: DoubleArray,
+        y1: DoubleArray
+    ): Pair<Double, Double> {
+        if (collisions.isEmpty()) {
+            calculateCollisions(x, y)
+        }
+
+        var f_x = 0.0
+        var f_y = 0.0
+
+        // Check collision with top wall
+        if (y[i] + particleRadius >= W) {
+            val superposition = y[i] + particleRadius - W
+            val f_n = -k_n * superposition - gamma * y1[i] * TOP_WALL_NORM_Y  // Normal force
+            val f_t = -k_t * superposition * x1[i] * TOP_WALL_TAN_X
+            f_x += f_n * TOP_WALL_NORM_X + f_t * TOP_WALL_TAN_X
+            f_y += f_n * TOP_WALL_NORM_Y + f_t * TOP_WALL_TAN_Y
+        }
+
+        return Pair(f_x / mass + a0, f_y / mass + a0)
     }
 }

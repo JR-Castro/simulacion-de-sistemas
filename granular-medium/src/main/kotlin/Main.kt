@@ -5,12 +5,11 @@ import java.io.File
 fun main() {
     val simulation =
         GranularSimulation(
-            5,
+            1,
             0,
             1.0,
             20.0,
-            1E-3,
-            1E-2,
+            3,
             File("outputStates.csv"),
             File("outputExits.csv"),
             File("outputObstacles.csv")
