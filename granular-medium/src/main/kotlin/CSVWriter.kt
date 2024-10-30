@@ -24,6 +24,10 @@ class CSVWriter(private val writer: Writer) : Closeable, Flushable {
         }
     }
 
+    fun writeExits(exit: ParticleExit) {
+        writer.write("${exit.time}${SEPARATOR}${exit.x}${SEPARATOR}${exit.y}${SEPARATOR}${exit.vx}${SEPARATOR}${exit.vy}\n")
+    }
+
     override fun close() {
         writer.close()
     }

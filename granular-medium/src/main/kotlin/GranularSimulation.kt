@@ -3,6 +3,7 @@ package ar.edu.itba.ss
 import ar.edu.itba.ss.integrators.BeemanIntegrator
 import java.io.File
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.sqrt
 
 class GranularSimulation(
@@ -27,7 +28,8 @@ class GranularSimulation(
 
         private val mass = 1.0          // g
 
-        private val dt = 0.1 * sqrt(mass / k_n) // s
+//        private val dt = 0.1 * sqrt(mass / k_n) // s
+        private val dt = 1E-3
 
         private val TOP_WALL_NORM_X = 0.0
         private val TOP_WALL_NORM_Y = 1.0
@@ -40,15 +42,16 @@ class GranularSimulation(
         private val BOTTOM_WALL_TAN_Y = BOTTOM_WALL_NORM_X
     }
 
-    val obstaclesX = DoubleArray(m)
-    val obstaclesY = DoubleArray(m)
-    var particlesX = DoubleArray(n)
-    var particlesY = DoubleArray(n)
-    var speedsX = DoubleArray(n)
-    var speedsY = DoubleArray(n)
+    private val obstaclesX = DoubleArray(m)
+    private val obstaclesY = DoubleArray(m)
+    private var particlesX = DoubleArray(n)
+    private var particlesY = DoubleArray(n)
+    private var speedsX = DoubleArray(n)
+    private var speedsY = DoubleArray(n)
 
-    val obstacleCollisions: MutableMap<Int, List<Int>> = HashMap()
-    val particleCollisions: MutableMap<Int, List<Int>> = HashMap()
+    private val obstacleCollisions: MutableMap<Int, List<Int>> = HashMap()
+    private val particleCollisions: MutableMap<Int, List<Int>> = HashMap()
+    private val particleCrossings: MutableMap<Double, MutableList<ParticleExit>> = HashMap()
 
     init {
         for (i in 0 until m) {
@@ -67,8 +70,8 @@ class GranularSimulation(
             var posX: Double
             var posY: Double
             do {
-                posX = Math.random() * (L - 2 * particleRadius) + particleRadius
-                posY = Math.random() * W
+                posX = Math.random() * L
+                posY = Math.random() * (W - 2 * particleRadius) + particleRadius
             } while (
                 (0 until m).any {
                     (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) <
@@ -100,8 +103,20 @@ class GranularSimulation(
             speedsY,
             { _, i, x, x1, y, y1 -> calculateForces(i, x, x1, y, y1).first },
             { _, i, x, x1, y, y1 -> calculateForces(i, x, x1, y, y1).second },
-            { time, i, x, x1, y, y1 -> x[i] }, // TODO: Detect when they crossed the limits
-            { time, i, x, x1, y, y1 -> y[i] }
+            { time, i, x, x1, y, y1 ->
+                when {
+                    x[i] >= L -> {
+                        val list = particleCrossings.getOrDefault(time, mutableListOf())
+                        list.add(ParticleExit(time, x[i], y[i], x1[i], y1[i]))
+                        particleCrossings[time] = list
+                        x[i] % L
+                    }
+
+                    x[i] < 0 -> x[i] % L + L
+                    else -> x[i]
+                }
+            },
+            { _, i, _, _, y, _ -> y[i] }
         ).iterator()
 
         var step = 0
@@ -118,18 +133,22 @@ class GranularSimulation(
                 statesWriter.write(state)
                 step = 0
             }
+            particleCrossings[state.time]?.forEach(exitsWriter::writeExits)
             step++
         } while (state.time < T)
         statesWriter.close()
         exitsWriter.close()
     }
 
-    fun calculateCollisions(x: DoubleArray, y: DoubleArray) {
+    private fun calculateCollisions(x: DoubleArray, y: DoubleArray) {
         for (i in x.indices) {
             val particleCollisionList = mutableListOf<Int>()
             for (j in x.indices) {
                 if (i != j) {
-                    val distance = sqrt((x[i] - x[j]).pow(2) + (y[i] - y[j]).pow(2))
+                    val dx = x[i] - x[j]
+                    val dxWrapped = dx - L * round(dx / L)
+                    val dy = y[i] - y[j]
+                    val distance = sqrt(dxWrapped.pow(2) + dy.pow(2))
                     if (distance < 2 * particleRadius) {
                         particleCollisionList.add(j)
                     }
@@ -138,7 +157,10 @@ class GranularSimulation(
             particleCollisions[i] = particleCollisionList
             val obstacleCollisionList = mutableListOf<Int>()
             for (j in obstaclesX.indices) {
-                val distance = sqrt((x[i] - obstaclesX[j]).pow(2) + (y[i] - obstaclesY[j]).pow(2))
+                val dx = x[i] - obstaclesX[j]
+                val dxWrapped = dx - L * round(dx / L)
+                val dy = y[i] - obstaclesY[j]
+                val distance = sqrt(dxWrapped.pow(2) + dy.pow(2))
                 if (distance < obstacleRadius + particleRadius) {
                     obstacleCollisionList.add(j)
                 }
@@ -147,7 +169,7 @@ class GranularSimulation(
         }
     }
 
-    fun calculateForces(
+    private fun calculateForces(
         i: Int,
         x: DoubleArray,
         x1: DoubleArray,
@@ -174,7 +196,7 @@ class GranularSimulation(
 
         // Check collision with bottom wall
         if (y[i] - particleRadius <= 0) {
-            val superposition = y[i] - particleRadius
+            val superposition = particleRadius - y[i]
 
             val f_n = -k_n * superposition - gamma * y1[i] * BOTTOM_WALL_NORM_Y  // Normal force
             val f_t = -k_t * superposition * x1[i] * BOTTOM_WALL_TAN_X
@@ -184,12 +206,14 @@ class GranularSimulation(
         }
 
         particleCollisions[i]?.forEach {
-            val dist = sqrt((x[it] - x[i]).pow(2) + (y[it] - y[i]).pow(2))
+            val dx = x[it] - x[i]
+            val dxWrapped = dx - L * round(dx / L)
+            val dist = sqrt((dxWrapped).pow(2) + (y[it] - y[i]).pow(2))
             val superposition = 2 * particleRadius - dist
             val relX1 = x1[i] - x1[it]
             val relY1 = y1[i] - y1[it]
 
-            val normX = (x[it] - x[i]) / dist
+            val normX = (dxWrapped) / dist
             val normY = (y[it] - y[i]) / dist
             val tanX = -normY
             val tanY = normX
@@ -202,12 +226,14 @@ class GranularSimulation(
         }
 
         obstacleCollisions[i]?.forEach {
-            val dist = sqrt((obstaclesX[it] - x[i]).pow(2) + (obstaclesY[it] - y[i]).pow(2))
+            val dx = obstaclesX[it] - x[i]
+            val dxWrapped = dx - L * round(dx / L)
+            val dist = sqrt((dxWrapped).pow(2) + (obstaclesY[it] - y[i]).pow(2))
             val superposition = particleRadius + obstacleRadius - dist
             val relX1 = x1[i] - 0.0
             val relY1 = y1[i] - 0.0
 
-            val normX = (obstaclesX[it] - x[i]) / dist
+            val normX = (dxWrapped) / dist
             val normY = (obstaclesY[it] - y[i]) / dist
             val tanX = -normY
             val tanY = normX
