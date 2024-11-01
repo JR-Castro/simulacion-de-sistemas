@@ -36,8 +36,8 @@ def update_animation(frame, data, particles, text, frames):
 
 if __name__ == '__main__':
     start_time = time.time()
-    obstacles = pd.read_csv("outputObstacles.csv")
-    data = pd.read_csv("outputStates.csv")
+    obstacles = pd.read_csv("outputs/dynamicData_obstacles.csv")
+    data = pd.read_csv("outputs/dynamicData_states.csv")
 
     # Convert centimeters to inches for matplotlib
     fig_width_inch = L / 2.54
@@ -70,8 +70,8 @@ if __name__ == '__main__':
                    horizontalalignment='center', verticalalignment='top',
                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
-    # frames = int(len(data['time']) / N)
-    frames = 100
+    frames = int(len(data['time']) / N)
+    # frames = 100
 
     ani = animation.FuncAnimation(
         fig,

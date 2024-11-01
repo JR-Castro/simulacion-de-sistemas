@@ -11,7 +11,10 @@ class GranularSimulation(
     m: Int,
     val a0: Double,     // cm/s^2
     val T: Double,
+    val dt: Double,
     val dt2Interval: Int,
+    obstacles: List<List<Double>>,
+    particles: List<List<Double>>,
     val outputStates: File,
     val outputExits: File,
     val outputObstacles: File
@@ -27,9 +30,6 @@ class GranularSimulation(
         private val gamma = 2.5         // g/m
 
         private val mass = 1.0          // g
-
-//        private val dt = 0.1 * sqrt(mass / k_n) // s
-        private val dt = 1E-3
 
         private val TOP_WALL_NORM_X = 0.0
         private val TOP_WALL_NORM_Y = 1.0
@@ -54,36 +54,72 @@ class GranularSimulation(
     private val particleCrossings: MutableMap<Double, MutableList<ParticleExit>> = HashMap()
 
     init {
+//        for (i in 0 until m) {
+//            var posX: Double
+//            var posY: Double
+//            do {
+//                posX = Math.random() * (L - 2 * obstacleRadius) + obstacleRadius
+//                posY = Math.random() * (W - 2 * obstacleRadius) + obstacleRadius
+//            } while ((0 until i).any {
+//                    (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) < (2.0 * obstacleRadius).pow(2)
+//                })
+//            obstaclesX[i] = posX
+//            obstaclesY[i] = posY
+//        }
+//        for (i in 0 until n) {
+//            var posX: Double
+//            var posY: Double
+//            do {
+//                posX = Math.random() * L
+//                posY = Math.random() * (W - 2 * particleRadius) + particleRadius
+//            } while (
+//                (0 until m).any {
+//                    (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) <
+//                            (obstacleRadius + particleRadius).pow(2)
+//                } || (0 until i).any {
+//                    (particlesX[it] - posX).pow(2) + (particlesY[it] - posY).pow(2) < (particleRadius * 2.0).pow(2)
+//                }
+//            )
+//            particlesX[i] = posX
+//            particlesY[i] = posY
+//            speedsX[i] = 0.0
+//            speedsY[i] = 0.0
+//        }
         for (i in 0 until m) {
-            var posX: Double
-            var posY: Double
-            do {
-                posX = Math.random() * (L - 2 * obstacleRadius) + obstacleRadius
-                posY = Math.random() * (W - 2 * obstacleRadius) + obstacleRadius
-            } while ((0 until i).any {
-                    (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) < (2.0 * obstacleRadius).pow(2)
-                })
-            obstaclesX[i] = posX
-            obstaclesY[i] = posY
+            obstaclesX[i] = obstacles[i][0]
+            obstaclesY[i] = obstacles[i][1]
         }
         for (i in 0 until n) {
-            var posX: Double
-            var posY: Double
-            do {
-                posX = Math.random() * L
-                posY = Math.random() * (W - 2 * particleRadius) + particleRadius
-            } while (
-                (0 until m).any {
-                    (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) <
-                            (obstacleRadius + particleRadius).pow(2)
-                } || (0 until i).any {
-                    (particlesX[it] - posX).pow(2) + (particlesY[it] - posY).pow(2) < (particleRadius * 2.0).pow(2)
-                }
-            )
-            particlesX[i] = posX
-            particlesY[i] = posY
+            particlesX[i] = particles[i][0]
+            particlesY[i] = particles[i][1]
             speedsX[i] = 0.0
             speedsY[i] = 0.0
+        }
+        for (i in 0 until m) {
+            for (j in 0 until i) {
+                if ((obstaclesX[i] - obstaclesX[j]).pow(2) + (obstaclesY[i] - obstaclesY[j]).pow(2) <
+                    (2.0 * obstacleRadius).pow(2)
+                ) {
+                    throw IllegalArgumentException("Obstacles $i and $j are too close")
+                }
+            }
+        }
+
+        for (i in 0 until n) {
+            for (j in 0 until m) {
+                if ((obstaclesX[j] - particlesX[i]).pow(2) + (obstaclesY[j] - particlesY[i]).pow(2) <
+                    (obstacleRadius + particleRadius).pow(2)
+                ) {
+                    throw IllegalArgumentException("Particle $i is too close to obstacle $j")
+                }
+            }
+            for (j in 0 until i) {
+                if ((particlesX[i] - particlesX[j]).pow(2) + (particlesY[i] - particlesY[j]).pow(2) <
+                    (2.0 * particleRadius).pow(2)
+                ) {
+                    throw IllegalArgumentException("Particles $i and $j are too close")
+                }
+            }
         }
     }
 
