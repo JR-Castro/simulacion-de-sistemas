@@ -22,8 +22,8 @@ class GranularSimulation(
     companion object {
         private val W = 20              // cm
         private val L = 70              // cm
-        private val particleRadius = 1.0// cm
-        private val obstacleRadius = 1.0// cm
+        private val particleRadius = 0.5// cm
+        private val obstacleRadius = 0.5// cm
 
         private val k_n = 250           // dina/m
         private val k_t = 2 * k_n       // dina/m
@@ -49,42 +49,11 @@ class GranularSimulation(
     private var speedsX = DoubleArray(n)
     private var speedsY = DoubleArray(n)
 
-    private val obstacleCollisions: MutableMap<Int, List<Int>> = HashMap()
-    private val particleCollisions: MutableMap<Int, List<Int>> = HashMap()
+    private val obstacleCollisions: MutableMap<Int, MutableList<Int>> = HashMap()
+    private val particleCollisions: MutableMap<Int, MutableList<Int>> = HashMap()
     private val particleCrossings: MutableMap<Double, MutableList<ParticleExit>> = HashMap()
 
     init {
-//        for (i in 0 until m) {
-//            var posX: Double
-//            var posY: Double
-//            do {
-//                posX = Math.random() * (L - 2 * obstacleRadius) + obstacleRadius
-//                posY = Math.random() * (W - 2 * obstacleRadius) + obstacleRadius
-//            } while ((0 until i).any {
-//                    (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) < (2.0 * obstacleRadius).pow(2)
-//                })
-//            obstaclesX[i] = posX
-//            obstaclesY[i] = posY
-//        }
-//        for (i in 0 until n) {
-//            var posX: Double
-//            var posY: Double
-//            do {
-//                posX = Math.random() * L
-//                posY = Math.random() * (W - 2 * particleRadius) + particleRadius
-//            } while (
-//                (0 until m).any {
-//                    (obstaclesX[it] - posX).pow(2) + (obstaclesY[it] - posY).pow(2) <
-//                            (obstacleRadius + particleRadius).pow(2)
-//                } || (0 until i).any {
-//                    (particlesX[it] - posX).pow(2) + (particlesY[it] - posY).pow(2) < (particleRadius * 2.0).pow(2)
-//                }
-//            )
-//            particlesX[i] = posX
-//            particlesY[i] = posY
-//            speedsX[i] = 0.0
-//            speedsY[i] = 0.0
-//        }
         for (i in 0 until m) {
             obstaclesX[i] = obstacles[i][0]
             obstaclesY[i] = obstacles[i][1]
@@ -178,20 +147,21 @@ class GranularSimulation(
 
     private fun calculateCollisions(x: DoubleArray, y: DoubleArray) {
         for (i in x.indices) {
-            val particleCollisionList = mutableListOf<Int>()
-            for (j in x.indices) {
-                if (i != j) {
-                    val dx = x[i] - x[j]
-                    val dxWrapped = dx - L * round(dx / L)
-                    val dy = y[i] - y[j]
-                    val distance = sqrt(dxWrapped.pow(2) + dy.pow(2))
-                    if (distance < 2 * particleRadius) {
-                        particleCollisionList.add(j)
-                    }
+            val particleCollisionList = particleCollisions.getOrDefault(i, mutableListOf())
+            for (j in i + 1 until x.size) {
+                val dx = x[i] - x[j]
+                val dxWrapped = dx - L * round(dx / L)
+                val dy = y[i] - y[j]
+                val distance = sqrt(dxWrapped.pow(2) + dy.pow(2))
+                if (distance < 2 * particleRadius) {
+                    particleCollisionList.add(j)
+                    val otherParticleCollisionList = particleCollisions.getOrDefault(j, mutableListOf())
+                    otherParticleCollisionList.add(i)
+                    particleCollisions[j] = otherParticleCollisionList
                 }
             }
             particleCollisions[i] = particleCollisionList
-            val obstacleCollisionList = mutableListOf<Int>()
+            val obstacleCollisionList = obstacleCollisions.getOrDefault(i, mutableListOf())
             for (j in obstaclesX.indices) {
                 val dx = x[i] - obstaclesX[j]
                 val dxWrapped = dx - L * round(dx / L)

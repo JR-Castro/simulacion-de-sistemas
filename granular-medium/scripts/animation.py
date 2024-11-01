@@ -8,8 +8,8 @@ N = 100
 M = 100
 W = 20
 L = 70
-OBSTACLE_RADIUS = 1
-PARTICLE_RADIUS = 1
+OBSTACLE_RADIUS = 0.5
+PARTICLE_RADIUS = 0.5
 
 DPI = 100
 
@@ -70,8 +70,8 @@ if __name__ == '__main__':
                    horizontalalignment='center', verticalalignment='top',
                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
-    frames = int(len(data['time']) / N)
-    # frames = 100
+    # frames = int(len(data['time']) / N)
+    frames = 1000
 
     ani = animation.FuncAnimation(
         fig,

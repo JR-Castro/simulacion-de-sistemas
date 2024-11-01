@@ -2,7 +2,7 @@ import json
 import os
 import random
 
-from animation import OBSTACLE_RADIUS, L, PARTICLE_RADIUS
+from animation import OBSTACLE_RADIUS, L, PARTICLE_RADIUS, W
 
 
 def generate_obstacle_particles(M, N):
@@ -11,12 +11,12 @@ def generate_obstacle_particles(M, N):
 
     for i in range(M):
         x = random.uniform(OBSTACLE_RADIUS, L - OBSTACLE_RADIUS)
-        y = random.uniform(OBSTACLE_RADIUS, L - OBSTACLE_RADIUS)
+        y = random.uniform(OBSTACLE_RADIUS, W - OBSTACLE_RADIUS)
 
         tries = 0
         while any((x - x1) ** 2 + (y - y1) ** 2 <= (2.0 * OBSTACLE_RADIUS) ** 2 for x1, y1 in obstacles):
             x = random.uniform(OBSTACLE_RADIUS, L - OBSTACLE_RADIUS)
-            y = random.uniform(OBSTACLE_RADIUS, L - OBSTACLE_RADIUS)
+            y = random.uniform(OBSTACLE_RADIUS, W - OBSTACLE_RADIUS)
             tries += 1
 
         print(tries)
@@ -28,13 +28,13 @@ def generate_obstacle_particles(M, N):
     particles = []
     for i in range(N):
         x = random.uniform(PARTICLE_RADIUS, L - PARTICLE_RADIUS)
-        y = random.uniform(PARTICLE_RADIUS, L - PARTICLE_RADIUS)
+        y = random.uniform(PARTICLE_RADIUS, W - PARTICLE_RADIUS)
 
         tries = 0
         while any((x - x1) ** 2 + (y - y1) ** 2 <= (OBSTACLE_RADIUS + PARTICLE_RADIUS) ** 2 for x1, y1 in obstacles) \
             or any((x - x1) ** 2 + (y - y1) ** 2 <= ( 2 * PARTICLE_RADIUS) ** 2 for x1, y1 in particles):
             x = random.uniform(OBSTACLE_RADIUS, L - OBSTACLE_RADIUS)
-            y = random.uniform(OBSTACLE_RADIUS, L - OBSTACLE_RADIUS)
+            y = random.uniform(OBSTACLE_RADIUS, W - OBSTACLE_RADIUS)
             tries += 1
 
         print(tries)
