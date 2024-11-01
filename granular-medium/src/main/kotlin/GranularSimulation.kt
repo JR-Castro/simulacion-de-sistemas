@@ -2,9 +2,7 @@ package ar.edu.itba.ss
 
 import ar.edu.itba.ss.integrators.BeemanIntegrator
 import java.io.File
-import kotlin.math.pow
-import kotlin.math.round
-import kotlin.math.sqrt
+import kotlin.math.*
 
 class GranularSimulation(
     n: Int,
@@ -49,8 +47,18 @@ class GranularSimulation(
     private var speedsX = DoubleArray(n)
     private var speedsY = DoubleArray(n)
 
-    private val obstacleCollisions: MutableMap<Int, MutableList<Int>> = HashMap()
-    private val particleCollisions: MutableMap<Int, MutableList<Int>> = HashMap()
+    private var currentTime = 0.0
+
+    // Beeman uses 4 times: time-dt, time, time+dt and time+2*dt
+    // So we should check collisions on each of them :D
+    // collisions[0] = time-dt
+    // collisions[1] = time
+    // collisions[2] = time+dt
+    // collisions[3] = time+2*dt
+    private val obstacleCollisions: MutableList<MutableMap<Int, MutableList<Int>>> =
+        mutableListOf(HashMap(), HashMap(), HashMap(), HashMap())
+    private val particleCollisions: MutableList<MutableMap<Int, MutableList<Int>>> =
+        mutableListOf(HashMap(), HashMap(), HashMap(), HashMap())
     private val particleCrossings: MutableMap<Double, MutableList<ParticleExit>> = HashMap()
 
     init {
@@ -106,8 +114,8 @@ class GranularSimulation(
             speedsX,
             particlesY,
             speedsY,
-            { _, i, x, x1, y, y1 -> calculateForces(i, x, x1, y, y1).first },
-            { _, i, x, x1, y, y1 -> calculateForces(i, x, x1, y, y1).second },
+            { time, i, x, x1, y, y1 -> calculateForces(time, i, x, x1, y, y1).first },
+            { time, i, x, x1, y, y1 -> calculateForces(time, i, x, x1, y, y1).second },
             { time, i, x, x1, y, y1 ->
                 when {
                     x[i] >= L -> {
@@ -132,20 +140,39 @@ class GranularSimulation(
             particlesY = state.y
             speedsX = state.vx
             speedsY = state.vy
-            particleCollisions.clear()
-            obstacleCollisions.clear()
+
+            val temp = particleCollisions[0]
+            temp.clear()
+            particleCollisions[0] = particleCollisions[1]
+            particleCollisions[1] = particleCollisions[2]
+            particleCollisions[2] = particleCollisions[3]
+            particleCollisions[3] = temp
+
+            val temp2 = obstacleCollisions[0]
+            temp2.clear()
+            obstacleCollisions[0] = obstacleCollisions[1]
+            obstacleCollisions[1] = obstacleCollisions[2]
+            obstacleCollisions[2] = obstacleCollisions[3]
+            obstacleCollisions[3] = temp2
+
             if (step % dt2Interval == 0) {
                 statesWriter.write(state)
                 step = 0
             }
             particleCrossings[state.time]?.forEach(exitsWriter::writeExits)
+            currentTime = state.time
             step++
         } while (state.time < T)
         statesWriter.close()
         exitsWriter.close()
     }
 
-    private fun calculateCollisions(x: DoubleArray, y: DoubleArray) {
+    private fun calculateCollisions(
+        particleCollisions: MutableMap<Int, MutableList<Int>>,
+        obstacleCollisions: MutableMap<Int, MutableList<Int>>,
+        x: DoubleArray,
+        y: DoubleArray
+    ) {
         for (i in x.indices) {
             val particleCollisionList = particleCollisions.getOrDefault(i, mutableListOf())
             for (j in i + 1 until x.size) {
@@ -176,14 +203,28 @@ class GranularSimulation(
     }
 
     private fun calculateForces(
+        time: Double,
         i: Int,
         x: DoubleArray,
         x1: DoubleArray,
         y: DoubleArray,
         y1: DoubleArray
     ): Pair<Double, Double> {
-        if (particleCollisions.isEmpty() || obstacleCollisions.isEmpty()) {
-            calculateCollisions(x, y)
+
+        val tolerance = 1e-9
+        val idx = when {
+            (time - (currentTime - dt)).absoluteValue < tolerance -> 0
+            (time - currentTime).absoluteValue < tolerance -> 1
+            (time - (currentTime + dt)).absoluteValue < tolerance -> 2
+            (time - (currentTime + 2 * dt)).absoluteValue < tolerance -> 3
+            else -> throw IllegalArgumentException("Invalid time")
+        }
+
+        val currParticleCollisions = particleCollisions[idx]
+        val currObstacleCollisions = obstacleCollisions[idx]
+
+        if (currParticleCollisions.isEmpty() || currObstacleCollisions.isEmpty()) {
+            calculateCollisions(currParticleCollisions, currObstacleCollisions, x, y)
         }
 
         var f_x = 0.0
@@ -211,11 +252,15 @@ class GranularSimulation(
             f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_TAN_Y
         }
 
-        particleCollisions[i]?.forEach {
+        // Check particle collisions
+        currParticleCollisions[i]?.forEach {
             val dx = x[it] - x[i]
             val dxWrapped = dx - L * round(dx / L)
             val dist = sqrt((dxWrapped).pow(2) + (y[it] - y[i]).pow(2))
             val superposition = 2 * particleRadius - dist
+            if (superposition <= 0) {
+                return@forEach
+            }
             val relX1 = x1[i] - x1[it]
             val relY1 = y1[i] - y1[it]
 
@@ -224,18 +269,22 @@ class GranularSimulation(
             val tanX = -normY
             val tanY = normX
 
-            val f_n = -k_n * superposition + gamma * (normX * relX1 + normY * relY1)
+            val f_n = -k_n * superposition - gamma * (normX * relX1 + normY * relY1)
             val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
 
             f_x += f_n * normX + f_t * tanX
             f_y += f_n * normY + f_t * tanY
         }
 
-        obstacleCollisions[i]?.forEach {
+        // Check obstacle collisions
+        currObstacleCollisions[i]?.forEach {
             val dx = obstaclesX[it] - x[i]
             val dxWrapped = dx - L * round(dx / L)
             val dist = sqrt((dxWrapped).pow(2) + (obstaclesY[it] - y[i]).pow(2))
             val superposition = particleRadius + obstacleRadius - dist
+            if (superposition <= 0) {
+                return@forEach
+            }
             val relX1 = x1[i] - 0.0
             val relY1 = y1[i] - 0.0
 
@@ -244,7 +293,7 @@ class GranularSimulation(
             val tanX = -normY
             val tanY = normX
 
-            val f_n = -k_n * superposition + gamma * (normX * relX1 + normY * relY1)
+            val f_n = -k_n * superposition - gamma * (normX * relX1 + normY * relY1)
             val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
 
             f_x += f_n * normX + f_t * tanX

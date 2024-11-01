@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     MASS = 1.0
 
-    data = pd.read_csv("outputStates.csv")
+    data = pd.read_csv("outputs/dynamicData_states.csv")
 
     frames = int(len(data['time'])/N)
     for i in range(frames):
