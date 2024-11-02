@@ -36,3 +36,13 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Output Files ###
+./outputs/**
+
+### Media Files ###
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
