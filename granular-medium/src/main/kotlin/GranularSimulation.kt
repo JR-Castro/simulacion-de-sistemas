@@ -114,22 +114,24 @@ class GranularSimulation(
             speedsX,
             particlesY,
             speedsY,
-            { time, i, x, x1, y, y1 -> calculateForces(time, i, x, x1, y, y1).first },
-            { time, i, x, x1, y, y1 -> calculateForces(time, i, x, x1, y, y1).second },
-            { time, i, x, x1, y, y1 ->
-                when {
-                    x[i] >= L -> {
-                        val list = particleCrossings.getOrDefault(time, mutableListOf())
-                        list.add(ParticleExit(time, x[i], y[i], x1[i], y1[i]))
-                        particleCrossings[time] = list
-                        x[i] % L
-                    }
+            { time, x, x1, y, y1 -> calculateForces(time, x, x1, y, y1) },
+            { time, x, x1, y, y1 ->
+                val positionsX = x.indices.map {
+                    when {
+                        x[it] >= L -> {
+                            val list = particleCrossings.getOrDefault(time, mutableListOf())
+                            list.add(ParticleExit(time, x[it], y[it], x1[it], y1[it]))
+                            particleCrossings[time] = list
+                            x[it] % L
+                        }
 
-                    x[i] < 0 -> x[i] % L + L
-                    else -> x[i]
-                }
-            },
-            { _, i, _, _, y, _ -> y[i] }
+                        x[it] < 0 -> x[it] % L + L
+                        else -> x[it]
+                    }
+                }.toDoubleArray()
+
+                Pair(positionsX, y)
+            }
         ).iterator()
 
         var step = 0
@@ -204,12 +206,14 @@ class GranularSimulation(
 
     private fun calculateForces(
         time: Double,
-        i: Int,
         x: DoubleArray,
         x1: DoubleArray,
         y: DoubleArray,
         y1: DoubleArray
-    ): Pair<Double, Double> {
+    ): Pair<DoubleArray, DoubleArray> {
+
+        val forcesX = DoubleArray(x.size)
+        val forcesY = DoubleArray(y.size)
 
         val tolerance = 1e-9
         val idx = when {
@@ -220,86 +224,92 @@ class GranularSimulation(
             else -> throw IllegalArgumentException("Invalid time")
         }
 
-        val currParticleCollisions = particleCollisions[idx]
-        val currObstacleCollisions = obstacleCollisions[idx]
+        for (i in x.indices) {
 
-        if (currParticleCollisions.isEmpty() || currObstacleCollisions.isEmpty()) {
-            calculateCollisions(currParticleCollisions, currObstacleCollisions, x, y)
-        }
+            val currParticleCollisions = particleCollisions[idx]
+            val currObstacleCollisions = obstacleCollisions[idx]
 
-        var f_x = 0.0
-        var f_y = 0.0
-
-        // Check collision with top wall
-        if (y[i] + particleRadius >= W) {
-            val superposition = y[i] + particleRadius - W
-
-            val f_n = -k_n * superposition - gamma * y1[i] * TOP_WALL_NORM_Y  // Normal force
-            val f_t = -k_t * superposition * x1[i] * TOP_WALL_TAN_X
-
-            f_x += f_n * TOP_WALL_NORM_X + f_t * TOP_WALL_TAN_X
-            f_y += f_n * TOP_WALL_NORM_Y + f_t * TOP_WALL_TAN_Y
-        }
-
-        // Check collision with bottom wall
-        if (y[i] - particleRadius <= 0) {
-            val superposition = particleRadius - y[i]
-
-            val f_n = -k_n * superposition - gamma * y1[i] * BOTTOM_WALL_NORM_Y  // Normal force
-            val f_t = -k_t * superposition * x1[i] * BOTTOM_WALL_TAN_X
-
-            f_x += f_n * BOTTOM_WALL_NORM_X + f_t * BOTTOM_WALL_TAN_X
-            f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_TAN_Y
-        }
-
-        // Check particle collisions
-        currParticleCollisions[i]?.forEach {
-            val dx = x[it] - x[i]
-            val dxWrapped = dx - L * round(dx / L)
-            val dist = sqrt((dxWrapped).pow(2) + (y[it] - y[i]).pow(2))
-            val superposition = 2 * particleRadius - dist
-            if (superposition <= 0) {
-                return@forEach
+            if (currParticleCollisions.isEmpty() || currObstacleCollisions.isEmpty()) {
+                calculateCollisions(currParticleCollisions, currObstacleCollisions, x, y)
             }
-            val relX1 = x1[i] - x1[it]
-            val relY1 = y1[i] - y1[it]
 
-            val normX = (dxWrapped) / dist
-            val normY = (y[it] - y[i]) / dist
-            val tanX = -normY
-            val tanY = normX
+            var f_x = 0.0
+            var f_y = 0.0
 
-            val f_n = -k_n * superposition - gamma * (normX * relX1 + normY * relY1)
-            val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
+            // Check collision with top wall
+            if (y[i] + particleRadius >= W) {
+                val superposition = y[i] + particleRadius - W
 
-            f_x += f_n * normX + f_t * tanX
-            f_y += f_n * normY + f_t * tanY
-        }
+                val f_n = -k_n * superposition - gamma * y1[i] * TOP_WALL_NORM_Y  // Normal force
+                val f_t = -k_t * superposition * x1[i] * TOP_WALL_TAN_X
 
-        // Check obstacle collisions
-        currObstacleCollisions[i]?.forEach {
-            val dx = obstaclesX[it] - x[i]
-            val dxWrapped = dx - L * round(dx / L)
-            val dist = sqrt((dxWrapped).pow(2) + (obstaclesY[it] - y[i]).pow(2))
-            val superposition = particleRadius + obstacleRadius - dist
-            if (superposition <= 0) {
-                return@forEach
+                f_x += f_n * TOP_WALL_NORM_X + f_t * TOP_WALL_TAN_X
+                f_y += f_n * TOP_WALL_NORM_Y + f_t * TOP_WALL_TAN_Y
             }
-            val relX1 = x1[i] - 0.0
-            val relY1 = y1[i] - 0.0
 
-            val normX = (dxWrapped) / dist
-            val normY = (obstaclesY[it] - y[i]) / dist
-            val tanX = -normY
-            val tanY = normX
+            // Check collision with bottom wall
+            if (y[i] - particleRadius <= 0) {
+                val superposition = particleRadius - y[i]
 
-            val f_n = -k_n * superposition - gamma * (normX * relX1 + normY * relY1)
-            val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
+                val f_n = -k_n * superposition - gamma * y1[i] * BOTTOM_WALL_NORM_Y  // Normal force
+                val f_t = -k_t * superposition * x1[i] * BOTTOM_WALL_TAN_X
 
-            f_x += f_n * normX + f_t * tanX
-            f_y += f_n * normY + f_t * tanY
+                f_x += f_n * BOTTOM_WALL_NORM_X + f_t * BOTTOM_WALL_TAN_X
+                f_y += f_n * BOTTOM_WALL_NORM_Y + f_t * BOTTOM_WALL_TAN_Y
+            }
+
+            // Check particle collisions
+            currParticleCollisions[i]?.forEach {
+                val dx = x[it] - x[i]
+                val dxWrapped = dx - L * round(dx / L)
+                val dist = sqrt((dxWrapped).pow(2) + (y[it] - y[i]).pow(2))
+                val superposition = 2 * particleRadius - dist
+                if (superposition <= 0) {
+                    return@forEach
+                }
+                val relX1 = x1[i] - x1[it]
+                val relY1 = y1[i] - y1[it]
+
+                val normX = (dxWrapped) / dist
+                val normY = (y[it] - y[i]) / dist
+                val tanX = -normY
+                val tanY = normX
+
+                val f_n = -k_n * superposition - gamma * (normX * relX1 + normY * relY1)
+                val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
+
+                f_x += f_n * normX + f_t * tanX
+                f_y += f_n * normY + f_t * tanY
+            }
+
+            // Check obstacle collisions
+            currObstacleCollisions[i]?.forEach {
+                val dx = obstaclesX[it] - x[i]
+                val dxWrapped = dx - L * round(dx / L)
+                val dist = sqrt((dxWrapped).pow(2) + (obstaclesY[it] - y[i]).pow(2))
+                val superposition = particleRadius + obstacleRadius - dist
+                if (superposition <= 0) {
+                    return@forEach
+                }
+                val relX1 = x1[i] - 0.0
+                val relY1 = y1[i] - 0.0
+
+                val normX = (dxWrapped) / dist
+                val normY = (obstaclesY[it] - y[i]) / dist
+                val tanX = -normY
+                val tanY = normX
+
+                val f_n = -k_n * superposition - gamma * (normX * relX1 + normY * relY1)
+                val f_t = -k_t * superposition * (tanX * relX1 + tanY * relY1)
+
+                f_x += f_n * normX + f_t * tanX
+                f_y += f_n * normY + f_t * tanY
+            }
+
+            forcesX[i] = f_x / mass + a0
+            forcesY[i] = f_y / mass
         }
 
-        return Pair(f_x / mass + a0, f_y / mass)
+        return Pair(forcesX, forcesY)
     }
 }
