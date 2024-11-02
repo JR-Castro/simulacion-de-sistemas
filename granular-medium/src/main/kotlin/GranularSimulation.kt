@@ -48,7 +48,6 @@ class GranularSimulation(
     private var speedsY = DoubleArray(n)
 
     private var currentTime = 0.0
-    private var calculateCollisionsDebug = 0
 
     // Beeman uses 4 times: time-dt, time, time+dt and time+2*dt
     // So we should check collisions on each of them :D
@@ -168,7 +167,6 @@ class GranularSimulation(
         } while (state.time < T)
         statesWriter.close()
         exitsWriter.close()
-        println("Collisions calculated: $calculateCollisionsDebug")
     }
 
     private fun calculateCollisions(
@@ -177,33 +175,36 @@ class GranularSimulation(
         x: DoubleArray,
         y: DoubleArray
     ) {
-        calculateCollisionsDebug++
+        val particleRadiusSquared = (2 * particleRadius).pow(2)
+        val obstacleRadiusSumSquared = (obstacleRadius + particleRadius).pow(2)
+
         for (i in x.indices) {
-            val particleCollisionList = particleCollisions.getOrDefault(i, mutableListOf())
+            val particleCollisionList = particleCollisions.computeIfAbsent(i) { mutableListOf() }
+
             for (j in i + 1 until x.size) {
                 val dx = x[i] - x[j]
                 val dxWrapped = dx - L * round(dx / L)
                 val dy = y[i] - y[j]
-                val distance = sqrt(dxWrapped.pow(2) + dy.pow(2))
-                if (distance < 2 * particleRadius) {
+                val distanceSquared = dxWrapped.pow(2) + dy.pow(2)
+
+                if (distanceSquared < particleRadiusSquared) {
                     particleCollisionList.add(j)
-                    val otherParticleCollisionList = particleCollisions.getOrDefault(j, mutableListOf())
-                    otherParticleCollisionList.add(i)
-                    particleCollisions[j] = otherParticleCollisionList
+                    particleCollisions.computeIfAbsent(j) { mutableListOf() }.add(i)
                 }
             }
-            particleCollisions[i] = particleCollisionList
-            val obstacleCollisionList = obstacleCollisions.getOrDefault(i, mutableListOf())
+
+            val obstacleCollisionList = obstacleCollisions.computeIfAbsent(i) { mutableListOf() }
+
             for (j in obstaclesX.indices) {
                 val dx = x[i] - obstaclesX[j]
                 val dxWrapped = dx - L * round(dx / L)
                 val dy = y[i] - obstaclesY[j]
-                val distance = sqrt(dxWrapped.pow(2) + dy.pow(2))
-                if (distance < obstacleRadius + particleRadius) {
+                val distanceSquared = dxWrapped.pow(2) + dy.pow(2)
+
+                if (distanceSquared < obstacleRadiusSumSquared) {
                     obstacleCollisionList.add(j)
                 }
             }
-            obstacleCollisions[i] = obstacleCollisionList
         }
     }
 
