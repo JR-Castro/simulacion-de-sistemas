@@ -48,6 +48,7 @@ class GranularSimulation(
     private var speedsY = DoubleArray(n)
 
     private var currentTime = 0.0
+    private var calculateCollisionsDebug = 0
 
     // Beeman uses 4 times: time-dt, time, time+dt and time+2*dt
     // So we should check collisions on each of them :D
@@ -167,6 +168,7 @@ class GranularSimulation(
         } while (state.time < T)
         statesWriter.close()
         exitsWriter.close()
+        println("Collisions calculated: $calculateCollisionsDebug")
     }
 
     private fun calculateCollisions(
@@ -175,6 +177,7 @@ class GranularSimulation(
         x: DoubleArray,
         y: DoubleArray
     ) {
+        calculateCollisionsDebug++
         for (i in x.indices) {
             val particleCollisionList = particleCollisions.getOrDefault(i, mutableListOf())
             for (j in i + 1 until x.size) {
@@ -224,15 +227,14 @@ class GranularSimulation(
             else -> throw IllegalArgumentException("Invalid time")
         }
 
+        val currParticleCollisions = particleCollisions[idx]
+        val currObstacleCollisions = obstacleCollisions[idx]
+
+        if (idx >= 2 && (currParticleCollisions.isEmpty() || currObstacleCollisions.isEmpty())) {
+            calculateCollisions(currParticleCollisions, currObstacleCollisions, x, y)
+        }
+
         for (i in x.indices) {
-
-            val currParticleCollisions = particleCollisions[idx]
-            val currObstacleCollisions = obstacleCollisions[idx]
-
-            if (currParticleCollisions.isEmpty() || currObstacleCollisions.isEmpty()) {
-                calculateCollisions(currParticleCollisions, currObstacleCollisions, x, y)
-            }
-
             var f_x = 0.0
             var f_y = 0.0
 
