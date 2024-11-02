@@ -32,6 +32,8 @@ fun main(args: Array<String>) = runBlocking {
         return@runBlocking
     }
 
+    println("Running simulations")
+
     val startTime = System.currentTimeMillis()
 
     val jobs = mutableListOf<Job>()

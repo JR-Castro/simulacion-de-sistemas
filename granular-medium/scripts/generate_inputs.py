@@ -4,6 +4,7 @@ import random
 
 from animation import OBSTACLE_RADIUS, L, PARTICLE_RADIUS, W
 
+RUNS = 5
 
 def generate_obstacle_particles(M, N):
     # Generate obstacles
@@ -58,22 +59,24 @@ if __name__ == '__main__':
     if not os.path.exists("outputs"):
         os.mkdir("outputs")
 
+
     staticData = {
         "a0": 1,
-        "time": 50.0,
+        "time": 100.0,
         "N": 100,
         "M": 100,
         "dt": 1E-3,
         "dt2Interval": 10, # Print every 1E-2 seconds
     }
 
-    obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
-
-    with open("inputs/static/staticData.json", "w") as f:
+    with open(f"inputs/static/1.json", "w") as f:
         json.dump(staticData, f)
 
-    with open("inputs/dynamic/dynamicData.json", "w") as f:
-        json.dump({
-            "obstacles": obstacles,
-            "particles": particles
-        }, f)
+    for i in range(RUNS):
+        obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
+
+        with open(f"inputs/dynamic/1_{i}.json", "w") as f:
+            json.dump({
+                "obstacles": obstacles,
+                "particles": particles
+            }, f)
