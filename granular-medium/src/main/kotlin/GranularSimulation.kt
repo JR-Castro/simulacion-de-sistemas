@@ -125,7 +125,6 @@ class GranularSimulation(
                             x[it] % L
                         }
 
-                        x[it] < 0 -> x[it] % L + L
                         else -> x[it]
                     }
                 }.toDoubleArray()
@@ -187,9 +186,14 @@ class GranularSimulation(
                 val dy = y[i] - y[j]
                 val distanceSquared = dxWrapped.pow(2) + dy.pow(2)
 
-                if (distanceSquared < particleRadiusSquared) {
-                    particleCollisionList.add(j)
-                    particleCollisions.computeIfAbsent(j) { mutableListOf() }.add(i)
+                // Particles that go out the left side don't appear on the right side, but the ones that leave the right side appear on the left side
+                // Checking if both are below the left side or if they are both on the same side (x[i] * x[j] >= 0 => sign(x[i]) == sign(x[j]))
+                // We can make sure that those that leave the left side (x < 0) don't interact with those that leave the right side (x near L)
+                if ((x[i] < L / 2.0 && x[j] < L / 2.0) || (x[i] * x[j] >= 0)) {
+                    if (distanceSquared < particleRadiusSquared) {
+                        particleCollisionList.add(j)
+                        particleCollisions.computeIfAbsent(j) { mutableListOf() }.add(i)
+                    }
                 }
             }
 
