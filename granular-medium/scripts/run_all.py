@@ -12,3 +12,10 @@ if __name__ == '__main__':
 
     subprocess.run(CMD + f" ./inputs/static/1.json {''.join([f'./inputs/dynamic/1_{i}.json ' for i in range(RUNS)])}",
                    shell=True)
+
+    # Run rest of tests
+    # Maybe change main to take <static1> <dynamic1> <static2> <dynamic2> so we can run all tests at once
+
+
+
+

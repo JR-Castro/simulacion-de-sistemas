@@ -36,8 +36,8 @@ def update_animation(frame, data, particles, text, frames):
 
 if __name__ == '__main__':
     start_time = time.time()
-    obstacles = pd.read_csv("outputs/dynamicData_obstacles.csv")
-    data = pd.read_csv("outputs/dynamicData_states.csv")
+    obstacles = pd.read_csv("outputs/1_0_obstacles.csv")
+    data = pd.read_csv("outputs/1_0_states.csv")
 
     # Convert centimeters to inches for matplotlib
     fig_width_inch = L / 2.54
