@@ -63,8 +63,8 @@ if __name__ == '__main__':
         "time": 50.0,
         "N": 100,
         "M": 100,
-        "dt": 5E-4,
-        "dt2Interval": 20,
+        "dt": 1E-3,
+        "dt2Interval": 10, # Print every 1E-2 seconds
     }
 
     obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])

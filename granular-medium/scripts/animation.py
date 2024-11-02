@@ -70,8 +70,8 @@ if __name__ == '__main__':
                    horizontalalignment='center', verticalalignment='top',
                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
-    # frames = int(len(data['time']) / N)
-    frames = 1000
+    frames = int(len(data['time']) / N)
+    # frames = 1000
 
     ani = animation.FuncAnimation(
         fig,
