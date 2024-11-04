@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     staticData = {
         "a0": 1,
-        "time": 100.0,
+        "time": 600.0,
         "N": 100,
         "M": 100,
         "dt": 1E-3,

@@ -7,13 +7,12 @@ import numpy as np
 import pandas as pd
 
 from generate_inputs import RUNS
-from utils import formatter
 
 
-def compute_square_error(c, x_values, real):
-    predicted = [c * x for x in x_values]
+def compute_mean_square_error(q, x_values, real):
+    predicted = [q * x for x in x_values]
     squared_errors = [(p - r) ** 2 for p, r in zip(predicted, real)]
-    return sum(squared_errors)
+    return sum(squared_errors) / len(squared_errors)
 
 
 if __name__ == '__main__':
@@ -49,44 +48,64 @@ if __name__ == '__main__':
     plt.figure(figsize=(10, 6))
 
     steady_states = []
-    best_cs = []
+    # y0s = []
+    best_qs = []
     run_errors = []
     run_min_error_idx = []
-    run_c_values = []
+    run_q_values = []
     run_x_values = []
+    run_fit_x_values = []
+    run_y0_values = []
 
     colors = ['blue', 'red', 'green', 'purple', 'orange', 'black', 'brown', 'pink', 'gray', 'cyan']
+
+    xlim_error_min = 0.25
+    xlim_error_max = 1.5
+    ylim_error_min = 0.0
+    # ylim_error_max = 0.0
+    ylim_error_max = 50.0
 
     for i, run in enumerate(runs_data):
         print(f"Run {i}:")
         # print(runs_data)
 
         # First state where at least one particle crossed
-        steady_state = runs_data[runs_data[run] > 0].index[0]
+        steady_state = 200.0
         steady_states.append(steady_state)
 
         # Obtain data after we reach a steady state
         filtered_data = runs_data[runs_data.index >= steady_state][run]
 
         # Fit a line to the data
+        # y0 = filtered_data.iloc[0]
+        # y0s.append(y0)
         x_values = filtered_data.index
         run_x_values.append(x_values)
 
         y_values = filtered_data
+        y0 = y_values.iloc[0]
+        run_y0_values.append(y0)
 
-        c_values = np.linspace(0.0, 2.0, 400)
-        run_c_values.append(c_values)
+        q_values = np.linspace(0.0, 2.0, 200)
+        run_q_values.append(q_values)
 
-        errors = [compute_square_error(c, x_values, y_values) for c in c_values]
+        fit_x_values = x_values - filtered_data.index[0]
+        run_fit_x_values.append(fit_x_values)
+        fit_y_values = y_values - y0
+
+        errors = [compute_mean_square_error(q, fit_x_values, fit_y_values) for q in q_values]
         run_errors.append(errors)
 
         min_error_idx = errors.index(min(errors))
         run_min_error_idx.append(min_error_idx)
 
-        c_fit = float(c_values[min_error_idx])
-        best_cs.append(c_fit)
+        # ylim_error_max = max(ylim_error_max, max(
+        #     error for i, error in enumerate(errors) if xlim_error_min <= q_values[i] <= xlim_error_max))
 
-        print(f"Best fit {i}: c = {c_fit}")
+        q_fit = float(q_values[min_error_idx])
+        best_qs.append(q_fit)
+
+        print(f"Best fit {i}: q = {q_fit}")
         print(f"Error {i}: {errors[min_error_idx]}")
 
         # Calculate the standard error
@@ -117,8 +136,10 @@ if __name__ == '__main__':
     plt.figure(figsize=(10, 6))
     for i, run in enumerate(runs_data):
         plt.plot(runs_data.index, runs_data[run], alpha=0.5, color=colors[i])
-        plt.plot(run_x_values[i], [best_cs[i] * x for x in run_x_values[i]], linestyle='--', color=colors[i],
-                 label=f"c = {best_cs[i]:.3f} (ECM: {formatter(run_errors[i][run_min_error_idx[i]], None)})")
+        plt.plot(run_x_values[i],
+                 [best_qs[i] * run_fit_x_values[i][j] + run_y0_values[i] for j in range(len(run_fit_x_values[i]))],
+                 linestyle='--', color=colors[i],
+                 label=f"Q = {best_qs[i]:.3f} $s^{-1}$ (ECM: {run_errors[i][run_min_error_idx[i]]:.3f})")
 
     plt.xlabel("Tiempo (s)")
     plt.ylabel("Partículas")
@@ -127,23 +148,21 @@ if __name__ == '__main__':
     plt.clf()
 
     plt.figure(figsize=(10, 6))
-    ax = plt.gca()
-    ax.yaxis.set_major_formatter(formatter)
+    # ax = plt.gca()
+    # ax.yaxis.set_major_formatter(formatter)
 
     for i in range(RUNS):
-        plt.plot(run_c_values[i], run_errors[i], label=i, color=colors[i])
-        plt.plot(run_c_values[i][run_min_error_idx[i]], run_errors[i][run_min_error_idx[i]], linestyle='', marker='o',
+        plt.plot(run_q_values[i], run_errors[i], label=i, color=colors[i])
+        plt.plot(run_q_values[i][run_min_error_idx[i]], run_errors[i][run_min_error_idx[i]], linestyle='', marker='o',
                  # label=f"c = {best_cs[i]:.3f}",
                  color=colors[i])
 
     # plt.axvline(x=c_fit, color='grey', linestyle='--')
     # plt.axhline(y=min(errors), color='grey', linestyle='--')
 
-    # xlim_min = 0.5
-    # xlim_max = 1.5
-    # plt.xlim(xlim_min, xlim_max)
-    # plt.ylim(0, max([errors[i] for i in range(len(errors)) if xlim_min <= c_values[i] <= xlim_max])/2)
-    plt.xlabel('c ($s^{-1}$)')
+    plt.xlim(xlim_error_min, xlim_error_max)
+    plt.ylim(ylim_error_min, ylim_error_max)
+    plt.xlabel('q ($s^{-1}$)')
     plt.ylabel('ECM')
 
     plt.legend(loc='upper right')

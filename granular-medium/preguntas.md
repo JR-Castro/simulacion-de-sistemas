@@ -1,0 +1,4 @@
+- Los gráficos de caudal están bien? Entendí q en la consigna dice que tenemos q mostrar todos, a cada uno hacerle una regresión lineal y comparar los valores. Estoy tomando para cada uno desde el momento en el q al menos una particula cruzo, debería cambiarlo para q todos sean iguales (tipo 20s)? Y esto q no nos está dando lineal supongo q es por lo de la fuerza tangencial, que todavía la deje en 500 dinas/m, debería cambiarlo a 125 dinas/m?
+- Para el b tambien debería calcular el Q de vuelta para cada corrida, despues promediar eso y mostrarlo en función de A0, en vez de calcular el Q del promedio? Y de vuelta no nos va a dar que la resistencia es lineal, pero bueno.
+
+PARA HACER LAS REGRESIONES LINEALES VAMOS A TENER Q ASEGURARNOS Q LOS PUNTOS ESTEN EN EL 0 (ES DECIR, A TODOS HAY Q RESTARLES x[0] E y[0]) PQ LO UNICO Q NOS IMPORTA ES LA PENDIENTE.
