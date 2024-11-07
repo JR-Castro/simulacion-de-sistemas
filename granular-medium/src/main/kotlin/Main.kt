@@ -46,13 +46,11 @@ fun main(args: Array<String>) = runBlocking {
     val gson = Gson()
 
     // Static input
-    val staticData = gson.fromJson(File(args[start]).readText(), StaticInput::class.java)
 
-    val dynamicFiles = args.slice(start + 1 until args.size)
+    val fileArgs = args.slice(start until args.size)
 
-    for (idxFile in dynamicFiles.withIndex()) {
-        val idx = idxFile.index
-        val file = idxFile.value
+    for (i in 0 until fileArgs.size / 2) {
+        val file = fileArgs[i * 2 + 1]
 
         if (jobs.size == maxConcurrentJobs) {
             select<Unit> {
@@ -64,6 +62,7 @@ fun main(args: Array<String>) = runBlocking {
             }
         }
 
+        val staticData = gson.fromJson(File(fileArgs[i * 2]).readText(), StaticInput::class.java)
         val filenames = outputFromInputFile(file)
         val dynamicData = gson.fromJson(File(file).readText(), DynamicInput::class.java)
         jobs.add(launch(Dispatchers.IO) {
@@ -80,7 +79,7 @@ fun main(args: Array<String>) = runBlocking {
                 File(filenames.second),
                 File(filenames.third)
             ).run()
-            println("Finished $file (${idx + 1}/${dynamicFiles.size})")
+            println("Finished $file (${i}/${fileArgs.size/2})")
         })
     }
 

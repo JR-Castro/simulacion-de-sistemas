@@ -10,30 +10,27 @@ if __name__ == '__main__':
     if not os.path.exists("outputs"):
         os.mkdir("outputs")
 
-    subprocess.run(CMD + f" ./inputs/static/1.json {''.join([f'./inputs/dynamic/1_{i}.json ' for i in range(RUNS)])}",
+    # A
+    a_cmd = ''.join([f" ./inputs/static/1.json ./inputs/dynamic/1_{i}.json " for i in range(RUNS)])
+
+    print("Running cmd: ", a_cmd)
+    subprocess.run(CMD + a_cmd,
                    shell=True)
 
-    # Run rest of tests
-    # Maybe change main to take <static1> <dynamic1> <static2> <dynamic2> so we can run all tests at once
-
     # B
+    b_cmd = " "
     for i in range(len(A0_VALUES)):
-        subprocess.run(CMD + f" ./inputs/static/2_{i}.json {''.join([f'./inputs/dynamic/2_{i}_{j}.json ' for j in range(RUNS)])}",
-                       shell=True)
-        # delete file
-        # for j in range(RUNS):
-        #     os.remove(f"./outputs/2_{i}_{j}_states.csv")
+        b_cmd += "".join([f" ./inputs/static/2_{i}.json ./inputs/dynamic/2_{i}_{j}.json " for j in range(RUNS)])
 
+    print("Running cmd: ", b_cmd)
+    subprocess.run(CMD + b_cmd, shell=True)
 
     # C
+    c_cmd = " "
     for i in range(len(M_VALUES)):
         for j in range(len(A0_VALUES)):
-            subprocess.run(CMD + f" ./inputs/static/3_{i}_{j}.json {''.join([f'./inputs/dynamic/3_{i}_{j}_{k}.json ' for k in range(RUNS)])}",
-                           shell=True)
+            c_cmd += "".join(
+                [f" ./inputs/static/3_{i}_{j}.json ./inputs/dynamic/3_{i}_{j}_{k}.json " for k in range(RUNS)])
 
-            # delete file
-            # for k in range(RUNS):
-            #     os.remove(f"./outputs/3_{i}_{j}_{k}_states.csv")
-
-
-
+    print("Running cmd: ", c_cmd)
+    subprocess.run(CMD + c_cmd, shell=True)
