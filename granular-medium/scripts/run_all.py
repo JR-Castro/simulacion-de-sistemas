@@ -14,8 +14,7 @@ if __name__ == '__main__':
     a_cmd = ''.join([f" ./inputs/static/1.json ./inputs/dynamic/1_{i}.json " for i in range(RUNS)])
 
     print("Running cmd: ", a_cmd)
-    subprocess.run(CMD + a_cmd,
-                   shell=True)
+    subprocess.run(CMD + a_cmd, shell=True)
 
     # B
     b_cmd = " "
