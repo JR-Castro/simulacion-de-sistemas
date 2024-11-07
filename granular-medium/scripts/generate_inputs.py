@@ -2,9 +2,22 @@ import json
 import os
 import random
 
+import numpy as np
+
 from animation import OBSTACLE_RADIUS, L, PARTICLE_RADIUS, W
 
+DEFAULT_A0 = 1
+DEFAULT_TIME = 600.0
+DEFAULT_N = 100
+DEFAULT_M = 100
+DEFAULT_DT = 1E-3
+DEFAULT_DT2_INTERVAL = 10
+
 RUNS = 5
+
+A0_VALUES = np.linspace(0.005, 0.05, 6)
+
+M_VALUES = [int(x) for x in np.linspace(80, 120, 5)]
 
 def generate_obstacle_particles(M, N):
     # Generate obstacles
@@ -61,12 +74,12 @@ if __name__ == '__main__':
 
 
     staticData = {
-        "a0": 1,
-        "time": 600.0,
-        "N": 100,
-        "M": 100,
-        "dt": 1E-3,
-        "dt2Interval": 10, # Print every 1E-2 seconds
+        "a0": DEFAULT_A0,
+        "time": DEFAULT_TIME,
+        "N": DEFAULT_N,
+        "M": DEFAULT_M,
+        "dt": DEFAULT_DT,
+        "dt2Interval": DEFAULT_DT2_INTERVAL, # Print every 1E-2 seconds
     }
 
     with open(f"inputs/static/1.json", "w") as f:
@@ -80,3 +93,33 @@ if __name__ == '__main__':
                 "obstacles": obstacles,
                 "particles": particles
             }, f)
+
+    for i in range(len(A0_VALUES)):
+        staticData["a0"] = A0_VALUES[i]
+        with open(f"inputs/static/2_{i}.json", "w") as f:
+            json.dump(staticData, f)
+
+        for j in range(RUNS):
+            obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
+
+            with open(f"inputs/dynamic/2_{i}_{j}.json", "w") as f:
+                json.dump({
+                    "obstacles": obstacles,
+                    "particles": particles
+                }, f)
+
+    staticData["a0"] = DEFAULT_A0
+
+    for i in range(len(M_VALUES)):
+        staticData["M"] = M_VALUES[i]
+        with open(f"inputs/static/3_{i}.json", "w") as f:
+            json.dump(staticData, f)
+
+        for j in range(RUNS):
+            obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
+
+            with open(f"inputs/dynamic/3_{i}_{j}.json", "w") as f:
+                json.dump({
+                    "obstacles": obstacles,
+                    "particles": particles
+                }, f)

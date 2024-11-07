@@ -7,13 +7,7 @@ import numpy as np
 import pandas as pd
 
 from generate_inputs import RUNS
-
-
-def compute_mean_square_error(q, x_values, real):
-    predicted = [q * x for x in x_values]
-    squared_errors = [(p - r) ** 2 for p, r in zip(predicted, real)]
-    return sum(squared_errors) / len(squared_errors)
-
+from utils import compute_mean_square_error
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -162,7 +156,7 @@ if __name__ == '__main__':
 
     plt.xlim(xlim_error_min, xlim_error_max)
     plt.ylim(ylim_error_min, ylim_error_max)
-    plt.xlabel('q ($s^{-1}$)')
+    plt.xlabel('Q ($s^{-1}$)')
     plt.ylabel('ECM')
 
     plt.legend(loc='upper right')

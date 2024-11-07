@@ -1,3 +1,4 @@
+import sys
 import time
 
 import matplotlib.pyplot as plt
@@ -35,9 +36,12 @@ def update_animation(frame, data, particles, text, frames):
     return particles, text
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: python animation.py <output_prefix>")
+        sys.exit(1)
     start_time = time.time()
-    obstacles = pd.read_csv("outputs/1_2_obstacles.csv")
-    data = pd.read_csv("outputs/1_2_states.csv")
+    obstacles = pd.read_csv(f"{sys.argv[1]}_obstacles.csv")
+    data = pd.read_csv(f"{sys.argv[1]}_states.csv")
 
     # Convert centimeters to inches for matplotlib
     fig_width_inch = L / 2.54
@@ -70,8 +74,8 @@ if __name__ == '__main__':
                    horizontalalignment='center', verticalalignment='top',
                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
 
-    # frames = int(len(data['time']) / N)
-    frames = 2000
+    frames = int(len(data['time']) / N)
+    # frames = 2000
 
     ani = animation.FuncAnimation(
         fig,
