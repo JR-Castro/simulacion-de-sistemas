@@ -32,6 +32,9 @@ fun main(args: Array<String>) = runBlocking {
         return@runBlocking
     }
 
+    val writeStates = args[0] != "--no-states"
+    val start = if (writeStates) 0 else 1
+
     println("Running simulations")
 
     val startTime = System.currentTimeMillis()
@@ -43,9 +46,9 @@ fun main(args: Array<String>) = runBlocking {
     val gson = Gson()
 
     // Static input
-    val staticData = gson.fromJson(File(args[0]).readText(), StaticInput::class.java)
+    val staticData = gson.fromJson(File(args[start]).readText(), StaticInput::class.java)
 
-    val dynamicFiles = args.slice(1 until args.size)
+    val dynamicFiles = args.slice(start + 1 until args.size)
 
     for (idxFile in dynamicFiles.withIndex()) {
         val idx = idxFile.index
@@ -73,7 +76,7 @@ fun main(args: Array<String>) = runBlocking {
                 staticData.dt2Interval,
                 dynamicData.obstacles,
                 dynamicData.particles,
-                File(filenames.first),
+                if (writeStates) File(filenames.first) else null,
                 File(filenames.second),
                 File(filenames.third)
             ).run()

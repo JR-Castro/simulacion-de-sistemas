@@ -13,7 +13,7 @@ class GranularSimulation(
     val dt2Interval: Int,
     obstacles: List<List<Double>>,
     particles: List<List<Double>>,
-    val outputStates: File,
+    val outputStates: File?,
     val outputExits: File,
     val outputObstacles: File
 ) {
@@ -105,7 +105,7 @@ class GranularSimulation(
             it.writeObstacles(obstaclesX, obstaclesY)
         }
 
-        val statesWriter = CSVWriter(outputStates.bufferedWriter(bufferSize = 1024 * 1024 * 8))
+        val statesWriter = outputStates?.bufferedWriter(bufferSize = 1024 * 1024 * 8)?.let { CSVWriter(it) }
         val exitsWriter = CSVWriter(outputExits.bufferedWriter(bufferSize = 1024 * 1024 * 8))
 
         val integrator = BeemanIntegrator(
@@ -157,14 +157,14 @@ class GranularSimulation(
             obstacleCollisions[3] = temp2
 
             if (step % dt2Interval == 0) {
-                statesWriter.write(state)
+                statesWriter?.write(state)
                 step = 0
             }
             particleCrossings[state.time]?.forEach(exitsWriter::writeExits)
             currentTime = state.time
             step++
         } while (state.time < T)
-        statesWriter.close()
+        statesWriter?.close()
         exitsWriter.close()
     }
 
