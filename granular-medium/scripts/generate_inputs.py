@@ -15,7 +15,7 @@ DEFAULT_DT2_INTERVAL = 10
 
 RUNS = 5
 
-A0_VALUES = np.linspace(0.005, 0.05, 6)
+A0_VALUES = np.linspace(0.5, 5.0, 6)
 
 M_VALUES = [int(x) for x in np.linspace(80, 120, 5)]
 
@@ -112,14 +112,17 @@ if __name__ == '__main__':
 
     for i in range(len(M_VALUES)):
         staticData["M"] = M_VALUES[i]
-        with open(f"inputs/static/3_{i}.json", "w") as f:
-            json.dump(staticData, f)
+        for j in range(len(A0_VALUES)):
+            staticData["a0"] = A0_VALUES[j]
 
-        for j in range(RUNS):
-            obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
+            with open(f"inputs/static/3_{i}_{j}.json", "w") as f:
+                json.dump(staticData, f)
 
-            with open(f"inputs/dynamic/3_{i}_{j}.json", "w") as f:
-                json.dump({
-                    "obstacles": obstacles,
-                    "particles": particles
-                }, f)
+            for k in range(RUNS):
+                obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
+
+                with open(f"inputs/dynamic/3_{i}_{j}_{k}.json", "w") as f:
+                    json.dump({
+                        "obstacles": obstacles,
+                        "particles": particles
+                    }, f)
