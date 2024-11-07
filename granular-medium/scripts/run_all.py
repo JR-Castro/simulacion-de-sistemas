@@ -20,14 +20,14 @@ if __name__ == '__main__':
         subprocess.run(CMD + f" ./inputs/static/2_{i}.json {''.join([f'./inputs/dynamic/2_{i}_{j}.json ' for j in range(RUNS)])}",
                        shell=True)
         # delete file
-        os.remove(f"./outputs/2_{i}_exits.csv")
+        os.remove(f"./outputs/2_{i}_states.csv")
 
     for i in range(len(M_VALUES)):
         subprocess.run(CMD + f" ./inputs/static/3_{i}.json {''.join([f'./inputs/dynamic/3_{i}_{j}.json ' for j in range(RUNS)])}",
                        shell=True)
 
         # delete file
-        os.remove(f"./outputs/3_{i}_exits.csv")
+        os.remove(f"./outputs/3_{i}_states.csv")
 
 
 
