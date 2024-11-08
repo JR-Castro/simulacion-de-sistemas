@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import ticker
 
+FONT = {'size': 14}
 
 def formatter(value, pos):
     exponent = int(np.floor(np.log10(abs(value)))) if value != 0 else 0

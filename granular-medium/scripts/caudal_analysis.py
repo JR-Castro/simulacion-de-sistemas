@@ -5,9 +5,10 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.optimize import minimize_scalar
 
 from generate_inputs import RUNS
-from utils import compute_mean_square_error
+from utils import compute_mean_square_error, FONT
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -53,11 +54,11 @@ if __name__ == '__main__':
 
     colors = ['blue', 'red', 'green', 'purple', 'orange', 'black', 'brown', 'pink', 'gray', 'cyan']
 
-    xlim_error_min = 0.25
-    xlim_error_max = 1.5
+    xlim_error_min = 0.6
+    xlim_error_max = 1.1
     ylim_error_min = 0.0
     # ylim_error_max = 0.0
-    ylim_error_max = 50.0
+    ylim_error_max = 25.0
 
     for i, run in enumerate(runs_data):
         print(f"Run {i}:")
@@ -80,50 +81,52 @@ if __name__ == '__main__':
         y0 = y_values.iloc[0]
         run_y0_values.append(y0)
 
-        q_values = np.linspace(0.0, 2.0, 200)
-        run_q_values.append(q_values)
+
 
         fit_x_values = x_values - filtered_data.index[0]
         run_fit_x_values.append(fit_x_values)
         fit_y_values = y_values - y0
 
-        errors = [compute_mean_square_error(q, fit_x_values, fit_y_values) for q in q_values]
+
+        def mse_for_q(q):
+            return compute_mean_square_error(q, fit_x_values, fit_y_values)
+
+        result = minimize_scalar(mse_for_q, bounds=(0.0, 2.0), method='bounded')
+        best_q = result.x
+        min_error = result.fun
+
+
+        q_values = np.linspace(best_q - 0.02, best_q + 0.02, 100)
+        run_q_values.append(q_values)
+
+        errors = [mse_for_q(q) for q in q_values]
         run_errors.append(errors)
 
-        min_error_idx = errors.index(min(errors))
-        run_min_error_idx.append(min_error_idx)
+
+        insert_idx = np.searchsorted(q_values, best_q)
+        q_values = np.insert(q_values, insert_idx, best_q)
+        q_errors = np.insert(errors, insert_idx, min_error)
+
+        run_min_error_idx.append(insert_idx)
 
         # ylim_error_max = max(ylim_error_max, max(
         #     error for i, error in enumerate(errors) if xlim_error_min <= q_values[i] <= xlim_error_max))
 
-        q_fit = float(q_values[min_error_idx])
+        q_fit = float(q_values[insert_idx])
         best_qs.append(q_fit)
 
         print(f"Best fit {i}: q = {q_fit}")
-        print(f"Error {i}: {errors[min_error_idx]}")
-
-        # Calculate the standard error
-        # std_error = runs_data['std_dev'] / np.sqrt(RUNS)
+        print(f"Error {i}: {errors[insert_idx]}")
 
         # Plotting
         plt.plot(runs_data.index, runs_data[run], label=i, color=colors[i])
 
-        # plt.plot(x_values, [c_fit * x for x in x_values], linestyle='--',
-        #          label=f'f(x) = {c_fit:.3f}x (ECM = {formatter(errors[min_error_idx], None)})', color=colors[i])
-
-        # Fill between for standard error
-        # plt.fill_between(
-        #     runs_data.index,
-        #     runs_data['average'] - std_error,
-        #     runs_data['average'] + std_error,
-        #     color="blue",
-        #     alpha=0.2,
-        #     label="Error"
-        # )
-
-    plt.xlabel("Tiempo (s)")
-    plt.ylabel("Partículas")
+    plt.xlabel("Tiempo (s)", fontdict=FONT)
+    plt.ylabel("Partículas", fontdict=FONT)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
     plt.legend(loc="upper left")
+    plt.tight_layout()
     plt.savefig("analysis/caudal.png", dpi=300)
     plt.clf()
 
@@ -133,11 +136,14 @@ if __name__ == '__main__':
         plt.plot(run_x_values[i],
                  [best_qs[i] * run_fit_x_values[i][j] + run_y0_values[i] for j in range(len(run_fit_x_values[i]))],
                  linestyle='--', color=colors[i],
-                 label=f"Q = {best_qs[i]:.3f} $s^{-1}$ (ECM: {run_errors[i][run_min_error_idx[i]]:.3f})")
+                 label=f"Q = {best_qs[i]:.3f} $s^{{-1}}$ (ECM: {run_errors[i][run_min_error_idx[i]]:.3f})")
 
-    plt.xlabel("Tiempo (s)")
-    plt.ylabel("Partículas")
+    plt.xlabel("Tiempo (s)", fontdict=FONT)
+    plt.ylabel("Partículas", fontdict=FONT)
     plt.legend(loc="upper left")
+    plt.tight_layout()
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
     plt.savefig("analysis/caudal_line_fits.png", dpi=300)
     plt.clf()
 
@@ -146,7 +152,7 @@ if __name__ == '__main__':
     # ax.yaxis.set_major_formatter(formatter)
 
     for i in range(RUNS):
-        plt.plot(run_q_values[i], run_errors[i], label=i, color=colors[i])
+        plt.plot(run_q_values[i], run_errors[i], label=i, marker='.', color=colors[i])
         plt.plot(run_q_values[i][run_min_error_idx[i]], run_errors[i][run_min_error_idx[i]], linestyle='', marker='o',
                  # label=f"c = {best_cs[i]:.3f}",
                  color=colors[i])
@@ -156,10 +162,13 @@ if __name__ == '__main__':
 
     plt.xlim(xlim_error_min, xlim_error_max)
     plt.ylim(ylim_error_min, ylim_error_max)
-    plt.xlabel('Q ($s^{-1}$)')
-    plt.ylabel('ECM')
+    plt.xlabel('Q ($s^{-1}$)', fontdict=FONT)
+    plt.ylabel('ECM', fontdict=FONT)
 
     plt.legend(loc='upper right')
+    plt.tight_layout()
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
 
     # print(filtered_data.index[0], filtered_data.iloc[0]['average'])
     # print(filtered_data.index[-1], filtered_data.iloc[-1]['average'])
