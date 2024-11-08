@@ -136,7 +136,7 @@ if __name__ == '__main__':
         plt.plot(run_x_values[i],
                  [best_qs[i] * run_fit_x_values[i][j] + run_y0_values[i] for j in range(len(run_fit_x_values[i]))],
                  linestyle='--', color=colors[i],
-                 label=f"Q = {best_qs[i]:.3f} $s^{{-1}}$ (ECM: {run_errors[i][run_min_error_idx[i]]:.3f})")
+                 label=f"Q = {best_qs[i]:.3f} $s^{{-1}}$ ($t$ - {steady_states[i]} s) + {run_y0_values[i]} (ECM: {run_errors[i][run_min_error_idx[i]]:.3f})")
 
     plt.xlabel("Tiempo (s)", fontdict=FONT)
     plt.ylabel("Partículas", fontdict=FONT)
