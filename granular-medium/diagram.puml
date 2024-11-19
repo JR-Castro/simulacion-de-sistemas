@@ -1,0 +1,61 @@
+@startuml
+
+class BeemanIntegrator {
+    - dt: Double
+    - initialX: DoubleArray
+    - initialVx: DoubleArray
+    - initialY: DoubleArray
+    - initialVy: DoubleArray
+    - accelerationCalculator: (Double, DoubleArray, DoubleArray, DoubleArray, DoubleArray) -> Pair<DoubleArray, DoubleArray>
+    - positionUpdater: (Double, DoubleArray, DoubleArray, DoubleArray, DoubleArray) -> Pair<DoubleArray, DoubleArray>
+    + iterator(): Iterator<SimulationState>
+}
+
+class StaticInput {
+    + a0: Double
+    + time: Double
+    + dt: Double
+    + dt2Interval: Int
+    + N: Int
+    + M: Int
+}
+
+class DynamicInput {
+    + particles: List<List<Double>>
+    + obstacles: List<List<Double>>
+}
+
+class GranularSimulation {
+    - n: Int
+    - m: Int
+    - a0: Double
+    - T: Double
+    - dt: Double
+    - dt2Interval: Int
+    - obstaclesX: DoubleArray
+    - obstaclesY: DoubleArray
+    - particlesX: DoubleArray
+    - particlesY: DoubleArray
+    - speedsX: DoubleArray
+    - speedsY: DoubleArray
+    - currentTime: Double
+    + run(): void
+}
+
+class SimulationState {
+    + time: Double
+    + x: DoubleArray
+    + y: DoubleArray
+    + vx: DoubleArray
+    + vy: DoubleArray
+}
+
+GranularSimulation --> BeemanIntegrator
+GranularSimulation --> StaticInput
+GranularSimulation --> DynamicInput
+GranularSimulation --> SimulationState
+GranularSimulation -left-> File: outputStates
+GranularSimulation -left-> File: outputExits
+GranularSimulation -left-> File: outputObstacles
+
+@enduml

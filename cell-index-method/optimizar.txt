@@ -1,0 +1,18 @@
+Numero optimo de celdas:
+    L/M > r_c
+    Densidad: N/L^2
+
+Como las particulas tienen radio, r_c' = r_c + max(r_i), r_i es el radio de las particulas
+L/M > r_c + max(r_i)
+L > (r_c + max(r_i)) * M
+L / (r_c + max(r_i)) > M
+
+
+Criterio densidad: D * M^2, cuanto más chica, menos particulas en cada celda, entonces
+    menos bruteforce
+
+D * M^2 = N/L^2 * M^2
+
+La derivada es:
+N/L^2 * 2 * M'
+
