@@ -136,7 +136,7 @@ if __name__ == '__main__':
         plt.plot(run_x_values[i],
                  [best_qs[i] * run_fit_x_values[i][j] + run_y0_values[i] for j in range(len(run_fit_x_values[i]))],
                  linestyle='--', color=colors[i],
-                 label=f"Q = {best_qs[i]:.3f} $s^{{-1}}$ ($t$ - {steady_states[i]} s) + {run_y0_values[i]} (ECM: {run_errors[i][run_min_error_idx[i]]:.3f})")
+                 label=f"S = {best_qs[i]:.3f} $s^{{-1}}$ ($t$ - {steady_states[i]} s) + {run_y0_values[i]}")
 
     plt.xlabel("Tiempo (s)", fontdict=FONT)
     plt.ylabel("Partículas", fontdict=FONT)
@@ -160,8 +160,8 @@ if __name__ == '__main__':
     # plt.axvline(x=c_fit, color='grey', linestyle='--')
     # plt.axhline(y=min(errors), color='grey', linestyle='--')
 
-    plt.xlim(xlim_error_min, xlim_error_max)
-    plt.ylim(ylim_error_min, ylim_error_max)
+    # plt.xlim(xlim_error_min, xlim_error_max)
+    # plt.ylim(ylim_error_min, ylim_error_max)
     plt.xlabel('Q ($s^{-1}$)', fontdict=FONT)
     plt.ylabel('ECM', fontdict=FONT)
 

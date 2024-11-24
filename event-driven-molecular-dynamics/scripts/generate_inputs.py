@@ -47,7 +47,7 @@ def generate_particles(particles: list, layout, L, N, speed_module):
 if __name__ == '__main__':
     if len(sys.argv) < 5:
         print(
-            'Usage: python generate_static.py <output_file> <dynamic_amount> <events_per_state_write> <layout> <L> <N> <T> <speed_module> [Obstacle_radius Obstacle_mass]')
+            'Usage: python generate_inputs.py <output_file> <dynamic_amount> <events_per_state_write> <layout> <L> <N> <T> <speed_module> [Obstacle_radius Obstacle_mass]')
         sys.exit(1)
 
     output_file = sys.argv[1]

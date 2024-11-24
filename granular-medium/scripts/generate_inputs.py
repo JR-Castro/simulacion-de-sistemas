@@ -15,7 +15,7 @@ DEFAULT_DT2_INTERVAL = 10
 
 RUNS = 5
 
-A0_VALUES = np.linspace(0.5, 5.0, 6)
+A0_VALUES = sorted([x for x in np.linspace(0.5, 5.0, 6)] + [DEFAULT_A0])
 
 M_VALUES = [int(x) for x in np.linspace(80, 120, 5)]
 
