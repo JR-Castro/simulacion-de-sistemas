@@ -82,34 +82,6 @@ if __name__ == '__main__':
         "dt2Interval": DEFAULT_DT2_INTERVAL, # Print every 1E-2 seconds
     }
 
-    with open(f"inputs/static/1.json", "w") as f:
-        json.dump(staticData, f)
-
-    for i in range(RUNS):
-        obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
-
-        with open(f"inputs/dynamic/1_{i}.json", "w") as f:
-            json.dump({
-                "obstacles": obstacles,
-                "particles": particles
-            }, f)
-
-    for i in range(len(A0_VALUES)):
-        staticData["a0"] = A0_VALUES[i]
-        with open(f"inputs/static/2_{i}.json", "w") as f:
-            json.dump(staticData, f)
-
-        for j in range(RUNS):
-            obstacles, particles = generate_obstacle_particles(staticData["M"], staticData["N"])
-
-            with open(f"inputs/dynamic/2_{i}_{j}.json", "w") as f:
-                json.dump({
-                    "obstacles": obstacles,
-                    "particles": particles
-                }, f)
-
-    staticData["a0"] = DEFAULT_A0
-
     for i in range(len(M_VALUES)):
         staticData["M"] = M_VALUES[i]
         for j in range(len(A0_VALUES)):

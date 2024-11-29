@@ -4,105 +4,65 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from scipy.optimize import minimize_scalar
 
-from generate_inputs import RUNS
-from utils import compute_mean_square_error, FONT
+from generate_inputs import RUNS, A0_VALUES, DEFAULT_A0, M_VALUES, DEFAULT_M
+from utils import FONT, get_runs_crossings_from_csv, Q_ERROR_POINTS, get_filtered_run_data, calculate_best_q, \
+    compute_mean_square_error, COLORS
 
 if __name__ == '__main__':
     start_time = time.time()
 
     os.makedirs("analysis", exist_ok=True)
 
-    with open("inputs/static/1.json") as f:
+    a0_index = A0_VALUES.index(DEFAULT_A0)
+    m_index = M_VALUES.index(DEFAULT_M)
+
+    with open(f"inputs/static/3_{m_index}_{a0_index}.json") as f:
         static_data = json.load(f)
 
-    dt = static_data["dt"]
-    total_time = static_data['time']
-    time_points = [i * dt for i in range(int(total_time / dt))]
-
-    # Create an empty DataFrame to hold crossings data for each run
-    runs_data = pd.DataFrame(index=time_points)
-    for i in range(RUNS):
-        # Read exit data and round exit times to the nearest multiple of dt for consistency
-        exits = pd.read_csv(f"outputs/1_{i}_exits.csv")
-        exits['time'] = (exits['time'] / dt).round() * dt
-
-        # Use value_counts to get crossing counts at each time and reindex to fill missing times
-        crossings_count = exits['time'].value_counts().reindex(time_points, fill_value=0)
-
-        # Store cumulative crossings for this run in the DataFrame
-        runs_data[f'run_{i}'] = crossings_count.cumsum()
-
-    # Calculate average and standard deviation across all runs
-
-    # runs_data['average'] = runs_data.mean(axis=1)
-    # runs_data['std_dev'] = runs_data.std(axis=1)
+    runs_data = get_runs_crossings_from_csv(f"outputs/3_{m_index}_{a0_index}", static_data)
 
     plt.figure(figsize=(10, 6))
 
-    steady_states = []
     # y0s = []
     best_qs = []
-    run_errors = []
     run_min_error_idx = []
-    run_q_values = []
-    run_x_values = []
     run_fit_x_values = []
+    run_errors = []
     run_y0_values = []
-
-    colors = ['blue', 'red', 'green', 'purple', 'orange', 'black', 'brown', 'pink', 'gray', 'cyan']
+    run_q_values = []
 
     xlim_error_min = 0.6
     xlim_error_max = 1.1
     ylim_error_min = 0.0
     # ylim_error_max = 0.0
     ylim_error_max = 25.0
+    steady_state = 200.0
+    filtered_x = None
+    fit_x = None
 
     for i, run in enumerate(runs_data):
         print(f"Run {i}:")
-        # print(runs_data)
 
         # First state where at least one particle crossed
-        steady_state = 200.0
-        steady_states.append(steady_state)
+        filt_x, fit_x_values, fit_y_values, x0, y0 = get_filtered_run_data(runs_data, run, steady_state)
 
-        # Obtain data after we reach a steady state
-        filtered_data = runs_data[runs_data.index >= steady_state][run]
+        if filtered_x is None:
+            filtered_x = filt_x
+            fit_x = fit_x_values
 
-        # Fit a line to the data
-        # y0 = filtered_data.iloc[0]
-        # y0s.append(y0)
-        x_values = filtered_data.index
-        run_x_values.append(x_values)
-
-        y_values = filtered_data
-        y0 = y_values.iloc[0]
         run_y0_values.append(y0)
 
+        best_q, min_error = calculate_best_q(fit_x_values, fit_y_values)
 
-
-        fit_x_values = x_values - filtered_data.index[0]
-        run_fit_x_values.append(fit_x_values)
-        fit_y_values = y_values - y0
-
-
-        def mse_for_q(q):
-            return compute_mean_square_error(q, fit_x_values, fit_y_values)
-
-        result = minimize_scalar(mse_for_q, bounds=(0.0, 2.0), method='bounded')
-        best_q = result.x
-        min_error = result.fun
-
-
-        q_values = np.linspace(best_q - 0.02, best_q + 0.02, 100)
+        q_values = np.linspace(best_q - 0.02, best_q + 0.02, Q_ERROR_POINTS)
         run_q_values.append(q_values)
 
-        errors = [mse_for_q(q) for q in q_values]
+        errors = [compute_mean_square_error(q, fit_x_values, fit_y_values) for q in q_values]
         run_errors.append(errors)
 
-
+        # Since we are using scipy.optimize.minimize_scalar to find the best q fast, we need to add it
+        # to the q_values to make the graph showing we did it as the professor asked
         insert_idx = np.searchsorted(q_values, best_q)
         q_values = np.insert(q_values, insert_idx, best_q)
         q_errors = np.insert(errors, insert_idx, min_error)
@@ -119,7 +79,7 @@ if __name__ == '__main__':
         print(f"Error {i}: {errors[insert_idx]}")
 
         # Plotting
-        plt.plot(runs_data.index, runs_data[run], label=i, color=colors[i])
+        plt.plot(runs_data.index, runs_data[run], label=i, color=COLORS[i])
 
     plt.xlabel("Tiempo (s)", fontdict=FONT)
     plt.ylabel("Partículas", fontdict=FONT)
@@ -132,13 +92,13 @@ if __name__ == '__main__':
 
     plt.figure(figsize=(10, 6))
     for i, run in enumerate(runs_data):
-        plt.plot(runs_data.index, runs_data[run], alpha=0.5, color=colors[i])
-        plt.plot(run_x_values[i],
-                 [best_qs[i] * run_fit_x_values[i][j] + run_y0_values[i] for j in range(len(run_fit_x_values[i]))],
-                 linestyle='--', color=colors[i],
-                 label=f"S = {best_qs[i]:.3f} $s^{{-1}}$ ($t$ - {steady_states[i]} s) + {run_y0_values[i]}")
+        plt.plot(runs_data.index, runs_data[run], alpha=0.5, color=COLORS[i])
+        plt.plot(filtered_x,
+                 [best_qs[i] * fit_x[j] + run_y0_values[i] for j in range(len(fit_x))],
+                 linestyle='--', color=COLORS[i],
+                 label=f"$S = {best_qs[i]:.3f} \\, \\mathrm{{s^{{-1}}}} (t - {steady_state} \\,\\mathrm{{s}}) + {run_y0_values[i]}$")
 
-    plt.xlabel("Tiempo (s)", fontdict=FONT)
+    plt.xlabel("Tiempo ($\\mathrm{s}$)", fontdict=FONT)
     plt.ylabel("Partículas", fontdict=FONT)
     plt.legend(loc="upper left")
     plt.tight_layout()
@@ -152,17 +112,17 @@ if __name__ == '__main__':
     # ax.yaxis.set_major_formatter(formatter)
 
     for i in range(RUNS):
-        plt.plot(run_q_values[i], run_errors[i], label=i, marker='.', color=colors[i])
+        plt.plot(run_q_values[i], run_errors[i], label=i, marker='.', color=COLORS[i])
         plt.plot(run_q_values[i][run_min_error_idx[i]], run_errors[i][run_min_error_idx[i]], linestyle='', marker='o',
                  # label=f"c = {best_cs[i]:.3f}",
-                 color=colors[i])
+                 color=COLORS[i])
 
     # plt.axvline(x=c_fit, color='grey', linestyle='--')
     # plt.axhline(y=min(errors), color='grey', linestyle='--')
 
     # plt.xlim(xlim_error_min, xlim_error_max)
     # plt.ylim(ylim_error_min, ylim_error_max)
-    plt.xlabel('Q ($s^{-1}$)', fontdict=FONT)
+    plt.xlabel('$Q \\; (\\mathrm{s^{-1}})$', fontdict=FONT)
     plt.ylabel('ECM', fontdict=FONT)
 
     plt.legend(loc='upper right')
